@@ -60,10 +60,25 @@ export default function CustomerRegistration() {
 
   const createCustomerMutation = useMutation({
     mutationFn: api.customers.create,
-    onSuccess: () => {
+    onSuccess: async (customer: any) => {
       queryClient.invalidateQueries({ queryKey: ['customers'] });
+      
+      // Auto-create a job with "Enquired" stage for the new customer
+      try {
+        await api.jobs.create({
+          customerId: customer.id,
+          vehicleId: customer.vehicles?.[0]?.id,
+          stage: 'Enquired',
+          description: `New customer inquiry - ${vehicleData.make} ${vehicleData.model}`,
+          estimatedCost: 0,
+        });
+        queryClient.invalidateQueries({ queryKey: ['jobs'] });
+      } catch (error) {
+        console.error('Failed to create job:', error);
+      }
+      
       toast({ title: 'Customer registered successfully!' });
-      setLocation('/customers');
+      setLocation('/funnel');
     },
     onError: () => {
       toast({ title: 'Failed to register customer', variant: 'destructive' });

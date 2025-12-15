@@ -86,7 +86,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         />
       )}
 
-      <main className="md:ml-60 min-h-screen">
+      <main className="md:ml-60 min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
         <div className="p-4 md:p-8">
           {children}
         </div>
