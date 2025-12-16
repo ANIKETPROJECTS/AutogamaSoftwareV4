@@ -102,11 +102,11 @@ export interface IWhatsAppTemplate extends Document {
 }
 
 const VehicleSchema = new Schema<IVehicle>({
-  make: { type: String, required: true },
-  model: { type: String, required: true },
-  year: { type: String, required: true },
-  plateNumber: { type: String, required: true },
-  color: { type: String, required: true },
+  make: { type: String, default: '' },
+  model: { type: String, default: '' },
+  year: { type: String, default: '' },
+  plateNumber: { type: String, default: '' },
+  color: { type: String, default: '' },
   vin: { type: String }
 });
 

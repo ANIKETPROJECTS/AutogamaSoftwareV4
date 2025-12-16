@@ -69,10 +69,10 @@ export default function Inventory() {
     createItemMutation.mutate({
       name: formData.get('name') as string,
       category: formData.get('category') as string,
-      quantity: parseFloat(formData.get('quantity') as string),
+      quantity: parseInt(formData.get('quantity') as string, 10),
       unit: formData.get('unit') as string,
-      minStock: parseFloat(formData.get('minStock') as string),
-      price: parseFloat(formData.get('price') as string)
+      minStock: parseInt(formData.get('minStock') as string, 10),
+      price: parseInt(formData.get('price') as string, 10)
     });
   };
 
@@ -83,7 +83,7 @@ export default function Inventory() {
     const form = e.currentTarget;
     const formData = new FormData(form);
     const type = formData.get('type') as string;
-    const amount = parseFloat(formData.get('amount') as string);
+    const amount = parseInt(formData.get('amount') as string, 10);
     
     adjustMutation.mutate({
       id: selectedItem._id,
@@ -143,16 +143,16 @@ export default function Inventory() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Quantity *</Label>
-                  <Input name="quantity" type="number" step="0.01" required placeholder="0" data-testid="input-quantity" />
+                  <Input name="quantity" type="number" step="1" min="0" required placeholder="0" data-testid="input-quantity" />
                 </div>
                 <div className="space-y-2">
                   <Label>Min Stock *</Label>
-                  <Input name="minStock" type="number" step="0.01" required placeholder="0" data-testid="input-min-stock" />
+                  <Input name="minStock" type="number" step="1" min="0" required placeholder="0" data-testid="input-min-stock" />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label>Price per Unit (₹) *</Label>
-                <Input name="price" type="number" step="0.01" required placeholder="0" data-testid="input-price" />
+                <Input name="price" type="number" step="1" min="0" required placeholder="0" data-testid="input-price" />
               </div>
               <Button 
                 type="submit" 
@@ -304,7 +304,7 @@ export default function Inventory() {
             </div>
             <div className="space-y-2">
               <Label>Amount ({selectedItem?.unit})</Label>
-              <Input name="amount" type="number" step="0.01" min="0.01" required placeholder="0" />
+              <Input name="amount" type="number" step="1" min="1" required placeholder="0" />
             </div>
             <Button 
               type="submit" 
