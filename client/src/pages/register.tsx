@@ -41,11 +41,23 @@ const VEHICLE_TYPES = [
   "Other",
 ];
 
+const validatePhone = (phone: string): boolean => {
+  const phoneRegex = /^[0-9]{10}$/;
+  return phoneRegex.test(phone.replace(/\s/g, ''));
+};
+
+const validateEmail = (email: string): boolean => {
+  if (!email) return true;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
 export default function CustomerRegistration() {
   const [step, setStep] = useState(1);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [errors, setErrors] = useState<{ phone?: string; email?: string }>({});
 
   // Customer info
   const [customerData, setCustomerData] = useState({
@@ -104,6 +116,27 @@ export default function CustomerRegistration() {
         },
       ],
     });
+  };
+
+  const validateStep1 = () => {
+    const newErrors: { phone?: string; email?: string } = {};
+    
+    if (!validatePhone(customerData.phone)) {
+      newErrors.phone = "Please enter a valid 10-digit mobile number";
+    }
+    
+    if (!validateEmail(customerData.email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleNextStep = () => {
+    if (validateStep1()) {
+      setStep(2);
+    }
   };
 
   const canProceedStep1 = customerData.name && customerData.phone;
@@ -205,15 +238,18 @@ export default function CustomerRegistration() {
                   <Label>Mobile Number *</Label>
                   <Input
                     value={customerData.phone}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setCustomerData({
                         ...customerData,
                         phone: e.target.value,
-                      })
-                    }
+                      });
+                      if (errors.phone) setErrors({ ...errors, phone: undefined });
+                    }}
                     placeholder="10-digit mobile number"
                     data-testid="input-mobile"
+                    className={errors.phone ? "border-red-500" : ""}
                   />
+                  {errors.phone && <p className="text-sm text-red-500">{errors.phone}</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -236,15 +272,18 @@ export default function CustomerRegistration() {
                   <Input
                     type="email"
                     value={customerData.email}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setCustomerData({
                         ...customerData,
                         email: e.target.value,
-                      })
-                    }
+                      });
+                      if (errors.email) setErrors({ ...errors, email: undefined });
+                    }}
                     placeholder="your@email.com (optional)"
                     data-testid="input-email"
+                    className={errors.email ? "border-red-500" : ""}
                   />
+                  {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -370,7 +409,7 @@ export default function CustomerRegistration() {
 
               <div className="flex justify-end pt-4">
                 <Button
-                  onClick={() => setStep(2)}
+                  onClick={handleNextStep}
                   disabled={!canProceedStep1}
                   className="bg-blue-500 hover:bg-blue-600"
                   data-testid="button-next-step"

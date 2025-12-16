@@ -14,6 +14,17 @@ import { Link } from 'wouter';
 
 const CUSTOMER_STATUSES = ['Inquired', 'Working', 'Waiting', 'Completed'];
 
+const validatePhone = (phone: string): boolean => {
+  const phoneRegex = /^[0-9]{10}$/;
+  return phoneRegex.test(phone.replace(/[\s+\-]/g, ''));
+};
+
+const validateEmail = (email: string): boolean => {
+  if (!email) return true;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
 const STATUS_COLORS: Record<string, string> = {
   Inquired: "bg-blue-100 text-blue-700 border-blue-200",
   Working: "bg-orange-100 text-orange-700 border-orange-200",
@@ -27,6 +38,7 @@ export default function Customers() {
   const [vehicleDialogOpen, setVehicleDialogOpen] = useState(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [newCustomerStatus, setNewCustomerStatus] = useState('Inquired');
+  const [formErrors, setFormErrors] = useState<{ phone?: string; email?: string }>({});
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -75,10 +87,30 @@ export default function Customers() {
     const form = e.currentTarget;
     const formData = new FormData(form);
     
+    const phone = formData.get('phone') as string;
+    const email = formData.get('email') as string;
+    
+    const newErrors: { phone?: string; email?: string } = {};
+    
+    if (!validatePhone(phone)) {
+      newErrors.phone = "Please enter a valid 10-digit mobile number";
+    }
+    
+    if (!validateEmail(email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+    
+    if (Object.keys(newErrors).length > 0) {
+      setFormErrors(newErrors);
+      return;
+    }
+    
+    setFormErrors({});
+    
     createCustomerMutation.mutate({
       name: formData.get('name') as string,
-      phone: formData.get('phone') as string,
-      email: formData.get('email') as string || undefined,
+      phone: phone,
+      email: email || undefined,
       address: formData.get('address') as string || undefined,
       status: newCustomerStatus,
       service: formData.get('service') as string,
@@ -146,11 +178,27 @@ export default function Customers() {
                 </div>
                 <div className="space-y-2">
                   <Label>Phone *</Label>
-                  <Input name="phone" required placeholder="+91 98765 43210" data-testid="input-customer-phone" />
+                  <Input 
+                    name="phone" 
+                    required 
+                    placeholder="10-digit mobile number" 
+                    data-testid="input-customer-phone"
+                    className={formErrors.phone ? "border-red-500" : ""}
+                    onChange={() => formErrors.phone && setFormErrors({ ...formErrors, phone: undefined })}
+                  />
+                  {formErrors.phone && <p className="text-sm text-red-500">{formErrors.phone}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label>Email</Label>
-                  <Input name="email" type="email" placeholder="email@example.com" data-testid="input-customer-email" />
+                  <Input 
+                    name="email" 
+                    type="email" 
+                    placeholder="email@example.com" 
+                    data-testid="input-customer-email"
+                    className={formErrors.email ? "border-red-500" : ""}
+                    onChange={() => formErrors.email && setFormErrors({ ...formErrors, email: undefined })}
+                  />
+                  {formErrors.email && <p className="text-sm text-red-500">{formErrors.email}</p>}
                 </div>
                 <div className="col-span-2 space-y-2">
                   <Label>Address</Label>
