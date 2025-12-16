@@ -86,6 +86,7 @@ export interface IAppointment extends Document {
   customerName: string;
   customerPhone: string;
   vehicleInfo: string;
+  plateNumber: string;
   serviceType: string;
   date: Date;
   timeSlot: string;
@@ -139,7 +140,7 @@ const JobSchema = new Schema<IJob>({
   vehicleIndex: { type: Number, required: true },
   customerName: { type: String, required: true },
   vehicleName: { type: String, required: true },
-  plateNumber: { type: String, default: '' },
+  plateNumber: { type: String, required: true },
   stage: { 
     type: String, 
     enum: ['New Lead', 'Inspection Done', 'Work In Progress', 'Ready for Delivery', 'Completed', 'Cancelled'],
@@ -188,6 +189,7 @@ const AppointmentSchema = new Schema<IAppointment>({
   customerName: { type: String, required: true },
   customerPhone: { type: String, required: true },
   vehicleInfo: { type: String, required: true },
+  plateNumber: { type: String, required: true },
   serviceType: { type: String, required: true },
   date: { type: Date, required: true },
   timeSlot: { type: String, required: true },

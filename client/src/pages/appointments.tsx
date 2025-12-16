@@ -79,6 +79,7 @@ export default function Appointments() {
       customerName: formData.get('customerName') as string,
       customerPhone: formData.get('customerPhone') as string,
       vehicleInfo: formData.get('vehicleInfo') as string,
+      plateNumber: formData.get('plateNumber') as string,
       serviceType: formData.get('serviceType') as string,
       date: formData.get('date') as string,
       timeSlot: formData.get('timeSlot') as string,
@@ -124,6 +125,10 @@ export default function Appointments() {
               <div className="space-y-2">
                 <Label>Vehicle Info *</Label>
                 <Input name="vehicleInfo" required placeholder="e.g., Toyota Fortuner White" data-testid="input-appt-vehicle" />
+              </div>
+              <div className="space-y-2">
+                <Label>Plate Number *</Label>
+                <Input name="plateNumber" required placeholder="e.g., MH02 AB 1234" data-testid="input-appt-plate" />
               </div>
               <div className="space-y-2">
                 <Label>Service Type *</Label>
@@ -228,7 +233,7 @@ export default function Appointments() {
                         </p>
                         <p className="flex items-center gap-2">
                           <Car className="w-3 h-3" />
-                          {appt.vehicleInfo}
+                          {appt.vehicleInfo} ({appt.plateNumber})
                         </p>
                       </div>
                       <p className="mt-2 text-sm">

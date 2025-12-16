@@ -224,7 +224,7 @@ export class MongoStorage implements IStorage {
           make: '',
           model: appointment.vehicleInfo,
           year: '',
-          plateNumber: '',
+          plateNumber: appointment.plateNumber,
           color: ''
         }]
       });
@@ -236,7 +236,7 @@ export class MongoStorage implements IStorage {
       vehicleIndex: 0,
       customerName: customer.name,
       vehicleName: appointment.vehicleInfo,
-      plateNumber: customer.vehicles[0]?.plateNumber || '',
+      plateNumber: appointment.plateNumber,
       stage: 'New Lead',
       notes: `${appointment.serviceType}${appointment.notes ? ' - ' + appointment.notes : ''}`
     });
