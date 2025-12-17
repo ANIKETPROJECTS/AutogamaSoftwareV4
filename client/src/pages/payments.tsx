@@ -126,7 +126,7 @@ export default function PaymentTracking() {
                 >
                   <div className="flex items-center gap-4">
                     <div className={`p-2 rounded-lg ${getPaymentStatusColor(invoice.paymentStatus)}`}>
-                      {getPaymentStatusIcon(invoice.paymentStatus)}
+                      {getPaymentStatusIcon()}
                     </div>
                     <div>
                       <p className="font-medium text-foreground flex items-center gap-2">

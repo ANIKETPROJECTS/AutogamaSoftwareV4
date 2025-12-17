@@ -96,6 +96,9 @@ export default function Jobs() {
         queryClient.invalidateQueries({ queryKey: ['invoices'] });
       }
       toast({ title: 'Stage updated' });
+    },
+    onError: () => {
+      toast({ title: 'Cannot change stage after invoice is created', variant: 'destructive' });
     }
   });
 
@@ -301,20 +304,25 @@ export default function Jobs() {
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <Select
-                      value={job.stage}
-                      onValueChange={(stage) => updateStageMutation.mutate({ id: job._id, stage })}
-                    >
-                      <SelectTrigger className={cn("w-48 border", STAGE_COLORS[job.stage])} data-testid={`stage-select-${job._id}`}>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {JOB_STAGES.map(stage => (
-                          <SelectItem key={stage} value={stage}>{stage}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    
+                    {hasInvoice(job._id) ? (
+                      <Badge className={cn("w-48 justify-center border py-2", STAGE_COLORS[job.stage])}>
+                        {job.stage}
+                      </Badge>
+                    ) : (
+                      <Select
+                        value={job.stage}
+                        onValueChange={(stage) => updateStageMutation.mutate({ id: job._id, stage })}
+                      >
+                        <SelectTrigger className={cn("w-48 border", STAGE_COLORS[job.stage])} data-testid={`stage-select-${job._id}`}>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {JOB_STAGES.map(stage => (
+                            <SelectItem key={stage} value={stage}>{stage}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
                   </div>
                 </div>
 

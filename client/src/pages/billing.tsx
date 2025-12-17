@@ -13,12 +13,10 @@ import {
   Search,
   Eye,
   Printer,
-  Plus,
   Car,
   Phone,
   Mail,
   MapPin,
-  X,
   CheckCircle,
 } from "lucide-react";
 import { useState, useRef } from "react";
@@ -36,23 +34,6 @@ export default function Billing() {
     queryFn: () => api.invoices.list(),
   });
 
-  const { data: jobs = [], isLoading: jobsLoading } = useQuery({
-    queryKey: ["jobs"],
-    queryFn: () => api.jobs.list(),
-  });
-
-  const generateInvoiceMutation = useMutation({
-    mutationFn: ({ jobId, taxRate, discount }: { jobId: string; taxRate?: number; discount?: number }) =>
-      api.jobs.generateInvoice(jobId, taxRate, discount),
-    onSuccess: (invoice) => {
-      queryClient.invalidateQueries({ queryKey: ["invoices"] });
-      toast({ title: `Invoice ${invoice.invoiceNumber} generated successfully` });
-    },
-    onError: () => {
-      toast({ title: "Failed to generate invoice", variant: "destructive" });
-    },
-  });
-
   const markPaidMutation = useMutation({
     mutationFn: (invoiceId: string) => api.invoices.markPaid(invoiceId),
     onSuccess: () => {
@@ -64,11 +45,6 @@ export default function Billing() {
     onError: () => {
       toast({ title: "Failed to mark invoice as paid", variant: "destructive" });
     },
-  });
-
-  const completedJobsWithoutInvoice = jobs.filter((job: any) => {
-    const hasInvoice = invoices.some((inv: any) => inv.jobId === job._id);
-    return job.stage === "Completed" && job.totalAmount > 0 && !hasInvoice;
   });
 
   const filteredInvoices = invoices.filter(
@@ -168,7 +144,7 @@ Balance: Rs.${(selectedInvoice.totalAmount - selectedInvoice.paidAmount).toLocal
     URL.revokeObjectURL(url);
   };
 
-  const isLoading = invoicesLoading || jobsLoading;
+  const isLoading = invoicesLoading;
 
   return (
     <div className="space-y-6">
@@ -232,53 +208,6 @@ Balance: Rs.${(selectedInvoice.totalAmount - selectedInvoice.paidAmount).toLocal
           </CardContent>
         </Card>
       </div>
-
-      {completedJobsWithoutInvoice.length > 0 && (
-        <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
-              <Plus className="w-5 h-5" />
-              Generate Invoices for Completed Jobs
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {completedJobsWithoutInvoice.map((job: any) => (
-                <div
-                  key={job._id}
-                  className="flex items-center justify-between p-3 bg-background rounded-lg"
-                  data-testid={`pending-invoice-${job._id}`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Car className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium">{job.customerName}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {job.vehicleName} - {job.plateNumber}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <p className="font-bold flex items-center">
-                      <IndianRupee className="w-4 h-4" />
-                      {(job.totalAmount || 0).toLocaleString("en-IN")}
-                    </p>
-                    <Button
-                      size="sm"
-                      onClick={() => generateInvoiceMutation.mutate({ jobId: job._id })}
-                      disabled={generateInvoiceMutation.isPending}
-                      data-testid={`button-generate-invoice-${job._id}`}
-                    >
-                      <Plus className="w-4 h-4 mr-1" />
-                      Generate Invoice
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />

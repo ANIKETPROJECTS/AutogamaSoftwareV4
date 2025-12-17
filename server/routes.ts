@@ -126,6 +126,13 @@ export async function registerRoutes(
   app.patch("/api/jobs/:id/stage", async (req, res) => {
     try {
       const { stage } = req.body;
+      
+      // Check if job has an invoice - if so, block stage changes
+      const existingInvoice = await storage.getInvoiceByJob(req.params.id);
+      if (existingInvoice) {
+        return res.status(409).json({ message: "Cannot change stage after invoice has been created" });
+      }
+      
       const job = await storage.updateJobStage(req.params.id, stage);
       if (!job) return res.status(404).json({ message: "Job not found" });
       
