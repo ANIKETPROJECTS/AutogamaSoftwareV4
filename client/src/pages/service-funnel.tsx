@@ -89,13 +89,13 @@ export default function ServiceFunnel() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         {SERVICE_STAGES.map(stage => (
           <Card key={stage} className={cn("border", STAGE_BG_COLORS[stage])}>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <Badge className={STAGE_COLORS[stage]}>{stage}</Badge>
-                <span className="text-2xl font-bold">{groupedJobs[stage]?.length || 0}</span>
+            <CardContent className="p-3">
+              <div className="flex flex-col items-center gap-2 text-center">
+                <Badge className={cn(STAGE_COLORS[stage], "text-xs")}>{stage}</Badge>
+                <span className="text-3xl font-bold">{groupedJobs[stage]?.length || 0}</span>
               </div>
             </CardContent>
           </Card>
