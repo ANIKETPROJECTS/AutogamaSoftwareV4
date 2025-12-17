@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useLocation } from 'wouter';
 import { api } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,13 +10,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, X, User, Car, Package, Trash2 } from 'lucide-react';
+import { Plus, X, User, Car, Package, Trash2, Search } from 'lucide-react';
 
 const SERVICE_STATUSES = ['Inquired', 'Working', 'Waiting', 'Completed'];
 
 export default function CustomerService() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [location] = useLocation();
   
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
   const [selectedVehicleIndex, setSelectedVehicleIndex] = useState<string>('');
@@ -25,6 +27,16 @@ export default function CustomerService() {
   const [selectedItems, setSelectedItems] = useState<{ inventoryId: string; quantity: number; name: string; price: number }[]>([]);
   const [selectedItemId, setSelectedItemId] = useState<string>('');
   const [itemQuantity, setItemQuantity] = useState<string>('1');
+  const [customerSearch, setCustomerSearch] = useState<string>('');
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const preSelectedCustomerId = urlParams.get('customerId');
+    if (preSelectedCustomerId) {
+      setSelectedCustomerId(preSelectedCustomerId);
+      setCustomerSearch('');
+    }
+  }, [location]);
 
   const { data: customers = [] } = useQuery({
     queryKey: ['customers'],
@@ -80,6 +92,19 @@ export default function CustomerService() {
   };
 
   const selectedCustomer = customers.find((c: any) => c._id === selectedCustomerId);
+
+  const filteredCustomers = customers.filter((customer: any) => {
+    if (!customerSearch.trim()) return true;
+    const query = customerSearch.toLowerCase();
+    const nameMatch = customer.name?.toLowerCase().includes(query);
+    const phoneMatch = customer.phone?.includes(query);
+    const vehicleMatch = customer.vehicles?.some((v: any) => 
+      v.make?.toLowerCase().includes(query) ||
+      v.model?.toLowerCase().includes(query) ||
+      v.plateNumber?.toLowerCase().includes(query)
+    );
+    return nameMatch || phoneMatch || vehicleMatch;
+  });
 
   const handleAddItem = () => {
     if (!selectedItemId) {
@@ -198,19 +223,38 @@ export default function CustomerService() {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label>Select Customer *</Label>
+                  <div className="relative mb-2">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search by name, phone, or car..."
+                      value={customerSearch}
+                      onChange={(e) => setCustomerSearch(e.target.value)}
+                      className="pl-10"
+                      data-testid="input-search-customer"
+                    />
+                  </div>
                   <Select value={selectedCustomerId} onValueChange={setSelectedCustomerId}>
                     <SelectTrigger data-testid="select-customer">
                       <SelectValue placeholder="Choose a customer" />
                     </SelectTrigger>
                     <SelectContent>
-                      {customers.map((customer: any) => (
-                        <SelectItem key={customer._id} value={customer._id}>
-                          <div className="flex items-center gap-2">
-                            <User className="w-4 h-4" />
-                            {customer.name} - {customer.phone}
-                          </div>
-                        </SelectItem>
-                      ))}
+                      {filteredCustomers.length === 0 ? (
+                        <div className="p-2 text-sm text-muted-foreground text-center">No customers found</div>
+                      ) : (
+                        filteredCustomers.map((customer: any) => (
+                          <SelectItem key={customer._id} value={customer._id}>
+                            <div className="flex items-center gap-2">
+                              <User className="w-4 h-4" />
+                              {customer.name} - {customer.phone}
+                              {customer.vehicles?.length > 0 && (
+                                <span className="text-xs text-muted-foreground">
+                                  ({customer.vehicles[0].make} {customer.vehicles[0].model})
+                                </span>
+                              )}
+                            </div>
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                 </div>

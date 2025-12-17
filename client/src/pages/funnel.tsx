@@ -3,10 +3,11 @@ import { api } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, Wrench, Clock, User, Car, Calendar, Phone, MapPin } from "lucide-react";
-import { Link } from "wouter";
+import { Eye, Wrench, Clock, User, Car, Calendar, Phone, MapPin, Search, History, IndianRupee } from "lucide-react";
+import { Link, useLocation } from "wouter";
 import {
   Dialog,
   DialogContent,
@@ -39,12 +40,38 @@ const PHASE_COLORS: Record<string, string> = {
 export default function CustomerFunnel() {
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyCustomer, setHistoryCustomer] = useState<any>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const { data: customers = [], isLoading } = useQuery({
     queryKey: ["customers"],
     queryFn: () => api.customers.list(),
+  });
+
+  const { data: jobs = [] } = useQuery({
+    queryKey: ["jobs"],
+    queryFn: () => api.jobs.list(),
+  });
+
+  const getCustomerJobHistory = (customerId: string) => {
+    return jobs.filter((job: any) => job.customerId === customerId);
+  };
+
+  const filteredCustomers = customers.filter((customer: any) => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase();
+    const nameMatch = customer.name?.toLowerCase().includes(query);
+    const phoneMatch = customer.phone?.includes(query);
+    const vehicleMatch = customer.vehicles?.some((v: any) => 
+      v.make?.toLowerCase().includes(query) ||
+      v.model?.toLowerCase().includes(query) ||
+      v.plateNumber?.toLowerCase().includes(query)
+    );
+    return nameMatch || phoneMatch || vehicleMatch;
   });
 
   const updateStatusMutation = useMutation({
@@ -60,7 +87,7 @@ export default function CustomerFunnel() {
   });
 
   const getCustomersByStatus = (status: string) => {
-    return customers.filter((customer: any) => (customer.status || 'Inquired') === status);
+    return filteredCustomers.filter((customer: any) => (customer.status || 'Inquired') === status);
   };
 
   const formatTimeAgo = (date: string) => {
@@ -84,16 +111,28 @@ export default function CustomerFunnel() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1
-          className="font-display text-3xl font-bold tracking-tight"
-          data-testid="text-funnel-title"
-        >
-          Customer Funnel
-        </h1>
-        <p className="text-muted-foreground mt-1">
-          Track customer journey through different stages
-        </p>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1
+            className="font-display text-3xl font-bold tracking-tight"
+            data-testid="text-funnel-title"
+          >
+            Customer Funnel
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Track customer journey through different stages
+          </p>
+        </div>
+        <div className="relative w-full md:w-80">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by name, phone, or car..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+            data-testid="input-search-customer"
+          />
+        </div>
       </div>
 
       <Tabs defaultValue="Inquired" className="w-full">
@@ -185,11 +224,10 @@ export default function CustomerFunnel() {
                             </div>
                           </div>
 
-                          <div className="flex gap-2 mt-4">
+                          <div className="flex flex-wrap gap-2 mt-4">
                             <Button
                               variant="outline"
                               size="sm"
-                              className="flex-1"
                               onClick={() => {
                                 setSelectedCustomer(customer);
                                 setDetailsOpen(true);
@@ -197,12 +235,26 @@ export default function CustomerFunnel() {
                               data-testid={`button-view-${customer._id}`}
                             >
                               <Eye className="w-4 h-4 mr-1" />
-                              View Details
+                              View
                             </Button>
-                            <Link href="/customer-service" className="flex-1">
+                            {getCustomerJobHistory(customer._id).length > 0 && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  setHistoryCustomer(customer);
+                                  setHistoryOpen(true);
+                                }}
+                                data-testid={`button-history-${customer._id}`}
+                              >
+                                <History className="w-4 h-4 mr-1" />
+                                History ({getCustomerJobHistory(customer._id).length})
+                              </Button>
+                            )}
+                            <Link href={`/customer-service?customerId=${customer._id}`}>
                               <Button
                                 size="sm"
-                                className="w-full bg-blue-500 hover:bg-blue-600"
+                                className="bg-blue-500 hover:bg-blue-600"
                                 data-testid={`button-create-service-${customer._id}`}
                               >
                                 <Wrench className="w-4 h-4 mr-1" />
@@ -306,6 +358,77 @@ export default function CustomerFunnel() {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <History className="w-5 h-5" />
+              Service History - {historyCustomer?.name}
+            </DialogTitle>
+          </DialogHeader>
+          {historyCustomer && (
+            <div className="space-y-4">
+              {getCustomerJobHistory(historyCustomer._id).length === 0 ? (
+                <p className="text-muted-foreground text-center py-4">No service history found</p>
+              ) : (
+                <div className="space-y-3">
+                  {getCustomerJobHistory(historyCustomer._id).map((job: any) => (
+                    <Card key={job._id} className="border-border">
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Car className="w-4 h-4 text-muted-foreground" />
+                              <span className="font-medium">{job.vehicleName}</span>
+                              {job.plateNumber && (
+                                <Badge variant="outline" className="text-xs">{job.plateNumber}</Badge>
+                              )}
+                            </div>
+                            <div className="grid grid-cols-2 gap-2 text-sm">
+                              <div>
+                                <span className="text-muted-foreground">Status: </span>
+                                <Badge className="text-xs ml-1" variant="outline">{job.stage}</Badge>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Technician: </span>
+                                <span>{job.technicianName || 'Not assigned'}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <span className="text-muted-foreground">Total: </span>
+                                <IndianRupee className="w-3 h-3" />
+                                <span className="font-medium">{(job.totalAmount || 0).toLocaleString('en-IN')}</span>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Payment: </span>
+                                <Badge 
+                                  className="text-xs ml-1" 
+                                  variant={job.paymentStatus === 'Paid' ? 'default' : 'outline'}
+                                >
+                                  {job.paymentStatus}
+                                </Badge>
+                              </div>
+                            </div>
+                            {job.notes && (
+                              <p className="text-sm text-muted-foreground mt-2 truncate">{job.notes}</p>
+                            )}
+                            <p className="text-xs text-muted-foreground mt-2">
+                              <Calendar className="w-3 h-3 inline mr-1" />
+                              {new Date(job.createdAt).toLocaleDateString('en-IN', { 
+                                day: 'numeric', month: 'short', year: 'numeric' 
+                              })}
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </DialogContent>
