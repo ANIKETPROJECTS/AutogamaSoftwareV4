@@ -276,6 +276,21 @@ const InvoiceSchema = new Schema<IInvoice>({
   createdAt: { type: Date, default: Date.now }
 });
 
+// Admin Schema
+export interface IAdmin extends Document {
+  email: string;
+  password: string;
+  name: string;
+  createdAt: Date;
+}
+
+const AdminSchema = new Schema<IAdmin>({
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  name: { type: String, default: 'Admin' },
+  createdAt: { type: Date, default: Date.now }
+});
+
 export const Customer = mongoose.model<ICustomer>('Customer', CustomerSchema);
 export const Job = mongoose.model<IJob>('Job', JobSchema);
 export const Technician = mongoose.model<ITechnician>('Technician', TechnicianSchema);
@@ -283,3 +298,4 @@ export const Inventory = mongoose.model<IInventoryItem>('Inventory', InventorySc
 export const Appointment = mongoose.model<IAppointment>('Appointment', AppointmentSchema);
 export const WhatsAppTemplate = mongoose.model<IWhatsAppTemplate>('WhatsAppTemplate', WhatsAppTemplateSchema);
 export const Invoice = mongoose.model<IInvoice>('Invoice', InvoiceSchema);
+export const Admin = mongoose.model<IAdmin>('Admin', AdminSchema);
