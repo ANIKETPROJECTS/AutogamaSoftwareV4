@@ -104,11 +104,18 @@ export default function CustomerService() {
 
   const selectedCustomer = customers.find((c: any) => c._id === selectedCustomerId);
 
-  // Auto-fill service cost when customer is selected
+  // Auto-fill vehicle and service cost when customer is selected
   useEffect(() => {
-    if (selectedCustomer && selectedCustomer.serviceCost > 0) {
-      setOriginalServiceCost(selectedCustomer.serviceCost.toString());
-      setDiscountPercentage('0');
+    if (selectedCustomer) {
+      // Auto-fill vehicle if customer has vehicles
+      if (selectedCustomer.vehicles && selectedCustomer.vehicles.length > 0) {
+        setSelectedVehicleIndex('0');
+      }
+      // Auto-fill service cost
+      if (selectedCustomer.serviceCost > 0) {
+        setOriginalServiceCost(selectedCustomer.serviceCost.toString());
+        setDiscountPercentage('0');
+      }
     }
   }, [selectedCustomerId, selectedCustomer]);
 
