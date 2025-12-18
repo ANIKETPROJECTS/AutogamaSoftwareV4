@@ -9,10 +9,18 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, X, User, Car, Package, Trash2 } from 'lucide-react';
+import { Plus, X, User, Car, Package, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { PPF_CATEGORIES, OTHER_SERVICES, VEHICLE_TYPES } from '@/lib/service-catalog';
 
-const SERVICE_STATUSES = ['Inquired', 'Working', 'Waiting', 'Completed'];
+type SelectedService = {
+  name: string;
+  vehicleType: string;
+  price: number;
+  category?: string;
+  warranty?: string;
+};
 
 export default function CustomerService() {
   const { toast } = useToast();
@@ -23,12 +31,30 @@ export default function CustomerService() {
   const [selectedVehicleIndex, setSelectedVehicleIndex] = useState<string>('');
   const [selectedTechnicianId, setSelectedTechnicianId] = useState<string>('');
   const [serviceNotes, setServiceNotes] = useState('');
-  const [originalServiceCost, setOriginalServiceCost] = useState<string>('');
   const [discountPercentage, setDiscountPercentage] = useState<string>('0');
   const [laborCost, setLaborCost] = useState<string>('');
   const [selectedItems, setSelectedItems] = useState<{ inventoryId: string; quantity: number; name: string; unit: string }[]>([]);
   const [selectedItemId, setSelectedItemId] = useState<string>('');
   const [itemQuantity, setItemQuantity] = useState<string>('1');
+
+  const [showAddVehicle, setShowAddVehicle] = useState(false);
+  const [newVehicleMake, setNewVehicleMake] = useState('');
+  const [newVehicleModel, setNewVehicleModel] = useState('');
+  const [newVehiclePlate, setNewVehiclePlate] = useState('');
+  const [newVehicleYear, setNewVehicleYear] = useState('');
+  const [newVehicleColor, setNewVehicleColor] = useState('');
+
+  const [ppfCategory, setPpfCategory] = useState('');
+  const [ppfVehicleType, setPpfVehicleType] = useState('');
+  const [ppfWarranty, setPpfWarranty] = useState('');
+  const [ppfPrice, setPpfPrice] = useState(0);
+
+  const [selectedOtherServices, setSelectedOtherServices] = useState<SelectedService[]>([]);
+  const [otherServiceName, setOtherServiceName] = useState('');
+  const [otherServiceVehicleType, setOtherServiceVehicleType] = useState('');
+
+  const [showPpfSection, setShowPpfSection] = useState(true);
+  const [showOtherServicesSection, setShowOtherServicesSection] = useState(true);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -53,26 +79,42 @@ export default function CustomerService() {
     queryFn: api.technicians.list,
   });
 
+  const addVehicleMutation = useMutation({
+    mutationFn: async ({ customerId, vehicle }: { customerId: string; vehicle: any }) => {
+      return api.customers.addVehicle(customerId, vehicle);
+    },
+    onSuccess: (updatedCustomer) => {
+      queryClient.setQueryData(['customers'], (oldData: any[]) => {
+        if (!oldData) return [updatedCustomer];
+        return oldData.map(c => c._id === updatedCustomer._id ? updatedCustomer : c);
+      });
+      queryClient.invalidateQueries({ queryKey: ['customers'] });
+      toast({ title: 'Vehicle added successfully!' });
+      setShowAddVehicle(false);
+      setNewVehicleMake('');
+      setNewVehicleModel('');
+      setNewVehiclePlate('');
+      setNewVehicleYear('');
+      setNewVehicleColor('');
+      if (updatedCustomer && updatedCustomer.vehicles) {
+        setSelectedVehicleIndex((updatedCustomer.vehicles.length - 1).toString());
+      }
+    },
+    onError: (error: any) => {
+      toast({ title: error?.message || 'Failed to add vehicle', variant: 'destructive' });
+    }
+  });
+
   const createJobMutation = useMutation({
     mutationFn: async (data: any) => {
       const job = await api.jobs.create(data);
       if (selectedItems.length > 0) {
-        try {
-          await api.jobs.addMaterials(job._id, selectedItems.map(item => ({
-            inventoryId: item.inventoryId,
-            quantity: item.quantity
-          })));
-          
-          // Automatically reduce inventory for each item used
-          for (const item of selectedItems) {
-            try {
-              await api.inventory.adjust(item.inventoryId, -item.quantity);
-            } catch (error: any) {
-              console.error(`Failed to reduce inventory for ${item.name}:`, error);
-            }
+        for (const item of selectedItems) {
+          try {
+            await api.inventory.adjust(item.inventoryId, -item.quantity);
+          } catch (error: any) {
+            console.error(`Failed to reduce inventory for ${item.name}:`, error);
           }
-        } catch (error: any) {
-          console.error('Failed to add materials:', error);
         }
       }
       return job;
@@ -94,30 +136,94 @@ export default function CustomerService() {
     setSelectedVehicleIndex('');
     setSelectedTechnicianId('');
     setServiceNotes('');
-    setOriginalServiceCost('');
     setDiscountPercentage('0');
     setLaborCost('');
     setSelectedItems([]);
     setSelectedItemId('');
     setItemQuantity('1');
+    setPpfCategory('');
+    setPpfVehicleType('');
+    setPpfWarranty('');
+    setPpfPrice(0);
+    setSelectedOtherServices([]);
+    setOtherServiceName('');
+    setOtherServiceVehicleType('');
   };
 
   const selectedCustomer = customers.find((c: any) => c._id === selectedCustomerId);
 
-  // Auto-fill vehicle and service cost when customer is selected
   useEffect(() => {
     if (selectedCustomer) {
-      // Auto-fill vehicle if customer has vehicles
       if (selectedCustomer.vehicles && selectedCustomer.vehicles.length > 0) {
         setSelectedVehicleIndex('0');
       }
-      // Auto-fill service cost
-      if (selectedCustomer.serviceCost > 0) {
-        setOriginalServiceCost(selectedCustomer.serviceCost.toString());
-        setDiscountPercentage('0');
-      }
     }
   }, [selectedCustomerId, selectedCustomer]);
+
+  useEffect(() => {
+    if (ppfCategory && ppfVehicleType && ppfWarranty) {
+      const categoryData = PPF_CATEGORIES[ppfCategory];
+      if (categoryData && categoryData[ppfVehicleType] && categoryData[ppfVehicleType][ppfWarranty]) {
+        setPpfPrice(categoryData[ppfVehicleType][ppfWarranty]);
+      } else {
+        setPpfPrice(0);
+      }
+    } else {
+      setPpfPrice(0);
+    }
+  }, [ppfCategory, ppfVehicleType, ppfWarranty]);
+
+  const handleAddVehicle = () => {
+    if (!selectedCustomerId) {
+      toast({ title: 'Please select a customer first', variant: 'destructive' });
+      return;
+    }
+    if (!newVehicleMake || !newVehicleModel || !newVehiclePlate) {
+      toast({ title: 'Please fill in make, model, and plate number', variant: 'destructive' });
+      return;
+    }
+    addVehicleMutation.mutate({
+      customerId: selectedCustomerId,
+      vehicle: {
+        make: newVehicleMake,
+        model: newVehicleModel,
+        plateNumber: newVehiclePlate,
+        year: newVehicleYear ? parseInt(newVehicleYear, 10) : undefined,
+        color: newVehicleColor || undefined,
+      }
+    });
+  };
+
+  const handleAddOtherService = () => {
+    if (!otherServiceName || !otherServiceVehicleType) {
+      toast({ title: 'Please select a service and vehicle type', variant: 'destructive' });
+      return;
+    }
+    const serviceData = OTHER_SERVICES[otherServiceName];
+    if (!serviceData || !serviceData[otherServiceVehicleType]) {
+      toast({ title: 'Invalid service selection', variant: 'destructive' });
+      return;
+    }
+    const price = serviceData[otherServiceVehicleType];
+    const exists = selectedOtherServices.some(
+      s => s.name === otherServiceName && s.vehicleType === otherServiceVehicleType
+    );
+    if (exists) {
+      toast({ title: 'This service is already added', variant: 'destructive' });
+      return;
+    }
+    setSelectedOtherServices([...selectedOtherServices, {
+      name: otherServiceName,
+      vehicleType: otherServiceVehicleType,
+      price
+    }]);
+    setOtherServiceName('');
+    setOtherServiceVehicleType('');
+  };
+
+  const handleRemoveOtherService = (index: number) => {
+    setSelectedOtherServices(selectedOtherServices.filter((_, i) => i !== index));
+  };
 
   const handleAddItem = () => {
     if (!selectedItemId) {
@@ -175,13 +281,13 @@ export default function CustomerService() {
       return;
     }
 
-    const original = parseFloat(originalServiceCost) || 0;
+    const totalServiceCost = ppfPrice + selectedOtherServices.reduce((sum, s) => sum + s.price, 0);
     const discountPct = parseFloat(discountPercentage) || 0;
-    const parsedServiceCost = original * (1 - discountPct / 100);
+    const discountedServiceCost = totalServiceCost * (1 - discountPct / 100);
     const parsedLaborCost = parseFloat(laborCost) || 0;
     
-    if (parsedServiceCost <= 0 && parsedLaborCost <= 0) {
-      toast({ title: 'Please enter a valid service or labor cost', variant: 'destructive' });
+    if (discountedServiceCost <= 0 && parsedLaborCost <= 0) {
+      toast({ title: 'Please select at least one service or enter labor cost', variant: 'destructive' });
       return;
     }
 
@@ -192,9 +298,36 @@ export default function CustomerService() {
     const vehicle = customer.vehicles[vehicleIdx];
     if (!vehicle) return;
 
-    const totalAmount = parsedServiceCost + parsedLaborCost;
+    const subtotal = discountedServiceCost + parsedLaborCost;
+    const gstAmount = subtotal * 0.18;
+    const totalAmount = subtotal + gstAmount;
 
     const selectedTechnician = technicians.find((t: any) => t._id === selectedTechnicianId);
+
+    const serviceItemsList: { name: string; price: number; category?: string; vehicleType?: string; warranty?: string }[] = [];
+    if (ppfPrice > 0) {
+      serviceItemsList.push({
+        name: `PPF ${ppfCategory} - ${ppfWarranty}`,
+        price: ppfPrice,
+        category: ppfCategory,
+        vehicleType: ppfVehicleType,
+        warranty: ppfWarranty
+      });
+    }
+    selectedOtherServices.forEach(s => {
+      serviceItemsList.push({
+        name: s.name,
+        price: s.price,
+        vehicleType: s.vehicleType
+      });
+    });
+
+    const materialsList = selectedItems.map(item => ({
+      inventoryId: item.inventoryId,
+      name: item.name,
+      quantity: item.quantity,
+      cost: 0
+    }));
     
     createJobMutation.mutate({
       customerId: selectedCustomerId,
@@ -206,29 +339,37 @@ export default function CustomerService() {
       technicianName: selectedTechnician?.name,
       notes: serviceNotes,
       stage: 'New Lead',
-      serviceCost: parsedServiceCost,
+      serviceCost: discountedServiceCost,
       laborCost: parsedLaborCost,
-      serviceItems: [],
-      materials: [],
+      serviceItems: serviceItemsList,
+      materials: materialsList,
       totalAmount: totalAmount,
       paidAmount: 0,
       paymentStatus: 'Pending'
     });
   };
 
-  const original = parseFloat(originalServiceCost) || 0;
+  const totalServiceCost = ppfPrice + selectedOtherServices.reduce((sum, s) => sum + s.price, 0);
   const discountPct = parseFloat(discountPercentage) || 0;
-  const discountedServiceCost = original * (1 - discountPct / 100);
+  const discountAmount = totalServiceCost * discountPct / 100;
+  const discountedServiceCost = totalServiceCost - discountAmount;
   const parsedLaborCost = parseFloat(laborCost) || 0;
   const subtotal = discountedServiceCost + parsedLaborCost;
   const gst = subtotal * 0.18;
   const totalCost = subtotal + gst;
 
+  const getAvailableWarranties = () => {
+    if (!ppfCategory || !ppfVehicleType) return [];
+    const categoryData = PPF_CATEGORIES[ppfCategory];
+    if (!categoryData || !categoryData[ppfVehicleType]) return [];
+    return Object.keys(categoryData[ppfVehicleType]);
+  };
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="font-display text-3xl font-bold tracking-tight">Customers Service</h1>
-        <p className="text-muted-foreground mt-1">Create services for customers with inventory items</p>
+        <p className="text-muted-foreground mt-1">Create services for customers with full service selection</p>
       </div>
 
       <Card className="bg-card border-border">
@@ -240,7 +381,7 @@ export default function CustomerService() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label>Select Customer *</Label>
@@ -257,11 +398,6 @@ export default function CustomerService() {
                             <div className="flex items-center gap-2">
                               <User className="w-4 h-4" />
                               {customer.name} - {customer.phone}
-                              {customer.vehicles?.length > 0 && (
-                                <span className="text-xs text-muted-foreground">
-                                  ({customer.vehicles[0].make} {customer.vehicles[0].model})
-                                </span>
-                              )}
                             </div>
                           </SelectItem>
                         ))
@@ -271,31 +407,121 @@ export default function CustomerService() {
                 </div>
 
                 {selectedCustomer && (
-                  <div className="space-y-2">
-                    <Label>Select Vehicle *</Label>
-                    <Select value={selectedVehicleIndex} onValueChange={setSelectedVehicleIndex}>
-                      <SelectTrigger data-testid="select-vehicle">
-                        {selectedVehicleIndex !== '' ? (
-                          <div className="flex items-center gap-2">
-                            <Car className="w-4 h-4" />
-                            {selectedCustomer.vehicles[parseInt(selectedVehicleIndex)]?.make} {selectedCustomer.vehicles[parseInt(selectedVehicleIndex)]?.model} - {selectedCustomer.vehicles[parseInt(selectedVehicleIndex)]?.plateNumber}
-                          </div>
-                        ) : (
-                          <span>Choose a vehicle</span>
-                        )}
-                      </SelectTrigger>
-                      <SelectContent>
-                        {selectedCustomer.vehicles.map((vehicle: any, index: number) => (
-                          <SelectItem key={index} value={index.toString()}>
+                  <>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label>Select Vehicle *</Label>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowAddVehicle(!showAddVehicle)}
+                          data-testid="button-toggle-add-vehicle"
+                        >
+                          <Plus className="w-4 h-4 mr-1" />
+                          Add New Vehicle
+                        </Button>
+                      </div>
+                      <Select value={selectedVehicleIndex} onValueChange={setSelectedVehicleIndex}>
+                        <SelectTrigger data-testid="select-vehicle">
+                          {selectedVehicleIndex !== '' ? (
                             <div className="flex items-center gap-2">
                               <Car className="w-4 h-4" />
-                              {vehicle.make} {vehicle.model} - {vehicle.plateNumber}
+                              {selectedCustomer.vehicles[parseInt(selectedVehicleIndex)]?.make} {selectedCustomer.vehicles[parseInt(selectedVehicleIndex)]?.model} - {selectedCustomer.vehicles[parseInt(selectedVehicleIndex)]?.plateNumber}
                             </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                          ) : (
+                            <span>Choose a vehicle</span>
+                          )}
+                        </SelectTrigger>
+                        <SelectContent>
+                          {selectedCustomer.vehicles.map((vehicle: any, index: number) => (
+                            <SelectItem key={index} value={index.toString()}>
+                              <div className="flex items-center gap-2">
+                                <Car className="w-4 h-4" />
+                                {vehicle.make} {vehicle.model} - {vehicle.plateNumber}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {showAddVehicle && (
+                      <Card className="border-dashed">
+                        <CardContent className="pt-4 space-y-3">
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1">
+                              <Label className="text-xs">Make *</Label>
+                              <Input
+                                value={newVehicleMake}
+                                onChange={(e) => setNewVehicleMake(e.target.value)}
+                                placeholder="e.g., Toyota"
+                                data-testid="input-new-vehicle-make"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <Label className="text-xs">Model *</Label>
+                              <Input
+                                value={newVehicleModel}
+                                onChange={(e) => setNewVehicleModel(e.target.value)}
+                                placeholder="e.g., Camry"
+                                data-testid="input-new-vehicle-model"
+                              />
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-3 gap-3">
+                            <div className="space-y-1">
+                              <Label className="text-xs">Plate Number *</Label>
+                              <Input
+                                value={newVehiclePlate}
+                                onChange={(e) => setNewVehiclePlate(e.target.value)}
+                                placeholder="e.g., MH12AB1234"
+                                data-testid="input-new-vehicle-plate"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <Label className="text-xs">Year</Label>
+                              <Input
+                                type="number"
+                                value={newVehicleYear}
+                                onChange={(e) => setNewVehicleYear(e.target.value)}
+                                placeholder="e.g., 2023"
+                                data-testid="input-new-vehicle-year"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <Label className="text-xs">Color</Label>
+                              <Input
+                                value={newVehicleColor}
+                                onChange={(e) => setNewVehicleColor(e.target.value)}
+                                placeholder="e.g., White"
+                                data-testid="input-new-vehicle-color"
+                              />
+                            </div>
+                          </div>
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setShowAddVehicle(false)}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              type="button"
+                              size="sm"
+                              onClick={handleAddVehicle}
+                              disabled={addVehicleMutation.isPending}
+                              data-testid="button-save-new-vehicle"
+                            >
+                              {addVehicleMutation.isPending ? 'Adding...' : 'Add Vehicle'}
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </>
                 )}
 
                 <div className="space-y-2">
@@ -317,23 +543,157 @@ export default function CustomerService() {
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <Label>Original Service Cost *</Label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">₹</span>
-                    <Input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={originalServiceCost}
-                      onChange={(e) => setOriginalServiceCost(e.target.value)}
-                      placeholder="Enter original service charge"
-                      className="pl-7"
-                      data-testid="input-original-service-cost"
-                    />
-                  </div>
-                </div>
+                <Card className="border">
+                  <CardHeader className="py-3 cursor-pointer" onClick={() => setShowPpfSection(!showPpfSection)}>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-base">PPF Service</CardTitle>
+                      {showPpfSection ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </div>
+                  </CardHeader>
+                  {showPpfSection && (
+                    <CardContent className="space-y-3">
+                      <div className="space-y-2">
+                        <Label className="text-sm">PPF Category</Label>
+                        <Select value={ppfCategory} onValueChange={(val) => {
+                          setPpfCategory(val);
+                          setPpfWarranty('');
+                        }}>
+                          <SelectTrigger data-testid="select-ppf-category">
+                            <SelectValue placeholder="Select PPF category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.keys(PPF_CATEGORIES).map((cat) => (
+                              <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
 
+                      <div className="space-y-2">
+                        <Label className="text-sm">Vehicle Type</Label>
+                        <Select value={ppfVehicleType} onValueChange={(val) => {
+                          setPpfVehicleType(val);
+                          setPpfWarranty('');
+                        }}>
+                          <SelectTrigger data-testid="select-ppf-vehicle-type">
+                            <SelectValue placeholder="Select vehicle type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {VEHICLE_TYPES.map((type) => (
+                              <SelectItem key={type} value={type}>{type}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-sm">Warranty / Variant</Label>
+                        <Select value={ppfWarranty} onValueChange={setPpfWarranty} disabled={!ppfCategory || !ppfVehicleType}>
+                          <SelectTrigger data-testid="select-ppf-warranty">
+                            <SelectValue placeholder="Select warranty" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {getAvailableWarranties().map((warranty) => (
+                              <SelectItem key={warranty} value={warranty}>{warranty}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {ppfPrice > 0 && (
+                        <div className="bg-accent/30 p-3 rounded-md">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm font-medium">PPF Service Price:</span>
+                            <span className="text-lg font-bold text-primary">₹{ppfPrice.toLocaleString('en-IN')}</span>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  )}
+                </Card>
+
+                <Card className="border">
+                  <CardHeader className="py-3 cursor-pointer" onClick={() => setShowOtherServicesSection(!showOtherServicesSection)}>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-base">Other Services</CardTitle>
+                      {showOtherServicesSection ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </div>
+                  </CardHeader>
+                  {showOtherServicesSection && (
+                    <CardContent className="space-y-3">
+                      <div className="space-y-2">
+                        <Label className="text-sm">Select Service</Label>
+                        <Select value={otherServiceName} onValueChange={setOtherServiceName}>
+                          <SelectTrigger data-testid="select-other-service">
+                            <SelectValue placeholder="Choose a service" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.keys(OTHER_SERVICES).map((service) => (
+                              <SelectItem key={service} value={service}>{service}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-sm">Vehicle Type</Label>
+                        <Select value={otherServiceVehicleType} onValueChange={setOtherServiceVehicleType}>
+                          <SelectTrigger data-testid="select-other-service-vehicle-type">
+                            <SelectValue placeholder="Select vehicle type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {VEHICLE_TYPES.map((type) => (
+                              <SelectItem key={type} value={type}>{type}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleAddOtherService}
+                        disabled={!otherServiceName || !otherServiceVehicleType}
+                        className="w-full"
+                        data-testid="button-add-other-service"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Service
+                      </Button>
+
+                      {selectedOtherServices.length > 0 && (
+                        <div className="space-y-2 mt-3">
+                          <Label className="text-sm">Selected Services</Label>
+                          <div className="border rounded-lg divide-y">
+                            {selectedOtherServices.map((service, index) => (
+                              <div key={index} className="flex items-center justify-between p-3">
+                                <div>
+                                  <p className="font-medium text-sm">{service.name}</p>
+                                  <p className="text-xs text-muted-foreground">{service.vehicleType}</p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="font-semibold">₹{service.price.toLocaleString('en-IN')}</span>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handleRemoveOtherService(index)}
+                                    data-testid={`button-remove-other-service-${index}`}
+                                  >
+                                    <Trash2 className="w-4 h-4 text-red-500" />
+                                  </Button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  )}
+                </Card>
+              </div>
+
+              <div className="space-y-4">
                 <div className="space-y-2">
                   <Label>Discount %</Label>
                   <Input
@@ -349,7 +709,7 @@ export default function CustomerService() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Labor Cost *</Label>
+                  <Label>Labor Cost</Label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">₹</span>
                     <Input
@@ -370,14 +730,12 @@ export default function CustomerService() {
                   <Textarea
                     value={serviceNotes}
                     onChange={(e) => setServiceNotes(e.target.value)}
-                    placeholder="Describe the service to be performed..."
+                    placeholder="Additional notes about the service..."
                     rows={3}
                     data-testid="input-service-notes"
                   />
                 </div>
-              </div>
 
-              <div className="space-y-4">
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2">
                     <Package className="w-4 h-4" />
@@ -440,34 +798,50 @@ export default function CustomerService() {
 
                 <div className="border rounded-lg p-4 bg-accent/30 space-y-2">
                   <h4 className="font-semibold text-sm text-muted-foreground">Cost Summary</h4>
-                  <div className="flex justify-between text-sm">
-                    <span>Original Service Cost:</span>
-                    <span>₹{original.toLocaleString('en-IN')}</span>
-                  </div>
-                  {discountPct > 0 && (
-                    <>
-                      <div className="flex justify-between text-sm">
-                        <span>Discount ({discountPct}%):</span>
-                        <span className="text-green-600">-₹{(original * discountPct / 100).toLocaleString('en-IN')}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span>Discounted Price:</span>
-                        <span>₹{discountedServiceCost.toLocaleString('en-IN')}</span>
-                      </div>
-                    </>
+                  
+                  {ppfPrice > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span>PPF ({ppfCategory}):</span>
+                      <span>₹{ppfPrice.toLocaleString('en-IN')}</span>
+                    </div>
                   )}
+                  
+                  {selectedOtherServices.map((service, index) => (
+                    <div key={index} className="flex justify-between text-sm">
+                      <span>{service.name}:</span>
+                      <span>₹{service.price.toLocaleString('en-IN')}</span>
+                    </div>
+                  ))}
+                  
+                  {(ppfPrice > 0 || selectedOtherServices.length > 0) && (
+                    <div className="flex justify-between text-sm font-medium border-t pt-2">
+                      <span>Total Service Cost:</span>
+                      <span>₹{totalServiceCost.toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
+                  
+                  {discountPct > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span>Discount ({discountPct}%):</span>
+                      <span className="text-green-600">-₹{discountAmount.toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
+                  
                   <div className="flex justify-between text-sm">
                     <span>Labor Cost:</span>
                     <span>₹{parsedLaborCost.toLocaleString('en-IN')}</span>
                   </div>
+                  
                   <div className="flex justify-between text-sm text-muted-foreground">
                     <span>Subtotal:</span>
                     <span>₹{subtotal.toLocaleString('en-IN')}</span>
                   </div>
+                  
                   <div className="flex justify-between text-sm">
                     <span>GST (18%):</span>
                     <span>₹{gst.toLocaleString('en-IN')}</span>
                   </div>
+                  
                   <div className="border-t pt-2 mt-2">
                     <div className="flex justify-between font-bold text-lg">
                       <span>Total Amount:</span>
@@ -486,7 +860,7 @@ export default function CustomerService() {
               <Button
                 type="submit"
                 className="bg-primary"
-                disabled={createJobMutation.isPending || !selectedCustomerId || !selectedVehicleIndex}
+                disabled={createJobMutation.isPending || !selectedCustomerId || !selectedVehicleIndex || (ppfPrice <= 0 && selectedOtherServices.length === 0 && !parsedLaborCost)}
                 data-testid="button-create-service"
               >
                 {createJobMutation.isPending ? 'Creating...' : 'Create Service'}
