@@ -221,7 +221,6 @@ export default function CustomerRegistration() {
   const [customerData, setCustomerData] = useState({
     name: "",
     phone: "",
-    alternatePhone: "",
     email: "",
     address: "",
     city: "",
@@ -366,21 +365,6 @@ export default function CustomerRegistration() {
                     className={errors.phone ? "border-red-500" : ""}
                   />
                   {errors.phone && <p className="text-sm text-red-500">{errors.phone}</p>}
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Alternative Number (Optional)</Label>
-                  <Input
-                    value={customerData.alternatePhone}
-                    onChange={(e) =>
-                      setCustomerData({
-                        ...customerData,
-                        alternatePhone: e.target.value,
-                      })
-                    }
-                    placeholder="10-digit mobile number (Optional)"
-                    data-testid="input-alt-mobile"
-                  />
                 </div>
 
                 <div className="space-y-2">
