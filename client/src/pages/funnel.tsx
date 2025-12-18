@@ -4,10 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, Wrench, Clock, User, Car, Calendar, Phone, MapPin, Search, History, IndianRupee } from "lucide-react";
-import { Link, useLocation } from "wouter";
+import { Eye, Wrench, Phone, MapPin, Search, History, Car, Clock } from "lucide-react";
+import { Link } from "wouter";
 import {
   Dialog,
   DialogContent,
@@ -22,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 const FUNNEL_STAGES = [
   { key: "Inquired", label: "Inquired", color: "blue" },
@@ -31,10 +31,17 @@ const FUNNEL_STAGES = [
 ];
 
 const PHASE_COLORS: Record<string, string> = {
-  Inquired: "bg-blue-100 text-blue-700 border-blue-200",
-  Working: "bg-orange-100 text-orange-700 border-orange-200",
-  Waiting: "bg-yellow-100 text-yellow-700 border-yellow-200",
-  Completed: "bg-green-100 text-green-700 border-green-200",
+  Inquired: "bg-blue-100 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800",
+  Working: "bg-orange-100 dark:bg-orange-950/50 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800",
+  Waiting: "bg-yellow-100 dark:bg-yellow-950/50 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800",
+  Completed: "bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800",
+};
+
+const COLUMN_BG_COLORS: Record<string, string> = {
+  Inquired: "bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800",
+  Working: "bg-orange-50 dark:bg-orange-950/20 border-orange-200 dark:border-orange-800",
+  Waiting: "bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-800",
+  Completed: "bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800",
 };
 
 export default function CustomerFunnel() {
@@ -43,7 +50,6 @@ export default function CustomerFunnel() {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [historyCustomer, setHistoryCustomer] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -135,129 +141,159 @@ export default function CustomerFunnel() {
         </div>
       </div>
 
-      <Tabs defaultValue="Inquired" className="w-full">
-        <TabsList className="w-full justify-start bg-muted/30 p-1 h-auto flex-wrap gap-1">
-          {FUNNEL_STAGES.map((stage) => (
-            <TabsTrigger
-              key={stage.key}
-              value={stage.key}
-              className="data-[state=active]:bg-background"
-              data-testid={`tab-${stage.key}`}
-            >
-              {stage.label} ({stageCounts[stage.key]})
-            </TabsTrigger>
-          ))}
-        </TabsList>
+      {/* Stage Summary */}
+      <div className="flex flex-wrap gap-3">
+        {FUNNEL_STAGES.map((stage) => (
+          <div key={stage.key} className="text-sm font-medium text-muted-foreground">
+            {stage.label} <span className="text-foreground font-bold">({stageCounts[stage.key]})</span>
+          </div>
+        ))}
+      </div>
 
-        {FUNNEL_STAGES.map((stage, index) => (
-          <TabsContent key={stage.key} value={stage.key} className="mt-6">
-            <Card className="border-border">
-              <CardHeader className="pb-3">
+      {/* Kanban Board - 4 Columns */}
+      {isLoading ? (
+        <div className="text-center py-12 text-muted-foreground">Loading...</div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pb-6">
+          {FUNNEL_STAGES.map((stage) => (
+            <div key={stage.key} className="space-y-0">
+              {/* Column Header */}
+              <div className={cn("rounded-t-lg border p-4 border-b-0", COLUMN_BG_COLORS[stage.key])}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <Badge className={`${PHASE_COLORS[stage.key]} text-xs`}>
-                      PHASE {index + 1}
+                    <Badge className={cn(PHASE_COLORS[stage.key], "text-xs mb-2")}>
+                      {stage.label}
                     </Badge>
-                    <CardTitle className="mt-2 flex items-center gap-2">
-                      <span className="text-xl">{stage.label}</span>
-                    </CardTitle>
+                    <CardTitle className="text-lg">{stage.label}</CardTitle>
                   </div>
                   <div className="text-2xl font-bold text-muted-foreground">
                     {stageCounts[stage.key]}
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent>
-                {isLoading ? (
-                  <p className="text-muted-foreground text-center py-8">
-                    Loading...
-                  </p>
-                ) : getCustomersByStatus(stage.key).length === 0 ? (
-                  <p className="text-muted-foreground text-center py-8">
-                    No customers in this stage
+              </div>
+
+              {/* Column Content */}
+              <div className={cn(
+                "rounded-b-lg border border-t-0 p-4 min-h-96 max-h-96 overflow-y-auto space-y-3",
+                COLUMN_BG_COLORS[stage.key]
+              )}>
+                {getCustomersByStatus(stage.key).length === 0 ? (
+                  <p className="text-muted-foreground text-center py-12 text-sm">
+                    No customers
                   </p>
                 ) : (
-                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  <div className="space-y-3">
                     {getCustomersByStatus(stage.key).map((customer: any) => (
                       <Card
                         key={customer._id}
-                        className="bg-card border-border hover:shadow-md transition-shadow"
+                        className="bg-background border-border hover:shadow-md transition-shadow cursor-pointer"
                         data-testid={`funnel-customer-${customer._id}`}
                       >
-                        <CardContent className="p-4">
-                          <div className="flex items-start justify-between mb-3">
-                            <div>
-                              <h3 className="font-semibold text-foreground">
-                                {customer.name}
-                              </h3>
-                              <p className="text-sm text-muted-foreground flex items-center gap-1">
-                                <Phone className="w-3 h-3" />
-                                {customer.phone}
-                              </p>
+                        <CardContent className="p-3">
+                          <div className="space-y-2">
+                            {/* Customer Name and Status */}
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <h3 className="font-semibold text-sm">{customer.name}</h3>
+                                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                                  <Phone className="w-3 h-3" />
+                                  {customer.phone}
+                                </p>
+                              </div>
+                              <Badge className={cn(PHASE_COLORS[stage.key], "text-xs whitespace-nowrap")}>
+                                {stage.label}
+                              </Badge>
                             </div>
-                            <Badge className={`${PHASE_COLORS[stage.key]} text-xs`}>
-                              <Clock className="w-3 h-3 mr-1" />
-                              {stage.label}
-                            </Badge>
-                          </div>
 
-                          <div className="space-y-2 text-sm text-muted-foreground">
+                            {/* Address */}
                             {customer.address && (
-                              <div className="flex items-center gap-2">
-                                <MapPin className="w-4 h-4" />
-                                <span className="truncate">{customer.address}</span>
+                              <div className="text-xs text-muted-foreground flex items-start gap-1">
+                                <MapPin className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                                <span className="line-clamp-2">{customer.address}</span>
                               </div>
                             )}
+
+                            {/* Vehicle */}
                             {customer.vehicles && customer.vehicles.length > 0 && (
-                              <div className="flex items-center gap-2">
-                                <Car className="w-4 h-4" />
-                                <span>
-                                  {customer.vehicles[0].make} {customer.vehicles[0].model} - {customer.vehicles[0].plateNumber}
+                              <div className="text-xs text-muted-foreground flex items-center gap-1">
+                                <Car className="w-3 h-3" />
+                                <span className="truncate">
+                                  {customer.vehicles[0].make} {customer.vehicles[0].model}
                                 </span>
                               </div>
                             )}
-                            <div className="flex items-center gap-2">
-                              <Clock className="w-4 h-4" />
-                              <span>
-                                {formatTimeAgo(customer.createdAt || new Date().toISOString())}
-                              </span>
-                            </div>
-                          </div>
 
-                          <div className="flex flex-wrap gap-2 mt-4">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                setSelectedCustomer(customer);
-                                setDetailsOpen(true);
-                              }}
-                              data-testid={`button-view-${customer._id}`}
-                            >
-                              <Eye className="w-4 h-4 mr-1" />
-                              View
-                            </Button>
-                            {getCustomerJobHistory(customer._id).length > 0 && (
+                            {/* Time */}
+                            <div className="text-xs text-muted-foreground flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {formatTimeAgo(customer.createdAt || new Date().toISOString())}
+                            </div>
+
+                            {/* Status Selector */}
+                            <div className="pt-2">
+                              <Select
+                                value={customer.status || 'Inquired'}
+                                onValueChange={(value) => {
+                                  updateStatusMutation.mutate({
+                                    id: customer._id,
+                                    status: value,
+                                  });
+                                }}
+                                disabled={updateStatusMutation.isPending}
+                              >
+                                <SelectTrigger className="h-8 text-xs" data-testid={`select-status-${customer._id}`}>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {FUNNEL_STAGES.map((s) => (
+                                    <SelectItem key={s.key} value={s.key}>
+                                      {s.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex flex-wrap gap-1 pt-2">
                               <Button
                                 variant="outline"
                                 size="sm"
+                                className="h-7 text-xs flex-1"
                                 onClick={() => {
-                                  setHistoryCustomer(customer);
-                                  setHistoryOpen(true);
+                                  setSelectedCustomer(customer);
+                                  setDetailsOpen(true);
                                 }}
-                                data-testid={`button-history-${customer._id}`}
+                                data-testid={`button-view-${customer._id}`}
                               >
-                                <History className="w-4 h-4 mr-1" />
-                                History ({getCustomerJobHistory(customer._id).length})
+                                <Eye className="w-3 h-3 mr-1" />
+                                View
                               </Button>
-                            )}
+                              {getCustomerJobHistory(customer._id).length > 0 && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-7 text-xs flex-1"
+                                  onClick={() => {
+                                    setHistoryCustomer(customer);
+                                    setHistoryOpen(true);
+                                  }}
+                                  data-testid={`button-history-${customer._id}`}
+                                >
+                                  <History className="w-3 h-3 mr-1" />
+                                  History
+                                </Button>
+                              )}
+                            </div>
+
+                            {/* Create Service Button */}
                             <Link href={`/customer-service?customerId=${customer._id}`}>
                               <Button
                                 size="sm"
-                                className="bg-blue-500 hover:bg-blue-600"
+                                className="w-full h-7 text-xs bg-blue-500 hover:bg-blue-600"
                                 data-testid={`button-create-service-${customer._id}`}
                               >
-                                <Wrench className="w-4 h-4 mr-1" />
+                                <Wrench className="w-3 h-3 mr-1" />
                                 Create Service
                               </Button>
                             </Link>
@@ -267,12 +303,13 @@ export default function CustomerFunnel() {
                     ))}
                   </div>
                 )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        ))}
-      </Tabs>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
+      {/* Details Dialog */}
       <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
@@ -303,7 +340,7 @@ export default function CustomerFunnel() {
                 )}
                 <div>
                   <p className="text-sm text-muted-foreground">Current Status</p>
-                  <Badge className={`mt-1 ${PHASE_COLORS[selectedCustomer.status || 'Inquired']}`}>
+                  <Badge className={cn(`mt-1`, PHASE_COLORS[selectedCustomer.status || 'Inquired'])}>
                     {selectedCustomer.status || 'Inquired'}
                   </Badge>
                 </div>
@@ -332,9 +369,7 @@ export default function CustomerFunnel() {
               )}
 
               <div className="border-t pt-4">
-                <p className="text-sm text-muted-foreground mb-3">
-                  Change Status
-                </p>
+                <p className="text-sm text-muted-foreground mb-3">Change Status</p>
                 <Select
                   value={selectedCustomer.status || 'Inquired'}
                   onValueChange={(value) => {
@@ -363,6 +398,7 @@ export default function CustomerFunnel() {
         </DialogContent>
       </Dialog>
 
+      {/* History Dialog */}
       <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
@@ -398,30 +434,10 @@ export default function CustomerFunnel() {
                                 <span className="text-muted-foreground">Technician: </span>
                                 <span>{job.technicianName || 'Not assigned'}</span>
                               </div>
-                              <div className="flex items-center gap-1">
-                                <span className="text-muted-foreground">Total: </span>
-                                <IndianRupee className="w-3 h-3" />
-                                <span className="font-medium">{(job.totalAmount || 0).toLocaleString('en-IN')}</span>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">Payment: </span>
-                                <Badge 
-                                  className="text-xs ml-1" 
-                                  variant={job.paymentStatus === 'Paid' ? 'default' : 'outline'}
-                                >
-                                  {job.paymentStatus}
-                                </Badge>
-                              </div>
                             </div>
                             {job.notes && (
                               <p className="text-sm text-muted-foreground mt-2 truncate">{job.notes}</p>
                             )}
-                            <p className="text-xs text-muted-foreground mt-2">
-                              <Calendar className="w-3 h-3 inline mr-1" />
-                              {new Date(job.createdAt).toLocaleDateString('en-IN', { 
-                                day: 'numeric', month: 'short', year: 'numeric' 
-                              })}
-                            </p>
                           </div>
                         </div>
                       </CardContent>
