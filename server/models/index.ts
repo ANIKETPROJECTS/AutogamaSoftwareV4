@@ -80,7 +80,6 @@ export interface IInventoryItem extends Document {
   quantity: number;
   unit: string;
   minStock: number;
-  price: number;
   createdAt: Date;
 }
 
@@ -216,7 +215,6 @@ const InventorySchema = new Schema<IInventoryItem>({
   quantity: { type: Number, required: true, default: 0 },
   unit: { type: String, required: true },
   minStock: { type: Number, required: true, default: 0 },
-  price: { type: Number, required: true, default: 0 },
   createdAt: { type: Date, default: Date.now }
 });
 

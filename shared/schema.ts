@@ -76,8 +76,7 @@ export const inventorySchema = z.object({
   category: z.enum(['PPF', 'Ceramic', 'Tools', 'Parts', 'Chemicals']),
   quantity: z.number().min(0).default(0),
   unit: z.string().min(1),
-  minStock: z.number().min(0).default(0),
-  price: z.number().min(0).default(0)
+  minStock: z.number().min(0).default(0)
 });
 
 export const appointmentSchema = z.object({
