@@ -39,123 +39,120 @@ export default function CustomerDetails() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <Link href="/registered-customers">
-            <Button variant="outline" size="sm" data-testid="button-back">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Customers
-            </Button>
-          </Link>
-        </div>
+      <div className="flex items-center justify-between gap-3">
+        <Link href="/registered-customers">
+          <Button variant="outline" size="sm" data-testid="button-back">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
+        </Link>
       </div>
 
-      {/* Customer Info */}
+      {/* Customer Info - Compact Layout */}
       <Card className="border border-amber-200 dark:border-amber-800" data-testid={`customer-details-${customerId}`}>
-        <CardContent className="p-6 space-y-6">
+        <CardContent className="p-4 space-y-3">
           {/* Header */}
           <div>
-            <h1 className="font-display text-3xl font-bold">{customer.name}</h1>
-            <p className="text-muted-foreground mt-1">Customer Details</p>
+            <h1 className="font-bold text-2xl">{customer.name}</h1>
           </div>
 
-          {/* Contact Information */}
-          <div className="space-y-3">
-            <h2 className="font-semibold text-lg">Contact Information</h2>
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-3">
-                <Phone className="w-4 h-4 text-muted-foreground" />
-                <span>{customer.phone}</span>
-              </div>
-              {customer.email && (
-                <div className="flex items-center gap-3">
-                  <Mail className="w-4 h-4 text-muted-foreground" />
-                  <span>{customer.email}</span>
-                </div>
-              )}
-              {customer.address && (
-                <div className="flex items-start gap-3">
-                  <MapPin className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                  <span>{customer.address}</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Vehicles */}
-          {customer.vehicles && customer.vehicles.length > 0 && (
+          {/* Two Column Layout */}
+          <div className="grid grid-cols-2 gap-3">
+            {/* Left Column - Contact & Service */}
             <div className="space-y-3">
-              <h2 className="font-semibold text-lg">Vehicles</h2>
-              <div className="space-y-2">
-                {customer.vehicles.map((vehicle: any, i: number) => (
-                  <div key={i} className="flex items-center justify-between p-4 bg-accent/20 rounded-lg border">
-                    <div className="flex items-center gap-3">
-                      <Car className="w-4 h-4 text-muted-foreground" />
-                      <div>
-                        <p className="font-medium">
-                          {vehicle.make} {vehicle.model}
-                          {vehicle.year && <span className="text-muted-foreground text-sm"> ({vehicle.year})</span>}
-                        </p>
-                        {vehicle.color && <p className="text-xs text-muted-foreground">Color: {vehicle.color}</p>}
+              {/* Contact Information */}
+              <div>
+                <p className="font-semibold text-sm mb-1">Contact</p>
+                <div className="space-y-1 text-xs">
+                  <div className="flex items-center gap-2">
+                    <Phone className="w-3 h-3 text-muted-foreground" />
+                    <span>{customer.phone}</span>
+                  </div>
+                  {customer.email && (
+                    <div className="flex items-center gap-2">
+                      <Mail className="w-3 h-3 text-muted-foreground" />
+                      <span className="truncate">{customer.email}</span>
+                    </div>
+                  )}
+                  {customer.address && (
+                    <div className="flex items-start gap-2">
+                      <MapPin className="w-3 h-3 text-muted-foreground mt-0.5 flex-shrink-0" />
+                      <span className="line-clamp-2 text-xs">{customer.address}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Service Information */}
+              {customer.service && (
+                <div>
+                  <p className="font-semibold text-sm mb-1">Service</p>
+                  <div className="p-2 bg-accent/20 rounded border text-xs space-y-1">
+                    <p className="line-clamp-2">{customer.service}</p>
+                    {customer.serviceCost && (
+                      <div className="flex items-center gap-1 font-semibold">
+                        <DollarSign className="w-3 h-3" />
+                        ₹{customer.serviceCost.toLocaleString('en-IN')}
                       </div>
-                    </div>
-                    {vehicle.plateNumber && (
-                      <span className="text-sm font-medium bg-background px-3 py-1 rounded border">{vehicle.plateNumber}</span>
                     )}
                   </div>
-                ))}
-              </div>
+                </div>
+              )}
             </div>
-          )}
 
-          {/* Service Information */}
-          {customer.service && (
+            {/* Right Column - Vehicles & History */}
             <div className="space-y-3">
-              <h2 className="font-semibold text-lg">Service Details</h2>
-              <div className="p-4 bg-accent/20 rounded-lg border space-y-2">
-                <p className="text-sm">{customer.service}</p>
-                {customer.serviceCost && (
-                  <div className="flex items-center gap-2 font-semibold text-lg">
-                    <DollarSign className="w-5 h-5" />
-                    ₹{customer.serviceCost.toLocaleString('en-IN')}
+              {/* Vehicles */}
+              {customer.vehicles && customer.vehicles.length > 0 && (
+                <div>
+                  <p className="font-semibold text-sm mb-1">Vehicles</p>
+                  <div className="space-y-1">
+                    {customer.vehicles.slice(0, 2).map((vehicle: any, i: number) => (
+                      <div key={i} className="p-2 bg-accent/10 rounded border text-xs">
+                        <div className="flex items-center gap-2 font-medium">
+                          <Car className="w-3 h-3" />
+                          <span className="truncate">{vehicle.make} {vehicle.model}</span>
+                        </div>
+                        {vehicle.plateNumber && (
+                          <span className="text-xs bg-background px-1.5 py-0.5 rounded mt-1 inline-block">{vehicle.plateNumber}</span>
+                        )}
+                      </div>
+                    ))}
                   </div>
-                )}
-              </div>
-            </div>
-          )}
+                </div>
+              )}
 
-          {/* Service History */}
-          {jobHistory.length > 0 && (
-            <div className="space-y-3">
-              <h2 className="font-semibold text-lg">Service History ({jobHistory.length})</h2>
-              <div className="space-y-2">
-                {jobHistory.map((job: any) => (
-                  <div key={job._id} className="p-4 bg-accent/10 rounded-lg border">
-                    <div className="flex items-center justify-between gap-3 mb-2">
-                      <p className="font-medium">{job.vehicleName}</p>
-                      <span className="text-xs font-medium bg-background px-2 py-1 rounded border">{job.stage}</span>
-                    </div>
-                    {job.createdAt && (
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(job.createdAt).toLocaleDateString('en-IN')}
-                      </p>
-                    )}
-                    {job.totalAmount && (
-                      <p className="text-sm font-medium mt-1">Amount: ₹{job.totalAmount.toLocaleString('en-IN')}</p>
-                    )}
+              {/* Service History */}
+              {jobHistory.length > 0 && (
+                <div>
+                  <p className="font-semibold text-sm mb-1">History ({jobHistory.length})</p>
+                  <div className="p-2 bg-accent/10 rounded border text-xs space-y-1 max-h-20 overflow-y-auto">
+                    {jobHistory.slice(0, 3).map((job: any) => (
+                      <div key={job._id} className="pb-1">
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="truncate font-medium text-xs">{job.vehicleName}</span>
+                          <span className="text-xs bg-background px-1 py-0.5 rounded whitespace-nowrap">{job.stage}</span>
+                        </div>
+                        {job.createdAt && (
+                          <p className="text-muted-foreground text-xs">
+                            {new Date(job.createdAt).toLocaleDateString('en-IN')}
+                          </p>
+                        )}
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </div>
+              )}
             </div>
-          )}
+          </div>
 
           {/* Action Button */}
-          <Link href={`/customer-service?customerId=${customer._id}`}>
-            <Button className="w-full bg-blue-500 hover:bg-blue-600 text-white" data-testid={`button-create-service-${customer._id}`}>
-              <Wrench className="w-4 h-4 mr-2" />
-              Create New Service
+          <Link href={`/customer-service?customerId=${customer._id}`} className="block">
+            <Button className="w-full bg-blue-500 hover:bg-blue-600 text-sm h-9" data-testid={`button-create-service-${customer._id}`}>
+              <Wrench className="w-3 h-3 mr-2" />
+              Create Service
             </Button>
           </Link>
         </CardContent>
