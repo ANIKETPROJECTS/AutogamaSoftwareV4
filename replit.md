@@ -28,7 +28,7 @@ Preferred communication style: Simple, everyday language.
 
 ### Data Storage
 - **Primary Database**: MongoDB (connected via `MONGODB_URI` environment variable)
-- **Data Models**: Customer, Job, Technician, Inventory, Appointment, WhatsAppTemplate
+- **Data Models**: Customer, Job, Technician, Inventory, Appointment, WhatsAppTemplate, Admin
 - **Note**: Drizzle config exists for PostgreSQL but MongoDB/Mongoose is the active database layer
 
 ### Key Design Patterns
@@ -37,12 +37,19 @@ Preferred communication style: Simple, everyday language.
 - **Storage Layer**: Abstract storage interface (`server/storage.ts`) for all database operations
 - **API Client**: Centralized API wrapper (`client/src/lib/api.ts`) for frontend requests
 
+### Authentication
+- **Admin Login**: Email/password authentication stored in MongoDB `admin` collection
+- **Default Credentials**: Autogarage@system.com / Autogarage
+- **Auth Context**: React context for managing authentication state
+- **Protected Routes**: All routes require authentication except `/login`
+
 ### Core Business Logic
 - Customers can have multiple vehicles
 - Each vehicle can have multiple service jobs
 - Jobs progress through defined stages with WhatsApp notifications
 - Job cards track services, materials, payments, and technician assignments
 - Inventory tracks stock levels with low-stock alerts
+- Stock automatically reduces when materials are used in services (Stock In remains manual)
 
 ## External Dependencies
 
