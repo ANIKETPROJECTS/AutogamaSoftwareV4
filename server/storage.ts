@@ -434,7 +434,7 @@ export class MongoStorage implements IStorage {
         inventoryId: item._id as mongoose.Types.ObjectId,
         name: item.name,
         quantity: quantity,
-        cost: item.price * quantity
+        cost: 0
       });
     }
 
