@@ -833,7 +833,20 @@ export default function CustomerService() {
                         <SelectValue placeholder="Select item" />
                       </SelectTrigger>
                       <SelectContent>
-                        {inventory.filter((item: any) => item.quantity > 0).map((item: any) => {
+                        {inventory.filter((item: any) => item.quantity > 0).reduce((acc: any[], item: any) => {
+                          // For PPF products, deduplicate by category (keep the one with most stock)
+                          if (item.category && ['Elite', 'Garware Plus', 'Garware Premium', 'Garware Matt'].includes(item.category)) {
+                            const existingIndex = acc.findIndex((i: any) => i.category === item.category);
+                            if (existingIndex === -1) {
+                              acc.push(item);
+                            } else if (item.quantity > acc[existingIndex].quantity) {
+                              acc[existingIndex] = item;
+                            }
+                          } else {
+                            acc.push(item);
+                          }
+                          return acc;
+                        }, []).map((item: any) => {
                           // For PPF products, use category name; otherwise use item name
                           const displayName = item.category && ['Elite', 'Garware Plus', 'Garware Premium', 'Garware Matt'].includes(item.category) 
                             ? item.category 
