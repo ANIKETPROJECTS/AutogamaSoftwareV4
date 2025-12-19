@@ -833,11 +833,17 @@ export default function CustomerService() {
                         <SelectValue placeholder="Select item" />
                       </SelectTrigger>
                       <SelectContent>
-                        {inventory.filter((item: any) => item.quantity > 0).map((item: any) => (
-                          <SelectItem key={item._id} value={item._id}>
-                            {item.name} ({item.quantity} {item.unit} available)
-                          </SelectItem>
-                        ))}
+                        {inventory.filter((item: any) => item.quantity > 0).map((item: any) => {
+                          // For PPF products, use category name; otherwise use item name
+                          const displayName = item.category && ['Elite', 'Garware Plus', 'Garware Premium', 'Garware Matt'].includes(item.category) 
+                            ? item.category 
+                            : item.name;
+                          return (
+                            <SelectItem key={item._id} value={item._id}>
+                              {displayName} ({item.quantity} {item.unit} available)
+                            </SelectItem>
+                          );
+                        })}
                       </SelectContent>
                     </Select>
                     <Input
