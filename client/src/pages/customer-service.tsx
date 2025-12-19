@@ -176,6 +176,10 @@ export default function CustomerService() {
           if (typeof prefs.laborCost === 'number' && prefs.laborCost > 0) setLaborCost(prefs.laborCost.toString());
           if (Array.isArray(prefs.otherServices) && prefs.otherServices.length > 0) {
             setSelectedOtherServices(prefs.otherServices);
+            // Also populate the first service in the dropdowns for editing
+            const firstService = prefs.otherServices[0];
+            if (firstService.name) setOtherServiceName(firstService.name);
+            if (firstService.vehicleType) setOtherServiceVehicleType(firstService.vehicleType);
           }
         }
       } catch (error) {
