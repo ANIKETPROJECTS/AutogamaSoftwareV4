@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { MetricCard } from "@/components/metric-card";
 import {
   IndianRupee,
   Package,
@@ -10,6 +11,7 @@ import {
   TrendingUp,
   Clock,
   Activity,
+  Zap,
 } from "lucide-react";
 import {
   BarChart,
@@ -27,7 +29,7 @@ import {
   Legend,
 } from "recharts";
 
-const COLORS = ["#3B82F6", "#22C55E", "#F97316", "#EAB308"];
+const COLORS = ["#dc2626", "#3B82F6", "#22C55E", "#F97316"];
 
 const STATUS_COLORS: Record<string, string> = {
   Inquired: "#3B82F6",
@@ -137,8 +139,13 @@ export default function Dashboard() {
     return sum;
   }, 0);
 
+  const totalRevenue = jobs.reduce((sum: number, job: any) => sum + (job.paidAmount || 0), 0);
+  const completedJobs = jobs.filter((j: any) => j.stage === "Completed").length;
+  const jobCompletion = jobs.length > 0 ? Math.round((completedJobs / jobs.length) * 100) : 0;
+
   return (
     <div className="space-y-8">
+      {/* Header */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
           <h1
@@ -147,157 +154,134 @@ export default function Dashboard() {
           >
             Dashboard
           </h1>
-          <p className="text-muted-foreground mt-2">Your garage operations at a glance</p>
+          <p className="text-muted-foreground mt-2">Welcome back! Here's your garage performance</p>
         </div>
       </div>
 
-      <div className="stat-card-grid">
-        <Card className="stat-card" data-testid="card-todays-sales">
-          <CardContent className="p-5">
-            <div className="flex items-start justify-between">
-              <div className="space-y-2">
-                <p className="stat-label">Today's Sales</p>
-                <p className="stat-value">₹{(todaySales/1000).toFixed(1)}K</p>
-              </div>
-              <div className="stat-icon-container">
-                <IndianRupee className="w-5 h-5 text-primary" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Metric Cards Grid */}
+      <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+        <MetricCard
+          title="Today's Sales"
+          value={`₹${(todaySales/1000).toFixed(1)}K`}
+          icon={IndianRupee}
+          description="Revenue earned today"
+          data-testid="card-todays-sales"
+        />
 
-        <Card className="stat-card" data-testid="card-active-jobs-count">
-          <CardContent className="p-5">
-            <div className="flex items-start justify-between">
-              <div className="space-y-2">
-                <p className="stat-label">Active Jobs</p>
-                <p className="stat-value">{jobs.filter((j: any) => j.stage !== "Completed" && j.stage !== "Cancelled").length}</p>
-              </div>
-              <div className="stat-icon-container">
-                <Package className="w-5 h-5 text-primary" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <MetricCard
+          title="Active Jobs"
+          value={jobs.filter((j: any) => j.stage !== "Completed" && j.stage !== "Cancelled").length}
+          icon={Zap}
+          description="Jobs in progress"
+          data-testid="card-active-jobs-count"
+        />
 
-        <Card className="stat-card" data-testid="card-low-stock-count">
-          <CardContent className="p-5">
-            <div className="flex items-start justify-between">
-              <div className="space-y-2">
-                <p className="stat-label">Low Stock</p>
-                <p className="stat-value">{lowStock.length}</p>
-              </div>
-              <div className="stat-icon-container">
-                <AlertTriangle className="w-5 h-5 text-primary" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <MetricCard
+          title="Completion Rate"
+          value={`${jobCompletion}%`}
+          icon={TrendingUp}
+          progress={jobCompletion}
+          description={`${completedJobs} of ${jobs.length} jobs`}
+          data-testid="card-job-completion"
+        />
 
-        <Card className="stat-card" data-testid="card-total-customers">
-          <CardContent className="p-5">
-            <div className="flex items-start justify-between">
-              <div className="space-y-2">
-                <p className="stat-label">Customers</p>
-                <p className="stat-value">{customers.length}</p>
-              </div>
-              <div className="stat-icon-container">
-                <Users className="w-5 h-5 text-primary" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <MetricCard
+          title="Total Customers"
+          value={customers.length}
+          icon={Users}
+          description="Registered customers"
+          data-testid="card-total-customers"
+        />
       </div>
 
+      {/* Charts Row 1 */}
       <div className="grid gap-6 lg:grid-cols-2">
         <Card
-          className="card-modern"
+          className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-primary/40 hover:shadow-lg transition-all"
           data-testid="card-sales-trends"
         >
-          <CardHeader className="pb-4 border-b border-border/50">
-            <CardTitle className="flex items-center gap-3 text-base text-foreground">
+          <CardHeader className="pb-4 border-b border-gray-200 bg-gradient-to-r from-primary/5 to-transparent">
+            <CardTitle className="flex items-center gap-3 text-base text-gray-900">
               <TrendingUp className="w-4 h-4 text-primary" />
-              Sales Trends (Last 7 Days)
+              Sales Trends
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
-            <ResponsiveContainer width="100%" height={200}>
+            <ResponsiveContainer width="100%" height={250}>
               <BarChart data={last7Days}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis dataKey="day" className="text-muted-foreground" />
-                <YAxis className="text-muted-foreground" />
-                <Tooltip />
-                <Bar dataKey="sales" fill="#dc2626" radius={[4, 4, 0, 0]} />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
+                <XAxis dataKey="day" stroke="rgba(0,0,0,0.6)" />
+                <YAxis stroke="rgba(0,0,0,0.6)" />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: 'rgba(255,255,255,0.95)', border: '1px solid rgba(220,38,38,0.3)' }}
+                />
+                <Bar dataKey="sales" fill="#dc2626" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
         <Card
-          className="card-modern"
-          data-testid="card-service-status"
+          className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-primary/40 hover:shadow-lg transition-all"
+          data-testid="card-customer-status"
         >
-          <CardHeader className="pb-4 border-b border-border/50">
-            <CardTitle className="flex items-center gap-3 text-base text-foreground">
-              <Clock className="w-4 h-4 text-primary" />
-              Customer Status Distribution
+          <CardHeader className="pb-4 border-b border-gray-200 bg-gradient-to-r from-primary/5 to-transparent">
+            <CardTitle className="flex items-center gap-3 text-base text-gray-900">
+              <Activity className="w-4 h-4 text-primary" />
+              Customer Status
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
-            <ResponsiveContainer width="100%" height={200}>
-              <PieChart margin={{ left: 80, right: 20 }}>
+            <ResponsiveContainer width="100%" height={250}>
+              <PieChart>
                 <Pie
                   data={customerStatusData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={40}
-                  outerRadius={70}
-                  paddingAngle={2}
+                  labelLine={false}
+                  label={({ name, value }) => `${name}: ${value}`}
+                  outerRadius={80}
+                  fill="#dc2626"
                   dataKey="value"
-                  label={({ name, percent }) =>
-                    `${name} ${(percent * 100).toFixed(0)}%`
-                  }
                 >
-                  {customerStatusData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={STATUS_COLORS[entry.name] || COLORS[index % COLORS.length]}
-                    />
+                  {customerStatusData.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip contentStyle={{ backgroundColor: 'rgba(255,255,255,0.95)', border: '1px solid rgba(220,38,38,0.3)' }} />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      {/* Charts Row 2 */}
+      <div className="grid gap-6 lg:grid-cols-2">
         <Card
-          className="card-modern"
+          className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-primary/40 hover:shadow-lg transition-all"
           data-testid="card-customer-growth"
         >
-          <CardHeader className="pb-4 border-b border-border/50">
-            <CardTitle className="flex items-center gap-2 text-foreground">
-              <TrendingUp className="w-5 h-5 text-primary" />
-              Customer Growth (6 Months)
+          <CardHeader className="pb-4 border-b border-gray-200 bg-gradient-to-r from-primary/5 to-transparent">
+            <CardTitle className="flex items-center gap-3 text-base text-gray-900">
+              <Users className="w-4 h-4 text-primary" />
+              Customer Growth
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
-            <ResponsiveContainer width="100%" height={200}>
+            <ResponsiveContainer width="100%" height={250}>
               <LineChart data={customerGrowth}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis dataKey="month" className="text-muted-foreground" />
-                <YAxis className="text-muted-foreground" />
-                <Tooltip />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="customers"
-                  stroke="#dc2626"
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
+                <XAxis dataKey="month" stroke="rgba(0,0,0,0.6)" />
+                <YAxis stroke="rgba(0,0,0,0.6)" />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: 'rgba(255,255,255,0.95)', border: '1px solid rgba(220,38,38,0.3)' }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="customers" 
+                  stroke="#dc2626" 
                   strokeWidth={2}
-                  dot={{ fill: "#dc2626", strokeWidth: 2 }}
-                  name="Total Customers"
+                  dot={{ fill: '#dc2626', r: 4 }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -305,169 +289,68 @@ export default function Dashboard() {
         </Card>
 
         <Card
-          className="card-modern"
-          data-testid="card-product-categories"
+          className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-primary/40 hover:shadow-lg transition-all"
+          data-testid="card-inventory-categories"
         >
-          <CardHeader className="pb-4 border-b border-border/50">
-            <CardTitle className="flex items-center gap-2 text-foreground">
-              <Package className="w-5 h-5 text-primary" />
-              Product Categories
+          <CardHeader className="pb-4 border-b border-gray-200 bg-gradient-to-r from-primary/5 to-transparent">
+            <CardTitle className="flex items-center gap-3 text-base text-gray-900">
+              <Package className="w-4 h-4 text-primary" />
+              Inventory by Category
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
-            <ResponsiveContainer width="100%" height={200}>
+            <ResponsiveContainer width="100%" height={250}>
               <BarChart data={categoryData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis type="number" className="text-muted-foreground" />
-                <YAxis
-                  dataKey="name"
-                  type="category"
-                  className="text-muted-foreground"
-                  width={100}
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
+                <XAxis type="number" stroke="rgba(0,0,0,0.6)" />
+                <YAxis dataKey="name" type="category" stroke="rgba(0,0,0,0.6)" width={100} />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: 'rgba(255,255,255,0.95)', border: '1px solid rgba(220,38,38,0.3)' }}
                 />
-                <Tooltip />
-                <Legend />
-                <Bar
-                  dataKey="products"
-                  fill="#F97316"
-                  radius={[0, 4, 4, 0]}
-                  name="Products"
-                />
+                <Bar dataKey="products" fill="#dc2626" radius={[0, 8, 8, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card
-          className="border-border"
-          data-testid="card-active-service-jobs"
-        >
-          <CardHeader className="pb-2">
-            <CardTitle className="text-foreground">
-              Active Service Jobs
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {activeJobs.length === 0 ? (
-              <p className="text-muted-foreground text-center py-4">
-                No active jobs
-              </p>
-            ) : (
-              activeJobs.map((job: any) => (
+      {/* Active Jobs Table */}
+      <Card
+        className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-primary/40 hover:shadow-lg transition-all"
+        data-testid="card-active-jobs"
+      >
+        <CardHeader className="pb-4 border-b border-gray-200 bg-gradient-to-r from-primary/5 to-transparent">
+          <CardTitle className="flex items-center gap-3 text-base text-gray-900">
+            <Clock className="w-4 h-4 text-primary" />
+            Active Jobs
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-6">
+          {activeJobs.length > 0 ? (
+            <div className="space-y-3">
+              {activeJobs.map((job: any) => (
                 <div
-                  key={job._id}
-                  className="flex items-center justify-between p-3 bg-accent/30 rounded-lg"
-                  data-testid={`job-item-${job._id}`}
+                  key={job.id}
+                  className="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors border border-gray-200"
+                  data-testid={`job-row-${job.id}`}
                 >
-                  <div>
-                    <p className="font-medium text-foreground">
-                      {job.customerName || "Unknown"}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {job.plateNumber}
-                    </p>
+                  <div className="flex-1">
+                    <p className="font-medium text-gray-900 text-sm">{job.serviceType}</p>
+                    <p className="text-xs text-gray-600">{job.customerName}</p>
                   </div>
                   <Badge
                     variant="outline"
-                    className="bg-blue-50 text-blue-600 border-blue-200"
+                    className="bg-primary/10 text-primary border-primary/30 text-xs"
                   >
-                    <Clock className="w-3 h-3 mr-1" />
-                    {job.stage === "New Lead" ? "Inquired" : job.stage}
+                    {job.stage}
                   </Badge>
                 </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
-
-        <Card
-          className="border-border"
-          data-testid="card-low-stock-alerts"
-        >
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-foreground">
-              <AlertTriangle className="w-5 h-5 text-orange-500" />
-              Low Stock Alerts
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {lowStock.length === 0 ? (
-              <p className="text-muted-foreground text-center py-4">
-                No low stock items
-              </p>
-            ) : (
-              lowStock.slice(0, 5).map((item: any) => (
-                <div
-                  key={item._id}
-                  className="flex items-center justify-between p-3 bg-accent/30 rounded-lg"
-                  data-testid={`low-stock-item-${item._id}`}
-                >
-                  <div>
-                    <p className="font-medium text-foreground">{item.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      Reorder level: {item.minStock}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-lg font-bold text-orange-500">
-                      {item.quantity}
-                    </p>
-                    <p className="text-xs text-muted-foreground">in stock</p>
-                  </div>
-                </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card
-        className="border-border"
-        data-testid="card-recent-activity"
-      >
-        <CardHeader className="pb-2">
-          <CardTitle className="flex items-center gap-2 text-foreground">
-            <Activity className="w-5 h-5 text-purple-500" />
-            Recent Activity
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {customers.slice(0, 5).map((customer: any, i: number) => (
-            <div
-              key={customer._id || i}
-              className="flex items-center justify-between p-3 hover:bg-accent/30 rounded-lg transition-colors"
-              data-testid={`activity-item-${customer._id}`}
-            >
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <Activity className="w-4 h-4 text-purple-500" />
-                </div>
-                <div>
-                  <p className="font-medium text-foreground">
-                    {customer.status === "Inquired" ? "New inquiry from" : "Customer"}{" "}
-                    {customer.name}
-                  </p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Badge variant="outline" className="text-xs">
-                      {customer.phone}
-                    </Badge>
-                    <Badge className="text-xs bg-green-100 text-green-700">
-                      {customer.status || "Inquired"}
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {new Date(customer.createdAt).toLocaleDateString()}
-              </p>
+              ))}
             </div>
-          ))}
-          {customers.length === 0 && (
-            <p className="text-muted-foreground text-center py-4">
-              No recent activity
-            </p>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <p>No active jobs</p>
+            </div>
           )}
         </CardContent>
       </Card>

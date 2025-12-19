@@ -27,6 +27,30 @@
   .stat-value {
     @apply text-2xl font-bold text-foreground;
   }
+
+  .circular-progress {
+    @apply relative w-20 h-20 rounded-full flex items-center justify-center;
+  }
+  
+  .metric-card {
+    @apply bg-white border border-gray-200 rounded-xl p-6 hover:border-primary/40 hover:shadow-lg transition-all duration-300;
+  }
+
+  .hover-elevate {
+    @apply transition-all duration-200;
+    
+    &:hover {
+      @apply shadow-md;
+    }
+  }
+
+  .active-elevate-2 {
+    @apply transition-all duration-150;
+    
+    &:active {
+      @apply shadow-lg;
+    }
+  }
 }
 
 @theme inline {
@@ -72,51 +96,51 @@
 }
 
 :root {
-  /* Clean Light Theme with White Background */
+  /* Light Theme with Red Accents - Premium Look */
   --background: 0 0% 98%; /* Light grey-white background */
-  --foreground: 0 0% 10%; /* Dark text for visibility */
+  --foreground: 0 0% 15%; /* Dark text */
 
   --card: 0 0% 100%; /* Pure white cards */
-  --card-foreground: 0 0% 10%; /* Dark text on cards */
+  --card-foreground: 0 0% 15%; /* Dark text on cards */
 
   --popover: 0 0% 100%; /* White popovers */
-  --popover-foreground: 0 0% 10%;
+  --popover-foreground: 0 0% 15%;
 
-  --primary: 0 72% 51%; /* Vibrant red #dc2626 */
+  --primary: 0 84% 60%; /* Red accent #ff4444 */
   --primary-foreground: 0 0% 100%;
 
   --secondary: 0 0% 96%; /* Light grey */
-  --secondary-foreground: 0 0% 10%;
+  --secondary-foreground: 0 0% 15%;
 
-  --muted: 0 0% 94%;
-  --muted-foreground: 0 0% 45%;
+  --muted: 0 0% 92%;
+  --muted-foreground: 0 0% 50%;
 
-  --accent: 0 0% 96%;
-  --accent-foreground: 0 0% 10%;
+  --accent: 0 84% 60%; /* Red accent */
+  --accent-foreground: 0 0% 100%;
 
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
 
-  --border: 0 0% 85%; /* Subtle grey borders */
+  --border: 0 0% 90%; /* Subtle light borders */
   --input: 0 0% 100%; /* White input backgrounds */
-  --ring: 0 72% 51%;
+  --ring: 0 84% 60%;
 
   --radius: 0.5rem;
 
-  --chart-1: 0 72% 51%; /* Red */
+  --chart-1: 0 84% 60%; /* Red */
   --chart-2: 217 91% 60%; /* Blue */
   --chart-3: 142 76% 36%; /* Green */
   --chart-4: 38 92% 50%; /* Orange */
   --chart-5: 262 83% 58%; /* Purple */
 
   --sidebar: 0 0% 100%; /* White sidebar */
-  --sidebar-foreground: 0 0% 10%;
-  --sidebar-primary: 0 72% 51%;
+  --sidebar-foreground: 0 0% 30%;
+  --sidebar-primary: 0 84% 60%; /* Red for active items */
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 0 0% 96%;
-  --sidebar-accent-foreground: 0 0% 10%;
+  --sidebar-accent: 0 0% 96%; /* Light hover state */
+  --sidebar-accent-foreground: 0 0% 20%;
   --sidebar-border: 0 0% 90%;
-  --sidebar-ring: 0 72% 51%;
+  --sidebar-ring: 0 84% 60%;
 }
 
 @layer base {
