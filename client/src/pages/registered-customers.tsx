@@ -3,7 +3,7 @@ import { api } from "@/lib/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Phone, Search, Mail, MapPin, Car } from "lucide-react";
+import { Phone, Search, Mail, MapPin, Car, Users } from "lucide-react";
 import { Link } from "wouter";
 import { useState } from "react";
 
@@ -39,25 +39,34 @@ export default function RegisteredCustomers() {
   });
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h1 className="font-display text-3xl font-bold tracking-tight">Registered Customers</h1>
-        <p className="text-muted-foreground mt-1 text-sm">View and manage all registered customers</p>
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="pb-6 border-b border-slate-200">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h1 className="font-display text-5xl font-bold tracking-tight text-slate-900">Registered Customers</h1>
+            <p className="text-slate-600 mt-3 font-medium">Manage and view all your garage customers</p>
+          </div>
+          <div className="hidden md:flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl">
+            <Users className="w-8 h-8 text-primary" />
+          </div>
+        </div>
       </div>
 
-      <div className="flex gap-3">
+      {/* Search & Filter Section */}
+      <div className="flex flex-col md:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 z-10" />
           <Input
-            placeholder="Search by name, phone, or car..."
+            placeholder="Search by name, phone, or vehicle..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 h-9"
+            className="pl-12 h-11 bg-white border border-slate-200 rounded-lg focus:border-primary/50 shadow-sm"
             data-testid="input-search-customer"
           />
         </div>
         <Select value={filterVehicles} onValueChange={setFilterVehicles}>
-          <SelectTrigger className="w-40" data-testid="select-filter-vehicles">
+          <SelectTrigger className="w-full md:w-48 h-11 bg-white border border-slate-200 shadow-sm" data-testid="select-filter-vehicles">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -68,41 +77,76 @@ export default function RegisteredCustomers() {
         </Select>
       </div>
 
+      {/* Results */}
       {isLoading ? (
-        <div className="text-center py-8 text-muted-foreground">Loading...</div>
+        <div className="text-center py-12">
+          <div className="inline-block">
+            <div className="w-12 h-12 bg-slate-200 rounded-lg animate-pulse mb-4 mx-auto" />
+            <p className="text-slate-600 font-medium">Loading customers...</p>
+          </div>
+        </div>
       ) : filteredCustomers.length === 0 ? (
-        <div className="text-center py-8 text-muted-foreground">No customers found</div>
+        <div className="text-center py-12 bg-gradient-to-br from-slate-50 to-white border border-slate-200 rounded-xl">
+          <div className="w-16 h-16 bg-slate-200 rounded-lg mx-auto mb-4 flex items-center justify-center">
+            <Users className="w-8 h-8 text-slate-400" />
+          </div>
+          <p className="text-slate-900 font-semibold mb-1">No customers found</p>
+          <p className="text-slate-600 text-sm">Try adjusting your search or filters</p>
+        </div>
       ) : (
-        <div className="space-y-2">
+        <div className="grid gap-4">
           {filteredCustomers.map((customer: any) => (
             <Link key={customer._id} href={`/customer-details/${customer._id}`}>
-              <Card className="card-modern cursor-pointer" data-testid={`customer-card-${customer._id}`}>
-                <CardContent className="p-4 space-y-2">
-                  <h3 className="font-semibold text-base">{customer.name}</h3>
-                  <div className="space-y-1 text-xs text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <Phone className="w-3.5 h-3.5 flex-shrink-0" />
-                      <span>{customer.phone}</span>
+              <Card className="bg-gradient-to-br from-white to-slate-50 border border-slate-200 shadow-sm hover:shadow-lg hover:border-primary/50 transition-all duration-300 cursor-pointer group" data-testid={`customer-card-${customer._id}`}>
+                <CardContent className="p-5 space-y-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-lg text-slate-900 group-hover:text-primary transition-colors">{customer.name}</h3>
+                      <p className="text-sm text-slate-600 mt-1">{customer.phone}</p>
                     </div>
-                    {customer.email && (
-                      <div className="flex items-center gap-2">
-                        <Mail className="w-3.5 h-3.5 flex-shrink-0" />
-                        <span className="truncate">{customer.email}</span>
-                      </div>
-                    )}
-                    {customer.address && (
-                      <div className="flex items-start gap-2">
-                        <MapPin className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
-                        <span className="line-clamp-2">{customer.address}</span>
-                      </div>
-                    )}
                     {customer.vehicles && customer.vehicles.length > 0 && (
-                      <div className="flex items-center gap-2 font-medium text-primary">
-                        <Car className="w-3.5 h-3.5 flex-shrink-0" />
-                        <span>{customer.vehicles.length} vehicle{customer.vehicles.length !== 1 ? 's' : ''}</span>
+                      <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-lg flex-shrink-0">
+                        <Car className="w-4 h-4 text-primary" />
+                        <span className="text-sm font-semibold text-primary">{customer.vehicles.length}</span>
                       </div>
                     )}
                   </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                    {customer.email && (
+                      <div className="flex items-center gap-3 p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                        <Mail className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                        <span className="truncate text-slate-700">{customer.email}</span>
+                      </div>
+                    )}
+                    {customer.address && (
+                      <div className="flex items-start gap-3 p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                        <MapPin className="w-4 h-4 text-slate-500 flex-shrink-0 mt-0.5" />
+                        <span className="line-clamp-2 text-slate-700">{customer.address}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {customer.vehicles && customer.vehicles.length > 0 && (
+                    <div className="pt-2 border-t border-slate-200">
+                      <div className="flex items-center gap-2 text-xs text-slate-600 mb-2 font-medium">
+                        <Car className="w-4 h-4" />
+                        Vehicles
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {customer.vehicles.slice(0, 2).map((vehicle: any, idx: number) => (
+                          <div key={idx} className="px-2.5 py-1.5 bg-slate-100 rounded border border-slate-200 text-xs font-medium text-slate-900">
+                            {vehicle.make} {vehicle.model}
+                          </div>
+                        ))}
+                        {customer.vehicles.length > 2 && (
+                          <div className="px-2.5 py-1.5 bg-slate-100 rounded border border-slate-200 text-xs font-medium text-slate-600">
+                            +{customer.vehicles.length - 2} more
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </Link>
