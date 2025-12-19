@@ -172,7 +172,11 @@ export default function CustomerService() {
           if (prefs.ppfCategory) setPpfCategory(prefs.ppfCategory);
           if (prefs.ppfVehicleType) setPpfVehicleType(prefs.ppfVehicleType);
           if (prefs.ppfWarranty) setPpfWarranty(prefs.ppfWarranty);
+          if (prefs.ppfPrice) setPpfPrice(prefs.ppfPrice);
           if (prefs.laborCost) setLaborCost(prefs.laborCost.toString());
+          if (prefs.otherServices && prefs.otherServices.length > 0) {
+            setSelectedOtherServices(prefs.otherServices);
+          }
         }
       } catch (error) {
         // No preferences found, try to get last job

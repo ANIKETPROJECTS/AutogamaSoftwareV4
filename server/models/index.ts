@@ -6,6 +6,12 @@ export type TechnicianStatus = 'Available' | 'Busy' | 'Off';
 export type InventoryCategory = 'Elite' | 'Garware Plus' | 'Garware Premium' | 'Garware Matt';
 export type PaymentMode = 'Cash' | 'UPI' | 'Card' | 'Bank Transfer';
 
+export interface IOtherService {
+  name: string;
+  vehicleType: string;
+  price: number;
+}
+
 export interface IVehicle {
   make: string;
   model: string;
@@ -18,6 +24,7 @@ export interface IVehicle {
   ppfWarranty?: string;
   ppfPrice?: number;
   laborCost?: number;
+  otherServices?: IOtherService[];
 }
 
 export type CustomerStatus = 'Inquired' | 'Working' | 'Waiting' | 'Completed';
@@ -139,6 +146,12 @@ export interface IInvoice extends Document {
   createdAt: Date;
 }
 
+const OtherServiceSchema = new Schema<IOtherService>({
+  name: { type: String },
+  vehicleType: { type: String },
+  price: { type: Number }
+});
+
 const VehicleSchema = new Schema<IVehicle>({
   make: { type: String, default: '' },
   model: { type: String, default: '' },
@@ -150,7 +163,8 @@ const VehicleSchema = new Schema<IVehicle>({
   ppfVehicleType: { type: String },
   ppfWarranty: { type: String },
   ppfPrice: { type: Number },
-  laborCost: { type: Number }
+  laborCost: { type: Number },
+  otherServices: [OtherServiceSchema]
 });
 
 const CustomerSchema = new Schema<ICustomer>({

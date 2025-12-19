@@ -303,6 +303,7 @@ export default function CustomerRegistration() {
           ppfWarranty: customerData.ppfWarranty,
           ppfPrice: customerData.ppfPrice,
           laborCost: 0,
+          otherServices: customerData.selectedOtherServices,
         },
       ],
     });
