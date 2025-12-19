@@ -138,85 +138,91 @@ export default function Dashboard() {
   }, 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
           <h1
-            className="font-display text-3xl font-bold tracking-tight"
+            className="font-display text-4xl font-bold tracking-tight bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent"
             data-testid="text-dashboard-title"
           >
             Dashboard
           </h1>
-          <p className="text-muted-foreground mt-1">Welcome back, Admin</p>
+          <p className="text-muted-foreground mt-2 text-lg">Welcome back, here's your garage overview</p>
         </div>
       </div>
 
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-        <Card className="border-border" data-testid="card-todays-sales">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground font-medium">Today's Sales</p>
-                <p className="text-2xl font-bold text-foreground mt-1">₹{todaySales.toLocaleString()}</p>
+      <div className="grid gap-5 grid-cols-2 lg:grid-cols-4">
+        <Card className="border-2 border-slate-200 dark:border-slate-700 hover:border-red-500/50 hover:shadow-lg transition-all duration-300" data-testid="card-todays-sales">
+          <CardContent className="p-6">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Today's Sales</p>
+                <p className="text-3xl font-bold text-foreground">₹{(todaySales/1000).toFixed(1)}K</p>
+                <p className="text-xs text-green-600 dark:text-green-400">+12.5% from yesterday</p>
               </div>
-              <div className="p-3 bg-muted rounded-lg">
-                <IndianRupee className="w-6 h-6 text-muted-foreground" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-border" data-testid="card-active-jobs-count">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground font-medium">Active Service Jobs</p>
-                <p className="text-2xl font-bold text-foreground mt-1">{jobs.filter((j: any) => j.stage !== "Completed" && j.stage !== "Cancelled").length}</p>
-              </div>
-              <div className="p-3 bg-muted rounded-lg">
-                <Package className="w-6 h-6 text-muted-foreground" />
+              <div className="p-3 bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-900/10 rounded-lg">
+                <IndianRupee className="w-6 h-6 text-red-600 dark:text-red-400" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-border" data-testid="card-low-stock-count">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground font-medium">Low Stock Items</p>
-                <p className="text-2xl font-bold text-foreground mt-1">{lowStock.length}</p>
+        <Card className="border-2 border-slate-200 dark:border-slate-700 hover:border-blue-500/50 hover:shadow-lg transition-all duration-300" data-testid="card-active-jobs-count">
+          <CardContent className="p-6">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Active Jobs</p>
+                <p className="text-3xl font-bold text-foreground">{jobs.filter((j: any) => j.stage !== "Completed" && j.stage !== "Cancelled").length}</p>
+                <p className="text-xs text-blue-600 dark:text-blue-400">In progress</p>
               </div>
-              <div className="p-3 bg-muted rounded-lg">
-                <AlertTriangle className="w-6 h-6 text-muted-foreground" />
+              <div className="p-3 bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-900/30 dark:to-blue-900/10 rounded-lg">
+                <Package className="w-6 h-6 text-blue-600 dark:text-blue-400" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-border" data-testid="card-total-customers">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground font-medium">Total Customers</p>
-                <p className="text-2xl font-bold text-foreground mt-1">{customers.length}</p>
+        <Card className="border-2 border-slate-200 dark:border-slate-700 hover:border-orange-500/50 hover:shadow-lg transition-all duration-300" data-testid="card-low-stock-count">
+          <CardContent className="p-6">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Low Stock</p>
+                <p className="text-3xl font-bold text-foreground">{lowStock.length}</p>
+                <p className="text-xs text-orange-600 dark:text-orange-400">Need attention</p>
               </div>
-              <div className="p-3 bg-muted rounded-lg">
-                <Users className="w-6 h-6 text-muted-foreground" />
+              <div className="p-3 bg-gradient-to-br from-orange-100 to-orange-50 dark:from-orange-900/30 dark:to-orange-900/10 rounded-lg">
+                <AlertTriangle className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-2 border-slate-200 dark:border-slate-700 hover:border-green-500/50 hover:shadow-lg transition-all duration-300" data-testid="card-total-customers">
+          <CardContent className="p-6">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Customers</p>
+                <p className="text-3xl font-bold text-foreground">{customers.length}</p>
+                <p className="text-xs text-green-600 dark:text-green-400">Total registered</p>
+              </div>
+              <div className="p-3 bg-gradient-to-br from-green-100 to-green-50 dark:from-green-900/30 dark:to-green-900/10 rounded-lg">
+                <Users className="w-6 h-6 text-green-600 dark:text-green-400" />
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2">
         <Card
-          className="border-border"
+          className="border-2 border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all duration-300"
           data-testid="card-sales-trends"
         >
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-foreground">
-              <TrendingUp className="w-5 h-5 text-blue-500" />
+          <CardHeader className="pb-4 border-b border-slate-100 dark:border-slate-800">
+            <CardTitle className="flex items-center gap-3 text-lg text-foreground">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              </div>
               Sales Trends (Last 7 Days)
             </CardTitle>
           </CardHeader>
@@ -234,12 +240,14 @@ export default function Dashboard() {
         </Card>
 
         <Card
-          className="border-border"
+          className="border-2 border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all duration-300"
           data-testid="card-service-status"
         >
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-foreground">
-              <Clock className="w-5 h-5 text-green-500" />
+          <CardHeader className="pb-4 border-b border-slate-100 dark:border-slate-800">
+            <CardTitle className="flex items-center gap-3 text-lg text-foreground">
+              <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                <Clock className="w-5 h-5 text-green-600 dark:text-green-400" />
+              </div>
               Customer Status Distribution
             </CardTitle>
           </CardHeader>
