@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/auth-context';
 import { Lock, Mail } from 'lucide-react';
-import garageBg from '@assets/stock_images/automotive_workshop__0aeada6d.jpg';
+import garageBg from '@assets/garage-original.png';
 
 export default function Login() {
   const [, setLocation] = useLocation();
