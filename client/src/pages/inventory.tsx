@@ -163,9 +163,6 @@ export default function Inventory() {
                         {displayItem.category}
                       </Badge>
                     </div>
-                    <div className="p-2 bg-accent rounded-lg">
-                      <Package className="w-4 h-4 text-muted-foreground" />
-                    </div>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
