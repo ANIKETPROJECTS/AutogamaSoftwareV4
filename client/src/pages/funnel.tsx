@@ -112,7 +112,7 @@ export default function CustomerFunnel() {
             <p className="text-sm font-medium text-slate-600">Track customer journey through different stages</p>
           </div>
           <div className="relative w-full md:w-80">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            
             <Input
               placeholder="Search by name, phone, or car..."
               value={searchQuery}

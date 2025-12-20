@@ -445,7 +445,7 @@ export default function CustomerService() {
         <CardHeader className="pb-4 border-b border-slate-200">
           <CardTitle className="flex items-center gap-3 text-xl text-slate-900 font-bold">
             <div className="p-2.5 bg-slate-200 rounded-lg">
-              <Plus className="w-5 h-5 text-slate-700" />
+              
             </div>
             Create New Service
           </CardTitle>
@@ -490,7 +490,7 @@ export default function CustomerService() {
                           onClick={() => setShowAddVehicle(!showAddVehicle)}
                           data-testid="button-toggle-add-vehicle"
                         >
-                          <Plus className="w-4 h-4 mr-1" />
+                           
                           Add New Vehicle
                         </Button>
                       </div>
@@ -741,7 +741,7 @@ export default function CustomerService() {
                         className="w-full"
                         data-testid="button-add-other-service"
                       >
-                        <Plus className="w-4 h-4 mr-2" />
+                         
                         Add Service
                       </Button>
 
@@ -873,7 +873,7 @@ export default function CustomerService() {
                       data-testid="input-item-quantity"
                     />
                     <Button type="button" onClick={handleAddItem} variant="outline" data-testid="button-add-item">
-                      <Plus className="w-4 h-4" />
+                       
                     </Button>
                   </div>
                 </div>

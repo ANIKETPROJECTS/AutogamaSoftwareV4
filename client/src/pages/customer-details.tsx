@@ -45,7 +45,6 @@ export default function CustomerDetails() {
       <div className="flex items-center justify-between gap-3">
         <Link href="/registered-customers">
           <Button variant="outline" size="sm" data-testid="button-back">
-            <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
         </Link>
@@ -67,22 +66,9 @@ export default function CustomerDetails() {
               <div>
                 <p className="font-semibold text-sm mb-1">Contact</p>
                 <div className="space-y-1 text-xs">
-                  <div className="flex items-center gap-2">
-                    <Phone className="w-3 h-3 text-muted-foreground" />
-                    <span>{customer.phone}</span>
-                  </div>
-                  {customer.email && (
-                    <div className="flex items-center gap-2">
-                      <Mail className="w-3 h-3 text-muted-foreground" />
-                      <span className="truncate">{customer.email}</span>
-                    </div>
-                  )}
-                  {customer.address && (
-                    <div className="flex items-start gap-2">
-                      <MapPin className="w-3 h-3 text-muted-foreground mt-0.5 flex-shrink-0" />
-                      <span className="line-clamp-2 text-xs">{customer.address}</span>
-                    </div>
-                  )}
+                  <p>{customer.phone}</p>
+                  {customer.email && <p className="truncate">{customer.email}</p>}
+                  {customer.address && <p className="line-clamp-2 text-xs">{customer.address}</p>}
                 </div>
               </div>
 
@@ -93,8 +79,7 @@ export default function CustomerDetails() {
                   <div className="p-2 bg-gray-50 rounded border border-gray-200 text-xs space-y-1">
                     <p className="line-clamp-2">{customer.service}</p>
                     {customer.serviceCost && (
-                      <div className="flex items-center gap-1 font-semibold">
-                        <DollarSign className="w-3 h-3" />
+                      <div className="font-semibold">
                         ₹{customer.serviceCost.toLocaleString('en-IN')}
                       </div>
                     )}
@@ -112,8 +97,7 @@ export default function CustomerDetails() {
                   <div className="space-y-1">
                     {customer.vehicles.slice(0, 2).map((vehicle: any, i: number) => (
                       <div key={i} className="p-2 bg-gray-50 rounded border border-gray-200 text-xs">
-                        <div className="flex items-center gap-2 font-medium">
-                          <Car className="w-3 h-3" />
+                        <div className="font-medium">
                           <span className="truncate">{vehicle.make} {vehicle.model}</span>
                         </div>
                         {vehicle.plateNumber && (
@@ -131,7 +115,6 @@ export default function CustomerDetails() {
           {/* Action Button */}
           <Link href={`/customer-service?customerId=${customer._id}`} className="block">
             <Button className="w-full bg-blue-500 hover:bg-blue-600 text-sm h-9" data-testid={`button-create-service-${customer._id}`}>
-              <Wrench className="w-3 h-3 mr-2" />
               Create Service
             </Button>
           </Link>
@@ -168,17 +151,11 @@ export default function CustomerDetails() {
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
                     <div>
                       <p className="text-muted-foreground font-medium">Date</p>
-                      <div className="flex items-center gap-1 mt-1">
-                        <Calendar className="w-3 h-3" />
-                        <span>{new Date(job.createdAt).toLocaleDateString('en-IN')}</span>
-                      </div>
+                      <p className="mt-1">{new Date(job.createdAt).toLocaleDateString('en-IN')}</p>
                     </div>
                     <div>
                       <p className="text-muted-foreground font-medium">Technician</p>
-                      <div className="flex items-center gap-1 mt-1">
-                        <User className="w-3 h-3" />
-                        <span>{job.technicianName || 'Not assigned'}</span>
-                      </div>
+                      <p className="mt-1">{job.technicianName || 'Not assigned'}</p>
                     </div>
                     <div>
                       <p className="text-muted-foreground font-medium">Amount</p>

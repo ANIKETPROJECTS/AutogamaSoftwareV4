@@ -138,7 +138,7 @@ export default function ServiceFunnel() {
       {/* Search and Filter */}
       <div className="flex flex-col sm:flex-row gap-4 bg-gradient-to-r from-slate-50 to-slate-100 p-6 rounded-xl border border-slate-200">
         <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+          
           <Input
             placeholder="Search by customer, vehicle, or plate..."
             value={search}
@@ -225,21 +225,18 @@ export default function ServiceFunnel() {
                       </Select>
                     )}
                     
-                    <div title="WhatsApp notification sent on status change">
-                      <MessageCircle className="w-5 h-5 text-green-500" />
-                    </div>
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between gap-4 mt-5 pt-5 border-t border-slate-200 text-sm flex-wrap">
-                  <div className="flex items-center gap-6">
-                    <div className="bg-orange-50 px-3 py-2 rounded-lg border border-orange-200">
-                      <span className="text-orange-700 text-xs font-semibold block">Service Cost</span>
-                      <span className="font-bold text-orange-900 flex items-center text-sm"><IndianRupee className="w-4 h-4" />{job.totalAmount.toLocaleString('en-IN')}</span>
+                  <div className="flex items-center gap-6 text-sm">
+                    <div>
+                      <span className="text-slate-500 font-medium">Service Cost: </span>
+                      <span className="font-bold">₹{job.totalAmount.toLocaleString('en-IN')}</span>
                     </div>
-                    <div className="bg-green-50 px-3 py-2 rounded-lg border border-green-200">
-                      <span className="text-green-700 text-xs font-semibold block">Final Amount</span>
-                      <span className="font-bold text-green-700 flex items-center text-sm"><IndianRupee className="w-4 h-4" />{job.paidAmount.toLocaleString('en-IN')}</span>
+                    <div>
+                      <span className="text-slate-500 font-medium">Final Amount: </span>
+                      <span className="font-bold">₹{job.paidAmount.toLocaleString('en-IN')}</span>
                     </div>
                     <Badge 
                       variant="outline" 
@@ -255,7 +252,6 @@ export default function ServiceFunnel() {
                   <div>
                     {hasInvoice(job._id) && (
                       <Badge className="bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800">
-                        <FileText className="w-3 h-3 mr-1" />
                         Invoice Created
                       </Badge>
                     )}

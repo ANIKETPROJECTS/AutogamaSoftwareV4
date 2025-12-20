@@ -103,7 +103,7 @@ export default function Appointments() {
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button className="bg-primary hover:bg-primary/90" data-testid="button-new-appointment">
-              <Plus className="w-4 h-4 mr-2" />
+               
               Book Appointment
             </Button>
           </DialogTrigger>
@@ -211,10 +211,7 @@ export default function Appointments() {
             >
               <CardContent className="p-4">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="flex items-start gap-4">
-                    <div className="p-3 bg-gray-100 rounded-xl">
-                      <Clock className="w-6 h-6 text-primary" />
-                    </div>
+                  <div>
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-display font-bold text-lg">{appt.timeSlot}</span>
@@ -223,18 +220,9 @@ export default function Appointments() {
                         </Badge>
                       </div>
                       <div className="space-y-1 mt-2 text-sm text-muted-foreground">
-                        <p className="flex items-center gap-2">
-                          <User className="w-3 h-3" />
-                          {appt.customerName}
-                        </p>
-                        <p className="flex items-center gap-2">
-                          <Phone className="w-3 h-3" />
-                          {appt.customerPhone}
-                        </p>
-                        <p className="flex items-center gap-2">
-                          <Car className="w-3 h-3" />
-                          {appt.vehicleInfo} ({appt.plateNumber})
-                        </p>
+                        <p>{appt.customerName}</p>
+                        <p>{appt.customerPhone}</p>
+                        <p>{appt.vehicleInfo} ({appt.plateNumber})</p>
                       </div>
                       <p className="mt-2 text-sm">
                         <span className="text-muted-foreground">Service: </span>

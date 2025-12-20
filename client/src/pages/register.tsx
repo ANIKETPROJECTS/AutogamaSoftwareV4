@@ -683,7 +683,7 @@ export default function CustomerRegistration() {
                   data-testid="button-next-step"
                 >
                   Next Step
-                  <ChevronRight className="w-4 h-4 ml-2" />
+                   
                 </Button>
               </div>
             </CardContent>
@@ -800,7 +800,7 @@ export default function CustomerRegistration() {
                   className="border-slate-300 text-slate-700 hover:bg-slate-100"
                   data-testid="button-prev-step"
                 >
-                  <ChevronLeft className="w-4 h-4 mr-2" />
+                   
                   Previous
                 </Button>
                 <Button

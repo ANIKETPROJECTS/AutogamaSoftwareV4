@@ -242,7 +242,7 @@ export default function Customers() {
           data-testid="button-add-service"
           onClick={() => setShowServiceForm(!showServiceForm)}
         >
-          <Plus className="w-4 h-4 mr-2" />
+           
           Add Customer Service
         </Button>
       </div>
@@ -454,7 +454,7 @@ export default function Customers() {
       )}
 
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        
         <Input
           placeholder="Search by name, phone, or plate number..."
           value={search}
@@ -540,7 +540,7 @@ export default function Customers() {
                       }}
                       data-testid={`button-add-vehicle-${customer._id}`}
                     >
-                      <Plus className="w-3 h-3 mr-1" />
+                       
                       Add
                     </Button>
                   </div>
@@ -561,7 +561,7 @@ export default function Customers() {
                 <Link href={`/customers/${customer._id}`}>
                   <Button variant="outline" className="w-full mt-2" data-testid={`button-view-customer-${customer._id}`}>
                     View History
-                    <ChevronRight className="w-4 h-4 ml-2" />
+                     
                   </Button>
                 </Link>
               </CardContent>

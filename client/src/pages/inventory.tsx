@@ -203,7 +203,7 @@ export default function Inventory() {
                       }}
                       data-testid={`button-stock-in-${displayItem.category}`}
                     >
-                      <ArrowUp className="w-3 h-3 mr-1 text-green-500" />
+                       
                       Stock In
                     </Button>
                     <Button
@@ -220,7 +220,7 @@ export default function Inventory() {
                       data-testid={`button-stock-out-${displayItem.category}`}
                       disabled={displayItem.quantity === 0}
                     >
-                      <ArrowDown className="w-3 h-3 mr-1 text-gray-600" />
+                       
                       Stock Out
                     </Button>
                   </div>
@@ -249,7 +249,7 @@ export default function Inventory() {
                   className="flex-1"
                   onClick={() => setAdjustType('in')}
                 >
-                  <ArrowUp className="w-3 h-3 mr-1" />
+                   
                   Stock In
                 </Button>
                 <Button
@@ -259,7 +259,7 @@ export default function Inventory() {
                   className="flex-1"
                   onClick={() => setAdjustType('out')}
                 >
-                  <ArrowDown className="w-3 h-3 mr-1" />
+                   
                   Stock Out
                 </Button>
               </div>

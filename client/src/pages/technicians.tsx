@@ -81,7 +81,7 @@ export default function Technicians() {
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button className="bg-gradient-to-r from-primary to-primary/90 text-white hover:shadow-lg transition-all" data-testid="button-new-technician">
-              <Plus className="w-4 h-4 mr-2" />
+               
               Add Technician
             </Button>
           </DialogTrigger>
