@@ -32,12 +32,12 @@ const STAGE_COLORS: Record<string, string> = {
 };
 
 const STAGE_BG_COLORS: Record<string, string> = {
-  'New Lead': 'bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800',
-  'Inspection Done': 'bg-yellow-50 dark:bg-yellow-950/30 border-yellow-200 dark:border-yellow-800',
-  'Work In Progress': 'bg-orange-50 dark:bg-orange-950/30 border-orange-200 dark:border-orange-800',
-  'Ready for Delivery': 'bg-gray-50 dark:bg-green-950/30 border-gray-200 dark:border-green-800',
-  'Completed': 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800',
-  'Cancelled': 'bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800'
+  'New Lead': 'bg-white border-blue-200',
+  'Inspection Done': 'bg-white border-yellow-200',
+  'Work In Progress': 'bg-white border-orange-200',
+  'Ready for Delivery': 'bg-white border-gray-200',
+  'Completed': 'bg-white border-emerald-200',
+  'Cancelled': 'bg-white border-red-200'
 };
 
 const STAGE_BADGE_COLORS: Record<string, string> = {
@@ -115,12 +115,6 @@ export default function ServiceFunnel() {
 
   return (
     <div className="space-y-8">
-      <div className="pb-6 border-b border-slate-200">
-        <p className="text-sm font-medium text-slate-600">
-          Track service status in real-time, send WhatsApp updates automatically, and manage invoices
-        </p>
-      </div>
-
       {/* Funnel Overview */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {JOB_STAGES.map(stage => (
