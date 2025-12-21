@@ -74,10 +74,6 @@ export default function Technicians() {
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-slate-200">
-        <div>
-          <p className="text-sm font-medium text-slate-600">Manage your workshop team</p>
-        </div>
-        
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button className="bg-gradient-to-r from-primary to-primary/90 text-white hover:shadow-lg transition-all" data-testid="button-new-technician">
