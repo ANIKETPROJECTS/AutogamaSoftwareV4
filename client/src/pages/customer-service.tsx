@@ -613,8 +613,8 @@ export default function CustomerService() {
                   </Select>
                 </div>
 
-                <Card className="bg-gradient-to-br from-white to-slate-50 border border-slate-200">
-                  <CardHeader className="py-4 cursor-pointer hover:bg-slate-50/50 transition-colors border-b border-slate-200 bg-gradient-to-r from-primary/5 to-transparent" onClick={() => setShowPpfSection(!showPpfSection)}>
+                <Card className="bg-gradient-to-br from-white to-slate-50 border border-red-200">
+                  <CardHeader className="py-4 cursor-pointer hover:bg-slate-50/50 transition-colors border-b border-red-200 bg-gradient-to-r from-primary/5 to-transparent" onClick={() => setShowPpfSection(!showPpfSection)}>
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-base font-semibold text-slate-900">PPF Service</CardTitle>
                       {showPpfSection ? <ChevronUp className="w-4 h-4 text-slate-600" /> : <ChevronDown className="w-4 h-4 text-slate-600" />}
@@ -687,7 +687,7 @@ export default function CustomerService() {
                   )}
                 </Card>
 
-                <Card className="border">
+                <Card className="border border-red-200">
                   <CardHeader className="py-3 cursor-pointer" onClick={() => setShowOtherServicesSection(!showOtherServicesSection)}>
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-base">Other Services</CardTitle>
