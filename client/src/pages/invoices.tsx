@@ -147,12 +147,6 @@ Balance: Rs.${(selectedInvoice.totalAmount - selectedInvoice.paidAmount).toLocal
 
   return (
     <div className="space-y-8">
-      <div className="pb-6 border-b border-slate-200">
-        <p className="text-sm font-medium text-slate-600">
-          Manage invoices, track payments, and view billing records
-        </p>
-      </div>
-
       <div className="grid gap-6 grid-cols-1 md:grid-cols-3">
         <Card className="bg-gradient-to-br from-green-50 to-white border-gray-200 shadow-sm" data-testid="card-total-revenue">
           <CardContent className="p-6">
