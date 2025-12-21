@@ -183,15 +183,6 @@ export default function RegisteredCustomers() {
 
   return (
     <div className="space-y-6">
-      {/* Filters Header */}
-      <div>
-        <div className="flex items-center gap-2 mb-2">
-          <Filter className="w-5 h-5 text-slate-900" />
-          <h2 className="text-lg font-semibold text-slate-900">Filters</h2>
-        </div>
-        <p className="text-sm text-slate-600">Filter customers by various criteria</p>
-      </div>
-
       {/* Comprehensive Search & Filter Section */}
       <div className="space-y-4">
         {/* Search Box */}
