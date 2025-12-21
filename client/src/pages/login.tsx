@@ -63,15 +63,12 @@ export default function Login() {
         backgroundAttachment: 'fixed',
       }}
     >
-      {/* Light Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/60 via-white/50 to-white/60 z-0" />
-      <div className="absolute inset-0 bg-gradient-to-t from-white/40 to-transparent z-0" />
 
       {/* Login Dialog */}
       <div className="relative z-10 w-full max-w-md">
         <div className="bg-white/98 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/30 overflow-hidden">
           {/* Logo */}
-          <div className="bg-gradient-to-r from-red-600 to-red-700 px-8 pt-8 pb-4 flex justify-center">
+          <div className="bg-white px-8 pt-8 pb-4 flex justify-center border-b border-slate-200">
             <img src={logoImage} alt="Auto Gamma Logo" className="h-16 object-contain" />
           </div>
           
