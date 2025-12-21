@@ -261,9 +261,9 @@ export default function RegisteredCustomers() {
             <Filter className="w-4 h-4 text-slate-600" />
             <h3 className="text-sm font-semibold text-slate-900">Sort & Date Filters</h3>
           </div>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-wrap items-end gap-3">
             <Select value={dateRange} onValueChange={setDateRange}>
-              <SelectTrigger className="h-11 bg-white border border-slate-200 rounded-lg shadow-sm w-full md:w-64" data-testid="select-date-range">
+              <SelectTrigger className="h-11 bg-white border border-slate-200 rounded-lg shadow-sm w-full md:w-48" data-testid="select-date-range">
                 <SelectValue placeholder="Date Range" />
               </SelectTrigger>
               <SelectContent>
@@ -276,8 +276,8 @@ export default function RegisteredCustomers() {
             </Select>
 
             {dateRange === "custom" && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div className="relative">
+              <div className="flex gap-3">
+                <div className="relative flex-1">
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
                   <input
                     type="date"
@@ -289,7 +289,7 @@ export default function RegisteredCustomers() {
                   />
                 </div>
 
-                <div className="relative">
+                <div className="relative flex-1">
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
                   <input
                     type="date"
