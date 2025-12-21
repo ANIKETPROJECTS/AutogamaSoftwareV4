@@ -5,42 +5,17 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
 
-const navSections = [
-  {
-    title: 'Main',
-    items: [
-      { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-    ]
-  },
-  {
-    title: 'Customers',
-    items: [
-      { href: '/register', label: 'Register Customers', icon: UserPlus },
-      { href: '/registered-customers', label: 'Registered Customers', icon: Filter },
-    ]
-  },
-  {
-    title: 'Service',
-    items: [
-      { href: '/customer-service', label: 'Customers Service', icon: Wrench },
-      { href: '/jobs', label: 'Service Funnel', icon: Wrench },
-      { href: '/invoices', label: 'Invoices & Tracking', icon: FileText },
-    ]
-  },
-  {
-    title: 'Operations',
-    items: [
-      { href: '/technicians', label: 'Technicians', icon: UserCog },
-      { href: '/inventory', label: 'Inventory', icon: Package },
-      { href: '/appointments', label: 'Appointments', icon: Calendar },
-    ]
-  },
-  {
-    title: 'Settings',
-    items: [
-      { href: '/settings', label: 'Settings', icon: Settings },
-    ]
-  },
+const menuItems = [
+  { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/register', label: 'Register Customers', icon: UserPlus },
+  { href: '/registered-customers', label: 'Registered Customers', icon: Filter },
+  { href: '/customer-service', label: 'Customers Service', icon: Wrench },
+  { href: '/jobs', label: 'Service Funnel', icon: Wrench },
+  { href: '/invoices', label: 'Invoices & Tracking', icon: FileText },
+  { href: '/technicians', label: 'Technicians', icon: UserCog },
+  { href: '/inventory', label: 'Inventory', icon: Package },
+  { href: '/appointments', label: 'Appointments', icon: Calendar },
+  { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -81,39 +56,32 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
           {/* Navigation */}
           <nav className="flex-1 p-4 overflow-y-auto">
-            {navSections.map((section) => (
-              <div key={section.title} className="mb-4">
-                <h3 className="text-xs font-bold text-gray-600 mb-3 px-2">
-                  {section.title}
-                </h3>
-                <div className="space-y-0">
-                  {section.items.map((item) => {
-                    const isActive = location === item.href || (item.href !== '/' && location.startsWith(item.href + '/'));
-                    const Icon = item.icon;
-                    return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        onClick={() => setSidebarOpen(false)}
-                        data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
-                      >
-                        <div
-                          className={cn(
-                            "flex items-center gap-3 px-3 py-2.5 cursor-pointer text-sm font-medium",
-                            isActive
-                              ? "bg-blue-100 text-blue-700 mx-2 rounded-md"
-                              : "text-gray-700"
-                          )}
-                        >
-                          <Icon className="w-5 h-5 flex-shrink-0" />
-                          <span>{item.label}</span>
-                        </div>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
+            <div className="space-y-1">
+              {menuItems.map((item) => {
+                const isActive = location === item.href || (item.href !== '/' && location.startsWith(item.href + '/'));
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setSidebarOpen(false)}
+                    data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
+                  >
+                    <div
+                      className={cn(
+                        "flex items-center gap-3 px-3 py-2.5 cursor-pointer text-sm font-medium rounded-md",
+                        isActive
+                          ? "bg-blue-100 text-blue-700"
+                          : "text-gray-700 hover:bg-gray-100"
+                      )}
+                    >
+                      <Icon className="w-5 h-5 flex-shrink-0" />
+                      <span>{item.label}</span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
           </nav>
       </aside>
 
