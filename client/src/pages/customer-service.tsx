@@ -868,8 +868,8 @@ export default function CustomerService() {
                       placeholder="Qty"
                       data-testid="input-item-quantity"
                     />
-                    <Button type="button" onClick={handleAddItem} variant="outline" data-testid="button-add-item">
-                       
+                    <Button type="button" onClick={handleAddItem} variant="outline" size="icon" data-testid="button-add-item">
+                      <Plus className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
