@@ -166,15 +166,6 @@ export default function Dashboard() {
               <p className="font-semibold text-slate-900 text-sm truncate">{user.name}</p>
               <p className="text-slate-600 text-xs truncate">{user.email}</p>
             </div>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="gap-2 text-slate-700 hover:bg-slate-200"
-              onClick={logout}
-              data-testid="button-logout"
-            >
-              <LogOut className="w-4 h-4" />
-            </Button>
           </div>
         )}
       </div>
