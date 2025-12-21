@@ -51,29 +51,27 @@ export default function RegisteredCustomers() {
       const emailMatch = customer.email?.toLowerCase().includes(query);
       const phoneMatch = customer.phone?.includes(query);
       const referenceMatch = customer.customerId?.toLowerCase().includes(query);
+      const addressMatch = customer.address?.toLowerCase().includes(query);
       const vehicleMatch = customer.vehicles?.some((v: any) => 
         v.make?.toLowerCase().includes(query) ||
         v.model?.toLowerCase().includes(query) ||
         v.plateNumber?.toLowerCase().includes(query) ||
         v.vin?.toLowerCase().includes(query)
       );
-      const chassisMatch = customer.vehicles?.some((v: any) => 
-        v.vin?.toLowerCase().includes(query)
-      );
 
-      if (!nameMatch && !emailMatch && !phoneMatch && !referenceMatch && !vehicleMatch && !chassisMatch) {
+      if (!nameMatch && !emailMatch && !phoneMatch && !referenceMatch && !addressMatch && !vehicleMatch) {
         return false;
       }
     }
 
-    // Apply location filters
-    if (selectedCity !== "all" && customer.city !== selectedCity) {
+    // Apply location filters (only if customer has these fields)
+    if (selectedCity !== "all" && customer.city && customer.city !== selectedCity) {
       return false;
     }
-    if (selectedDistrict !== "all" && customer.district !== selectedDistrict) {
+    if (selectedDistrict !== "all" && customer.district && customer.district !== selectedDistrict) {
       return false;
     }
-    if (selectedState !== "all" && customer.state !== selectedState) {
+    if (selectedState !== "all" && customer.state && customer.state !== selectedState) {
       return false;
     }
 
@@ -88,27 +86,27 @@ export default function RegisteredCustomers() {
     if (dateRange !== "all" && customerDate) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
+      const customerDateOnly = new Date(customerDate);
+      customerDateOnly.setHours(0, 0, 0, 0);
       
       if (dateRange === "today") {
-        const endOfDay = new Date(today);
-        endOfDay.setHours(23, 59, 59, 999);
-        if (customerDate < today || customerDate > endOfDay) return false;
+        if (customerDateOnly.getTime() !== today.getTime()) return false;
       } else if (dateRange === "week") {
         const startOfWeek = new Date(today);
         startOfWeek.setDate(today.getDate() - today.getDay());
-        if (customerDate < startOfWeek) return false;
+        if (customerDateOnly < startOfWeek) return false;
       } else if (dateRange === "month") {
         const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-        if (customerDate < startOfMonth) return false;
+        const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        if (customerDateOnly < startOfMonth || customerDateOnly > endOfMonth) return false;
       } else if (dateRange === "custom") {
         if (fromDate) {
           const from = new Date(fromDate);
-          if (customerDate < from) return false;
+          if (customerDateOnly < from) return false;
         }
         if (toDate) {
           const to = new Date(toDate);
-          to.setHours(23, 59, 59, 999);
-          if (customerDate > to) return false;
+          if (customerDateOnly > to) return false;
         }
       }
     }
