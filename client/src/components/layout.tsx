@@ -84,10 +84,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="flex items-center justify-between p-4 border-b border-border">
           {sidebarOpen && (
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-xs">
-                AG
-              </div>
-              <span className="text-sm font-semibold text-foreground">AutoGarage</span>
+              <img 
+                src="/logo.png" 
+                alt="AutoGarage Logo" 
+                className="h-8 object-contain"
+              />
             </div>
           )}
           <button
