@@ -82,15 +82,31 @@ export default function RegisteredCustomers() {
     }
 
     // Apply date range filter
-    if (fromDate || toDate) {
-      const customerDate = customer.createdAt ? new Date(customer.createdAt) : null;
-      if (customerDate) {
+    const customerDate = customer.createdAt ? new Date(customer.createdAt) : null;
+    
+    if (dateRange !== "all" && customerDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      if (dateRange === "today") {
+        const endOfDay = new Date(today);
+        endOfDay.setHours(23, 59, 59, 999);
+        if (customerDate < today || customerDate > endOfDay) return false;
+      } else if (dateRange === "week") {
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() - today.getDay());
+        if (customerDate < startOfWeek) return false;
+      } else if (dateRange === "month") {
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        if (customerDate < startOfMonth) return false;
+      } else if (dateRange === "custom") {
         if (fromDate) {
           const from = new Date(fromDate);
           if (customerDate < from) return false;
         }
         if (toDate) {
           const to = new Date(toDate);
+          to.setHours(23, 59, 59, 999);
           if (customerDate > to) return false;
         }
       }
@@ -199,9 +215,9 @@ export default function RegisteredCustomers() {
             <Filter className="w-4 h-4 text-slate-600" />
             <h3 className="text-sm font-semibold text-slate-900">Sort & Date Filters</h3>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="flex flex-col gap-3">
             <Select value={dateRange} onValueChange={setDateRange}>
-              <SelectTrigger className="h-11 bg-white border border-slate-200 rounded-lg shadow-sm" data-testid="select-date-range">
+              <SelectTrigger className="h-11 bg-white border border-slate-200 rounded-lg shadow-sm w-full md:w-64" data-testid="select-date-range">
                 <SelectValue placeholder="Date Range" />
               </SelectTrigger>
               <SelectContent>
@@ -213,29 +229,33 @@ export default function RegisteredCustomers() {
               </SelectContent>
             </Select>
 
-            <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
-              <input
-                type="date"
-                value={fromDate}
-                onChange={(e) => setFromDate(e.target.value)}
-                className="pl-10 h-11 w-full bg-white border border-slate-200 rounded-lg focus:border-primary/50 shadow-sm"
-                placeholder="From Date"
-                data-testid="input-from-date"
-              />
-            </div>
+            {dateRange === "custom" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                  <input
+                    type="date"
+                    value={fromDate}
+                    onChange={(e) => setFromDate(e.target.value)}
+                    className="pl-10 h-11 w-full bg-white border border-slate-200 rounded-lg focus:border-primary/50 shadow-sm"
+                    placeholder="From Date"
+                    data-testid="input-from-date"
+                  />
+                </div>
 
-            <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
-              <input
-                type="date"
-                value={toDate}
-                onChange={(e) => setToDate(e.target.value)}
-                className="pl-10 h-11 w-full bg-white border border-slate-200 rounded-lg focus:border-primary/50 shadow-sm"
-                placeholder="To Date"
-                data-testid="input-to-date"
-              />
-            </div>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                  <input
+                    type="date"
+                    value={toDate}
+                    onChange={(e) => setToDate(e.target.value)}
+                    className="pl-10 h-11 w-full bg-white border border-slate-200 rounded-lg focus:border-primary/50 shadow-sm"
+                    placeholder="To Date"
+                    data-testid="input-to-date"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
