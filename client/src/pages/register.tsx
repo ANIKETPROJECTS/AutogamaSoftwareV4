@@ -215,7 +215,7 @@ export default function CustomerRegistration() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [errors, setErrors] = useState<{ phone?: string; email?: string }>({});
+  const [errors, setErrors] = useState<{ phone?: string; email?: string; referrerName?: string }>({});
 
   // Customer info
   const [customerData, setCustomerData] = useState({
@@ -227,6 +227,7 @@ export default function CustomerRegistration() {
     district: "",
     state: "Maharashtra",
     referralSource: "",
+    referrerName: "",
     status: "Inquired",
     ppfCategory: "",
     ppfVehicleType: "",
@@ -306,6 +307,7 @@ export default function CustomerRegistration() {
       status: customerData.status,
       service: servicesList,
       serviceCost: totalServiceCost,
+      referrerName: customerData.referrerName || undefined,
       vehicles: [
         {
           make: vehicleData.make,
@@ -327,7 +329,7 @@ export default function CustomerRegistration() {
   };
 
   const validateStep1 = () => {
-    const newErrors: { phone?: string; email?: string } = {};
+    const newErrors: { phone?: string; email?: string; referrerName?: string } = {};
     
     if (!validatePhone(customerData.phone)) {
       newErrors.phone = "Please enter a valid 10-digit mobile number";
@@ -335,6 +337,10 @@ export default function CustomerRegistration() {
     
     if (!validateEmail(customerData.email)) {
       newErrors.email = "Please enter a valid email address";
+    }
+
+    if (customerData.referralSource === "Friend/Family" && !customerData.referrerName) {
+      newErrors.referrerName = "Please enter the name of the person who referred you";
     }
     
     setErrors(newErrors);
@@ -431,6 +437,7 @@ export default function CustomerRegistration() {
                       setCustomerData({
                         ...customerData,
                         referralSource: value,
+                        referrerName: value === "Friend/Family" ? customerData.referrerName : "",
                       })
                     }
                   >
@@ -446,6 +453,26 @@ export default function CustomerRegistration() {
                     </SelectContent>
                   </Select>
                 </div>
+
+                {customerData.referralSource === "Friend/Family" && (
+                  <div className="space-y-6">
+                    <Label>Name of the Person who referred *</Label>
+                    <Input
+                      value={customerData.referrerName}
+                      onChange={(e) => {
+                        setCustomerData({
+                          ...customerData,
+                          referrerName: e.target.value,
+                        });
+                        if (errors.referrerName) setErrors({ ...errors, referrerName: undefined });
+                      }}
+                      placeholder="Enter referrer's name"
+                      data-testid="input-referrer-name"
+                      className={errors.referrerName ? "border-red-500" : "border-slate-300"}
+                    />
+                    {errors.referrerName && <p className="text-sm text-red-500">{errors.referrerName}</p>}
+                  </div>
+                )}
 
                 <div className="space-y-6">
                   <Label>Customer Status</Label>
