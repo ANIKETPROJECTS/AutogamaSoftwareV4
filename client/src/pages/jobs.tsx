@@ -204,17 +204,17 @@ export default function ServiceFunnel() {
                   No services in this phase
                 </div>
               ) : (
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
                   {phaseJobs.map((job: any) => (
             <Card 
               key={job._id} 
-              className="card-modern border-slate-200 shadow-md hover:shadow-xl transition-all duration-300 hover:border-slate-300 bg-gradient-to-r from-white to-slate-50"
+              className="card-modern border-slate-200 shadow-md hover:shadow-xl transition-all duration-300 hover:border-slate-300 bg-white"
               data-testid={`service-item-${job._id}`}
             >
-              <CardContent className="p-5">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <CardContent className="p-6">
+                <div className="flex flex-col gap-4">
                   <div className="flex items-start gap-4 flex-1">
-                    <div className="p-3.5 bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl border border-blue-200 shadow-sm">
+                    <div className="p-3.5 bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl border border-blue-200 shadow-sm flex-shrink-0">
                       <Car className="w-6 h-6 text-blue-600" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -222,7 +222,7 @@ export default function ServiceFunnel() {
                         <h3 className="font-bold text-lg text-slate-900">{job.vehicleName}</h3>
                         <Badge variant="outline" className="text-xs font-semibold bg-slate-100 border-slate-300">{job.plateNumber}</Badge>
                       </div>
-                      <div className="flex items-center gap-4 mt-2 text-sm text-slate-600">
+                      <div className="flex flex-col gap-1.5 mt-2 text-sm text-slate-600">
                         <span className="flex items-center gap-1.5 font-medium">
                           <User className="w-4 h-4 text-slate-400" />
                           {job.customerName}
@@ -240,9 +240,9 @@ export default function ServiceFunnel() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="w-full">
                     {isTerminalStage(job.stage) ? (
-                      <Badge className={cn("w-48 justify-center border py-2", STAGE_COLORS[job.stage])}>
+                      <Badge className={cn("w-full justify-center border py-2", STAGE_COLORS[job.stage])}>
                         {job.stage}
                       </Badge>
                     ) : (
@@ -250,7 +250,7 @@ export default function ServiceFunnel() {
                         value={job.stage}
                         onValueChange={(stage) => updateStageMutation.mutate({ id: job._id, stage })}
                       >
-                        <SelectTrigger className={cn("w-48 border", STAGE_COLORS[job.stage])} data-testid={`stage-select-${job._id}`}>
+                        <SelectTrigger className={cn("w-full border", STAGE_COLORS[job.stage])} data-testid={`stage-select-${job._id}`}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -260,7 +260,6 @@ export default function ServiceFunnel() {
                         </SelectContent>
                       </Select>
                     )}
-                    
                   </div>
                 </div>
 
