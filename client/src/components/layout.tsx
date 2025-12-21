@@ -67,14 +67,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
           {/* Logo Section */}
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-yellow-400 flex items-center justify-center text-gray-900 font-bold text-sm">
-                M
+              <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
+                AG
               </div>
               <div>
                 <h1 className="font-bold text-base text-gray-900">
-                  Mauli Car World
+                  AutoGarage
                 </h1>
-                <p className="text-xs text-gray-500 font-medium">Manager v1.0</p>
+                <p className="text-xs text-gray-500 font-medium">CRM System</p>
               </div>
             </div>
           </div>
