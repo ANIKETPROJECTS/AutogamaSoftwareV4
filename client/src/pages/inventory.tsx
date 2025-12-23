@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Package, AlertTriangle, ArrowUp, ArrowDown, Search, Filter, Plus } from 'lucide-react';
+import { Package, AlertTriangle, ArrowUp, ArrowDown, Search, Filter, Plus, Info, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const PPF_ITEMS = [
@@ -43,6 +43,8 @@ export default function Inventory() {
   const [rollName, setRollName] = useState('');
   const [rollMeters, setRollMeters] = useState('');
   const [rollSqft, setRollSqft] = useState('');
+  const [rollUnit, setRollUnit] = useState<'Meters' | 'Square KM'>('Meters');
+  const [rollInfoOpen, setRollInfoOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -146,7 +148,7 @@ export default function Inventory() {
     }
   };
 
-  const isLowStock = (item: any) => item.quantity <= MIN_STOCK;
+  const isLowStock = (item: any) => (item.rolls?.length || 0) <= 1;
   
   // Filter and sort items
   const filteredAndSortedItems = useMemo(() => {
@@ -171,7 +173,7 @@ export default function Inventory() {
 
     // Apply sorting
     if (sortBy === 'quantity') {
-      items.sort((a, b) => b.quantity - a.quantity);
+      items.sort((a, b) => (b.rolls?.length || 0) - (a.rolls?.length || 0));
     } else {
       items.sort((a, b) => a.category.localeCompare(b.category));
     }
@@ -276,96 +278,52 @@ export default function Inventory() {
                   <div className="flex items-baseline justify-between">
                     <span className={cn(
                       "text-3xl font-display font-bold",
-                      isLowStock(displayItem) && "text-gray-700"
+                      isLowStock(displayItem) && "text-orange-600"
                     )}>
-                      {displayItem.quantity}
+                      {displayItem.rolls?.length || 0}
                     </span>
-                    <span className="text-sm text-muted-foreground">{displayItem.unit}</span>
+                    <span className="text-sm text-muted-foreground">rolls</span>
                   </div>
                   
                   {isLowStock(displayItem) && (
-                    <p className="text-xs text-gray-600 flex items-center gap-1">
+                    <p className="text-xs text-orange-600 flex items-center gap-1">
                       <AlertTriangle className="w-3 h-3" />
-                      Below minimum ({MIN_STOCK} {displayItem.unit})
+                      Low stock ({(displayItem.rolls?.length || 0)} roll{(displayItem.rolls?.length || 0) !== 1 ? 's' : ''})
                     </p>
                   )}
 
-                  {displayItem._id === null && (
+                  {(!displayItem._id || (displayItem.rolls?.length || 0) === 0) && (
                     <p className="text-xs text-muted-foreground">
-                      No stock data yet
+                      No rolls added yet
                     </p>
                   )}
 
-                  {displayItem.rolls && displayItem.rolls.length > 0 && (
-                    <div className="space-y-2 pt-2 border-t">
-                      <p className="text-xs font-semibold text-muted-foreground">Rolls ({displayItem.rolls.length})</p>
-                      <div className="space-y-1 max-h-32 overflow-y-auto">
-                        {displayItem.rolls.map((roll: any) => (
-                          <div key={roll._id} className="flex items-center justify-between bg-slate-50 dark:bg-slate-900 p-2 rounded text-xs">
-                            <div>
-                              <p className="font-medium">{roll.name}</p>
-                              <p className="text-muted-foreground">{roll.remaining_meters}m / {roll.remaining_sqft.toFixed(1)} sqft</p>
-                            </div>
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="h-6 w-6"
-                              onClick={() => deleteRollMutation.mutate({ id: displayItem._id, rollId: roll._id })}
-                              data-testid={`button-delete-roll-${roll._id}`}
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex gap-2 flex-wrap">
+                  <div className="flex gap-2">
                     <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1 min-w-24"
-                      onClick={() => {
-                        setSelectedItem(displayItem);
-                        setAdjustType('in');
-                        setAdjustAmount('1');
-                        setAdjustUnit(displayItem.unit || DEFAULT_UNIT);
-                        setAdjustDialogOpen(true);
-                      }}
-                      data-testid={`button-stock-in-${displayItem.category}`}
-                    >
-                       
-                      Stock In
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1 min-w-24"
-                      onClick={() => {
-                        setSelectedItem(displayItem);
-                        setAdjustType('out');
-                        setAdjustAmount('1');
-                        setAdjustUnit(displayItem.unit || DEFAULT_UNIT);
-                        setAdjustDialogOpen(true);
-                      }}
-                      data-testid={`button-stock-out-${displayItem.category}`}
-                      disabled={displayItem.quantity === 0}
-                    >
-                       
-                      Stock Out
-                    </Button>
-                    <Button
-                      size="icon"
                       variant="default"
+                      className="flex-1"
                       onClick={() => {
                         setSelectedItem(displayItem);
                         setRollDialogOpen(true);
                       }}
-                      data-testid={`button-add-roll-${displayItem.category}`}
+                      data-testid={`button-stock-${displayItem.category}`}
                     >
-                      <Plus className="w-4 h-4" />
+                      <Plus className="w-4 h-4 mr-2" />
+                      Stock
                     </Button>
+                    {displayItem.rolls && displayItem.rolls.length > 0 && (
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedItem(displayItem);
+                          setRollInfoOpen(true);
+                        }}
+                        data-testid={`button-info-rolls-${displayItem.category}`}
+                      >
+                        <Info className="w-4 h-4" />
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -377,7 +335,7 @@ export default function Inventory() {
       <Dialog open={rollDialogOpen} onOpenChange={setRollDialogOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Add Roll: {selectedItem?.name}</DialogTitle>
+            <DialogTitle>Add Roll to {selectedItem?.name}</DialogTitle>
           </DialogHeader>
           <form onSubmit={(e) => {
             e.preventDefault();
@@ -390,39 +348,41 @@ export default function Inventory() {
               roll: {
                 name: rollName,
                 meters: parseFloat(rollMeters),
-                squareFeet: parseFloat(rollSqft)
+                squareFeet: parseFloat(rollSqft),
+                unit: rollUnit
               }
             });
           }} className="space-y-4">
             <div className="space-y-2">
-              <Label>Roll Name</Label>
+              <Label>Roll Number</Label>
               <Input 
-                placeholder="e.g., Roll 1" 
+                placeholder="e.g., ELITE-ROLL-1" 
                 value={rollName}
                 onChange={(e) => setRollName(e.target.value)}
                 data-testid="input-roll-name"
               />
             </div>
             <div className="space-y-2">
-              <Label>Meters</Label>
-              <Input 
-                type="number" 
-                step="0.1" 
-                placeholder="0" 
-                value={rollMeters}
-                onChange={(e) => setRollMeters(e.target.value)}
-                data-testid="input-roll-meters"
-              />
+              <Label>Measurement Unit</Label>
+              <Select value={rollUnit} onValueChange={(val) => setRollUnit(val as 'Meters' | 'Square KM')}>
+                <SelectTrigger data-testid="select-roll-unit">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Meters">Meters</SelectItem>
+                  <SelectItem value="Square KM">Square KM</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
-              <Label>Square Feet</Label>
+              <Label>{rollUnit === 'Meters' ? 'Quantity (Meters)' : 'Quantity (Square KM)'}</Label>
               <Input 
                 type="number" 
                 step="0.1" 
                 placeholder="0" 
-                value={rollSqft}
-                onChange={(e) => setRollSqft(e.target.value)}
-                data-testid="input-roll-sqft"
+                value={rollUnit === 'Meters' ? rollMeters : rollSqft}
+                onChange={(e) => rollUnit === 'Meters' ? setRollMeters(e.target.value) : setRollSqft(e.target.value)}
+                data-testid={`input-roll-${rollUnit === 'Meters' ? 'meters' : 'sqkm'}`}
               />
             </div>
             <Button 
@@ -437,77 +397,47 @@ export default function Inventory() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={adjustDialogOpen} onOpenChange={setAdjustDialogOpen}>
-        <DialogContent className="max-w-sm">
+      <Dialog open={rollInfoOpen} onOpenChange={setRollInfoOpen}>
+        <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>
-              {adjustType === 'in' ? 'Stock In' : 'Stock Out'}: {selectedItem?.name}
-            </DialogTitle>
+            <DialogTitle>Roll Details: {selectedItem?.name}</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleAdjust} className="space-y-4">
-            <div className="space-y-2">
-              <Label>Type</Label>
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant={adjustType === 'in' ? 'default' : 'outline'}
-                  size="sm"
-                  className="flex-1"
-                  onClick={() => setAdjustType('in')}
-                >
-                   
-                  Stock In
-                </Button>
-                <Button
-                  type="button"
-                  variant={adjustType === 'out' ? 'default' : 'outline'}
-                  size="sm"
-                  className="flex-1"
-                  onClick={() => setAdjustType('out')}
-                >
-                   
-                  Stock Out
-                </Button>
+          <div className="space-y-4">
+            {selectedItem?.rolls && selectedItem.rolls.length > 0 ? (
+              <div className="space-y-3">
+                {selectedItem.rolls.map((roll: any, idx: number) => (
+                  <Card key={roll._id} className="p-4">
+                    <div className="space-y-2">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <p className="font-semibold text-sm">{roll.name}</p>
+                          <Badge variant="secondary" className="mt-1">
+                            {roll.status === 'Finished' ? 'Finished' : 'Available'}
+                          </Badge>
+                        </div>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-6 w-6"
+                          onClick={() => deleteRollMutation.mutate({ id: selectedItem._id, rollId: roll._id })}
+                          data-testid={`button-delete-roll-info-${roll._id}`}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
+                      <div className="text-xs space-y-1 text-muted-foreground">
+                        <p><span className="font-medium">Unit:</span> {roll.unit || 'Meters'}</p>
+                        <p><span className="font-medium">Total:</span> {roll.meters}m / {roll.squareFeet?.toFixed(1)} sqft</p>
+                        <p><span className="font-medium">Remaining:</span> {roll.remaining_meters}m / {roll.remaining_sqft?.toFixed(1)} sqft</p>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Unit</Label>
-              <Select value={adjustUnit} onValueChange={setAdjustUnit}>
-                <SelectTrigger data-testid="select-adjust-unit">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {UNITS.map((unit) => (
-                    <SelectItem key={unit} value={unit}>{unit}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Quantity ({adjustUnit})</Label>
-              <Input 
-                type="number" 
-                step="1" 
-                min="1" 
-                required 
-                placeholder="0"
-                value={adjustAmount}
-                onChange={(e) => setAdjustAmount(e.target.value)}
-                data-testid="input-adjust-amount"
-              />
-            </div>
-
-            <Button 
-              type="submit" 
-              className="w-full bg-primary"
-              disabled={adjustMutation.isPending}
-              data-testid="button-update-stock"
-            >
-              {adjustMutation.isPending ? 'Updating...' : 'Update Stock'}
-            </Button>
-          </form>
+            ) : (
+              <p className="text-sm text-muted-foreground">No rolls added yet</p>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>

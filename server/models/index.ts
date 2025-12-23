@@ -105,6 +105,7 @@ export interface IRoll {
   remaining_meters: number;
   remaining_sqft: number;
   status?: 'Available' | 'Finished';
+  unit?: 'Meters' | 'Square KM';
 }
 
 export interface IInventoryItem extends Document {
@@ -274,7 +275,8 @@ const RollSchema = new Schema<IRoll>({
   squareFeet: { type: Number, required: true, default: 0 },
   remaining_meters: { type: Number, required: true, default: 0 },
   remaining_sqft: { type: Number, required: true, default: 0 },
-  status: { type: String, enum: ['Available', 'Finished'], default: 'Available' }
+  status: { type: String, enum: ['Available', 'Finished'], default: 'Available' },
+  unit: { type: String, enum: ['Meters', 'Square KM'], default: 'Meters' }
 });
 
 const InventorySchema = new Schema<IInventoryItem>({
