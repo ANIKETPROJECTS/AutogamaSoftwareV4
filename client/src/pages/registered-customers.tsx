@@ -545,78 +545,59 @@ export default function RegisteredCustomers() {
           })}
         </div>
       ) : (
-        <div className="space-y-4">
-          {filteredCustomers.map((customer: any) => (
-            <Link key={customer._id} href={`/customer-details/${customer._id}`}>
-              <Card className="bg-gradient-to-br from-white to-slate-50 border border-slate-200 shadow-sm hover:shadow-lg hover:border-primary/50 transition-all duration-300 cursor-pointer group" data-testid={`customer-card-${customer._id}`}>
-                <CardContent className="p-5 space-y-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-lg text-slate-900 group-hover:text-primary transition-colors">{customer.name}</h3>
-                      <p className="text-xs text-slate-500 mt-0.5 font-mono">ID: {customer.customerId}</p>
-                      <p className="text-sm text-slate-600 mt-1">{customer.phone}</p>
+        <div className="space-y-2">
+          {filteredCustomers.map((customer: any) => {
+            const primaryVehicle = customer.vehicles && customer.vehicles.length > 0 ? customer.vehicles[0] : null;
+            return (
+              <Link key={customer._id} href={`/customer-details/${customer._id}`}>
+                <Card className="bg-gradient-to-br from-white to-slate-50 border border-slate-200 shadow-sm hover:shadow-lg hover:border-primary/50 transition-all duration-300 cursor-pointer group" data-testid={`customer-card-${customer._id}`}>
+                  <CardContent className="p-3 space-y-2">
+                    {/* Header with name and image */}
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-base text-slate-900 group-hover:text-primary transition-colors truncate">{customer.name}</h3>
+                        <p className="text-xs text-slate-500 mt-0.5 font-mono">ID: {customer.customerId}</p>
+                        <p className="text-xs text-slate-600 mt-0.5">{customer.phone}</p>
+                      </div>
+                      {primaryVehicle?.image ? (
+                        <div className="relative w-16 h-16 bg-slate-200 rounded-lg overflow-hidden flex-shrink-0">
+                          <img 
+                            src={primaryVehicle.image} 
+                            alt={customer.name}
+                            className="w-full h-full object-cover"
+                            data-testid={`img-vehicle-list-${customer._id}`}
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1 px-2 py-1 bg-primary/10 rounded-lg flex-shrink-0">
+                          <Car className="w-4 h-4 text-primary" />
+                          {customer.vehicles && customer.vehicles.length > 0 && (
+                            <span className="text-xs font-semibold text-primary">{customer.vehicles.length}</span>
+                          )}
+                        </div>
+                      )}
                     </div>
-                    {customer.vehicles && customer.vehicles.length > 0 && (
-                      <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-lg flex-shrink-0">
-                        <Car className="w-4 h-4 text-primary" />
-                        <span className="text-sm font-semibold text-primary">{customer.vehicles.length}</span>
-                      </div>
-                    )}
-                  </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                    {customer.email && (
-                      <div className="flex items-center gap-3 p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                        <Mail className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                        <span className="truncate text-slate-700">{customer.email}</span>
-                      </div>
-                    )}
-                    {customer.address && (
-                      <div className="flex items-start gap-3 p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                        <MapPin className="w-4 h-4 text-slate-500 flex-shrink-0 mt-0.5" />
-                        <span className="line-clamp-2 text-slate-700">{customer.address}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {customer.vehicles && customer.vehicles.length > 0 && (
-                    <div className="pt-2 border-t border-slate-200">
-                      <div className="flex items-center gap-2 text-xs text-slate-600 mb-3 font-medium">
-                        <Car className="w-4 h-4" />
-                        Vehicles
-                      </div>
-                      <div className="space-y-2">
-                        {customer.vehicles.slice(0, 2).map((vehicle: any, idx: number) => (
-                          <div key={idx} className="flex gap-3 items-start">
-                            <div className="flex-1 min-w-0">
-                              <div className="px-2.5 py-1.5 bg-slate-100 rounded border border-slate-200 text-xs font-medium text-slate-900">
-                                {vehicle.make} {vehicle.model} {vehicle.year ? `(${vehicle.year})` : ''} - {vehicle.plateNumber}
-                              </div>
-                            </div>
-                            {vehicle.image && (
-                              <div className="relative w-20 h-20 bg-slate-200 rounded-lg overflow-hidden flex-shrink-0">
-                                <img 
-                                  src={vehicle.image} 
-                                  alt={`${vehicle.make} ${vehicle.model}`}
-                                  className="w-full h-full object-cover"
-                                  data-testid={`img-vehicle-${idx}`}
-                                />
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                        {customer.vehicles.length > 2 && (
-                          <div className="px-2.5 py-1.5 bg-slate-100 rounded border border-slate-200 text-xs font-medium text-slate-600">
-                            +{customer.vehicles.length - 2} more vehicle(s)
-                          </div>
-                        )}
-                      </div>
+                    {/* Contact Info - Inline */}
+                    <div className="flex flex-wrap gap-1.5 text-xs">
+                      {customer.email && (
+                        <div className="flex items-center gap-1 px-2 py-0.5 bg-slate-100 rounded border border-slate-300">
+                          <Mail className="w-3 h-3 text-slate-500 flex-shrink-0" />
+                          <span className="truncate text-slate-700">{customer.email}</span>
+                        </div>
+                      )}
+                      {customer.address && (
+                        <div className="flex items-center gap-1 px-2 py-0.5 bg-slate-100 rounded border border-slate-300">
+                          <MapPin className="w-3 h-3 text-slate-500 flex-shrink-0" />
+                          <span className="truncate text-slate-700">{customer.address}</span>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })}
         </div>
       )}
 
