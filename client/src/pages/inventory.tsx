@@ -291,7 +291,7 @@ export default function Inventory() {
 
                     <div className="flex gap-2">
                       <Button
-                        variant="default"
+                        variant="outline"
                         className="flex-1"
                         onClick={() => {
                           setSelectedItem(displayItem);
