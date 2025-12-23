@@ -204,7 +204,18 @@ export default function CustomerService() {
             setLaborCost(prefs.laborCost.toString());
           }
           if (Array.isArray(prefs.otherServices) && prefs.otherServices.length > 0) {
-            setSelectedOtherServices(prefs.otherServices);
+            // Load preferences and look up prices from catalog
+            const servicesWithPrices = prefs.otherServices.map((svc: any) => {
+              const serviceData = OTHER_SERVICES[svc.name];
+              const price = serviceData && serviceData[svc.vehicleType] ? serviceData[svc.vehicleType] : 0;
+              return {
+                name: svc.name,
+                vehicleType: svc.vehicleType || '',
+                price: price,
+                discount: 0
+              };
+            });
+            setSelectedOtherServices(servicesWithPrices);
             const firstService = prefs.otherServices[0];
             if (firstService.name) setOtherServiceName(firstService.name);
             if (firstService.vehicleType) setOtherServiceVehicleType(firstService.vehicleType);
