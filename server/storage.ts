@@ -523,7 +523,7 @@ export class MongoStorage implements IStorage {
       for (const service of job.serviceItems) {
         const servicePrice = (service as any).price || 0;
         items.push({
-          description: (service as any).description || 'Service',
+          description: (service as any).name || (service as any).description || 'Service',
           quantity: 1,
           unitPrice: servicePrice,
           total: servicePrice,
