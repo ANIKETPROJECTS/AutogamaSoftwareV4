@@ -515,27 +515,31 @@ export class MongoStorage implements IStorage {
 
     const customer = await this.getCustomer(job.customerId.toString());
 
-    const items: { description: string; quantity: number; unitPrice: number; total: number; type: 'service' | 'material' }[] = [];
+    const items: any[] = [];
 
-    // Add service cost to invoice
+    // Add service cost to invoice with discount details
     if (job.serviceCost && job.serviceCost > 0) {
       items.push({
         description: 'Service Charge',
         quantity: 1,
         unitPrice: job.serviceCost,
         total: job.serviceCost,
-        type: 'service'
+        type: 'service',
+        discount: 0,
+        discountPercentage: 0
       });
     }
 
-    // Add labor cost to invoice
+    // Add labor cost to invoice with discount details
     if (job.laborCost && job.laborCost > 0) {
       items.push({
         description: 'Labor Charge',
         quantity: 1,
         unitPrice: job.laborCost,
         total: job.laborCost,
-        type: 'service'
+        type: 'service',
+        discount: 0,
+        discountPercentage: 0
       });
     }
 
@@ -543,8 +547,10 @@ export class MongoStorage implements IStorage {
     // Invoice uses only: Service Cost + Labor Cost + GST
 
     const subtotal = items.reduce((sum, item) => sum + item.total, 0);
-    const tax = (subtotal * taxRate) / 100;
-    const totalAmount = subtotal + tax - discount;
+    const discountAmount = Math.min(discount, subtotal);
+    const subtotalAfterDiscount = subtotal - discountAmount;
+    const tax = (subtotalAfterDiscount * taxRate) / 100;
+    const totalAmount = subtotalAfterDiscount + tax;
 
     const invoiceCount = await Invoice.countDocuments();
     const invoiceNumber = `INV-${new Date().getFullYear()}-${String(invoiceCount + 1).padStart(5, '0')}`;
@@ -563,7 +569,7 @@ export class MongoStorage implements IStorage {
       subtotal,
       tax,
       taxRate,
-      discount,
+      discount: discountAmount,
       totalAmount,
       paidAmount: job.paidAmount,
       paymentStatus: job.paymentStatus,

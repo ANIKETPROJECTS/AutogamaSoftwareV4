@@ -230,7 +230,7 @@ export async function registerRoutes(
 
   app.patch("/api/jobs/:id/stage", async (req, res) => {
     try {
-      const { stage } = req.body;
+      const { stage, discount = 0 } = req.body;
       
       // Check if job has an invoice - if so, block stage changes
       const existingInvoice = await storage.getInvoiceByJob(req.params.id);
@@ -247,12 +247,24 @@ export async function registerRoutes(
       }
       
       if (stage === 'Completed') {
-        await storage.generateInvoiceForJob(req.params.id, 18, 0);
+        try {
+          await storage.generateInvoiceForJob(req.params.id, 18, discount);
+        } catch (invoiceError) {
+          console.error("Invoice generation error:", invoiceError);
+          return res.status(500).json({ 
+            message: "Job marked as completed but invoice generation failed",
+            error: invoiceError instanceof Error ? invoiceError.message : "Unknown error"
+          });
+        }
       }
       
       res.json(job);
     } catch (error) {
-      res.status(500).json({ message: "Failed to update job stage" });
+      console.error("Job stage update error:", error);
+      res.status(500).json({ 
+        message: "Failed to update job stage",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
     }
   });
 
