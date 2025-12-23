@@ -399,21 +399,22 @@ export default function CustomerService() {
 
     const selectedTechnician = technicians.find((t: any) => t._id === selectedTechnicianId);
 
-    const serviceItemsList: { name: string; price: number; category?: string; vehicleType?: string; warranty?: string }[] = [];
+    const serviceItemsList: { name: string; price: number; discount?: number; category?: string; vehicleType?: string; warranty?: string }[] = [];
     if (ppfPrice > 0) {
       serviceItemsList.push({
         name: `PPF ${ppfCategory} - ${ppfWarranty}`,
-        price: ppfAfterDiscount,
+        price: ppfPrice,
+        discount: ppfDiscountAmount,
         category: ppfCategory,
         vehicleType: ppfVehicleType,
         warranty: ppfWarranty
       });
     }
     selectedOtherServices.forEach(s => {
-      const finalPrice = Math.max(0, s.price - (s.discount || 0));
       serviceItemsList.push({
         name: s.name,
-        price: finalPrice,
+        price: s.price,
+        discount: s.discount || 0,
         vehicleType: s.vehicleType
       });
     });

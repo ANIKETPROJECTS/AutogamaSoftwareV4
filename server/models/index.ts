@@ -53,6 +53,8 @@ export interface IServiceItem {
   category?: string;
   vehicleType?: string;
   warranty?: string;
+  discount?: number;
+  discountPercentage?: number;
 }
 
 export interface IPayment {
@@ -200,7 +202,9 @@ const ServiceItemSchema = new Schema<IServiceItem>({
   price: { type: Number, required: true },
   category: { type: String },
   vehicleType: { type: String },
-  warranty: { type: String }
+  warranty: { type: String },
+  discount: { type: Number, default: 0 },
+  discountPercentage: { type: Number, default: 0 }
 });
 
 const PaymentSchema = new Schema<IPayment>({
