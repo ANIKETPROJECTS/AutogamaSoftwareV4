@@ -8,6 +8,7 @@ export interface IStorage {
   searchCustomers(query: string): Promise<ICustomer[]>;
   createCustomer(data: Partial<ICustomer>): Promise<ICustomer>;
   updateCustomer(id: string, data: Partial<ICustomer>): Promise<ICustomer | null>;
+  deleteCustomer(id: string): Promise<void>;
   addVehicleToCustomer(customerId: string, vehicle: any): Promise<ICustomer | null>;
   
   getJobs(): Promise<IJob[]>;
@@ -90,6 +91,11 @@ export class MongoStorage implements IStorage {
   async updateCustomer(id: string, data: Partial<ICustomer>): Promise<ICustomer | null> {
     if (!mongoose.Types.ObjectId.isValid(id)) return null;
     return Customer.findByIdAndUpdate(id, data, { new: true });
+  }
+
+  async deleteCustomer(id: string): Promise<void> {
+    if (!mongoose.Types.ObjectId.isValid(id)) return;
+    await Customer.findByIdAndDelete(id);
   }
 
   async addVehicleToCustomer(customerId: string, vehicle: any): Promise<ICustomer | null> {

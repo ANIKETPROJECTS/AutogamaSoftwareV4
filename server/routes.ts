@@ -116,6 +116,18 @@ export async function registerRoutes(
     }
   });
 
+  app.delete("/api/customers/:id", async (req, res) => {
+    try {
+      const customer = await storage.getCustomer(req.params.id);
+      if (!customer) return res.status(404).json({ message: "Customer not found" });
+      
+      await storage.deleteCustomer(req.params.id);
+      res.json({ message: "Customer deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete customer" });
+    }
+  });
+
   app.post("/api/customers/:id/vehicles", async (req, res) => {
     try {
       const customer = await storage.addVehicleToCustomer(req.params.id, req.body);

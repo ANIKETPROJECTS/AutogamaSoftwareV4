@@ -8,6 +8,7 @@ import { Search, Mail, MapPin, Car, Users, Filter, Grid3X3, List, Trash2, Extern
 import { Link } from "wouter";
 import { useState, useMemo } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 
 export default function RegisteredCustomers() {
@@ -23,6 +24,8 @@ export default function RegisteredCustomers() {
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
   const [selectedCustomerForImages, setSelectedCustomerForImages] = useState<any>(null);
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [customerToDelete, setCustomerToDelete] = useState<any>(null);
   const { toast } = useToast();
 
   const { data: customers = [], isLoading, refetch } = useQuery({
@@ -40,6 +43,19 @@ export default function RegisteredCustomers() {
     },
     onError: () => {
       toast({ title: "Error", description: "Failed to add service images", variant: "destructive" });
+    }
+  });
+
+  const deleteCustomerMutation = useMutation({
+    mutationFn: (customerId: string) => api.customers.delete(customerId),
+    onSuccess: () => {
+      toast({ title: "Success", description: "Customer deleted successfully" });
+      setDeleteDialogOpen(false);
+      setCustomerToDelete(null);
+      refetch();
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to delete customer", variant: "destructive" });
     }
   });
 
@@ -518,6 +534,11 @@ export default function RegisteredCustomers() {
                       size="sm"
                       variant="ghost"
                       className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCustomerToDelete(customer);
+                        setDeleteDialogOpen(true);
+                      }}
                       data-testid={`button-delete-${customer._id}`}
                     >
                       <Trash2 className="w-4 h-4" />
@@ -602,6 +623,29 @@ export default function RegisteredCustomers() {
         </div>
       )}
 
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Customer</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {customerToDelete?.name}? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex gap-3 justify-end">
+            <AlertDialogCancel data-testid="button-cancel-delete">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => customerToDelete && deleteCustomerMutation.mutate(customerToDelete._id)}
+              disabled={deleteCustomerMutation.isPending}
+              className="bg-red-600 hover:bg-red-700 text-white"
+              data-testid="button-confirm-delete"
+            >
+              {deleteCustomerMutation.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Image Upload Dialog */}
       <Dialog open={imageDialogOpen} onOpenChange={setImageDialogOpen}>
         <DialogContent className="max-w-2xl">
@@ -641,7 +685,7 @@ export default function RegisteredCustomers() {
                       className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold hover:bg-red-600"
                       data-testid={`button-remove-image-${idx}`}
                     >
-                      ✕
+                      ×
                     </button>
                   </div>
                 ))}

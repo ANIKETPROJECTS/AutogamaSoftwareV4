@@ -25,6 +25,7 @@ export const api = {
     get: (id: string) => request<any>(`/customers/${id}`),
     create: (data: any) => request<any>('/customers', { method: 'POST', body: JSON.stringify(data) }),
     update: (id: string, data: any) => request<any>(`/customers/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+    delete: (id: string) => request<any>(`/customers/${id}`, { method: 'DELETE' }),
     addVehicle: (id: string, vehicle: any) => request<any>(`/customers/${id}/vehicles`, { method: 'POST', body: JSON.stringify(vehicle) }),
     addServiceImages: (id: string, images: string[]) => request<any>(`/customers/${id}/service-images`, { method: 'POST', body: JSON.stringify({ images }) }),
     getJobs: (id: string) => request<any[]>(`/customers/${id}/jobs`),
