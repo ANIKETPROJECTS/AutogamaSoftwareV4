@@ -32,7 +32,7 @@ export default function CustomerService() {
   const [selectedVehicleIndex, setSelectedVehicleIndex] = useState<string>('');
   const [selectedTechnicianId, setSelectedTechnicianId] = useState<string>('');
   const [serviceNotes, setServiceNotes] = useState('');
-  const [ppfDiscount, setPpfDiscount] = useState<string>('0');
+  const [ppfDiscount, setPpfDiscount] = useState<string>('');
   const [laborCost, setLaborCost] = useState<string>('');
   const [includeGst, setIncludeGst] = useState(true);
   const [selectedItems, setSelectedItems] = useState<{ inventoryId: string; quantity: number; name: string; unit: string }[]>([]);
@@ -139,7 +139,7 @@ export default function CustomerService() {
     setSelectedVehicleIndex('');
     setSelectedTechnicianId('');
     setServiceNotes('');
-    setPpfDiscount('0');
+    setPpfDiscount('');
     setLaborCost('');
     setIncludeGst(true);
     setSelectedItems([]);
@@ -694,10 +694,25 @@ export default function CustomerService() {
                       </div>
 
                       {ppfPrice > 0 && (
-                        <div className="bg-gray-50 p-3 rounded-md border border-gray-200">
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm font-medium">PPF Service Price:</span>
-                            <span className="text-lg font-bold text-primary">₹{ppfPrice.toLocaleString('en-IN')}</span>
+                        <div className="space-y-3">
+                          <div className="bg-gray-50 p-3 rounded-md border border-gray-200">
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm font-medium">PPF Service Price:</span>
+                              <span className="text-lg font-bold text-primary">₹{ppfPrice.toLocaleString('en-IN')}</span>
+                            </div>
+                          </div>
+                          <div className="w-full">
+                            <Label className="text-xs">Discount</Label>
+                            <Input
+                              type="number"
+                              min="0"
+                              step="1"
+                              value={ppfDiscount}
+                              onChange={(e) => setPpfDiscount(e.target.value)}
+                              placeholder=""
+                              data-testid="input-ppf-discount-card"
+                              className="mt-1"
+                            />
                           </div>
                         </div>
                       )}
@@ -813,25 +828,6 @@ export default function CustomerService() {
               </div>
 
               <div className="space-y-6">
-                {ppfPrice > 0 && (
-                  <div className="space-y-2">
-                    <Label>PPF Service Discount</Label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">₹</span>
-                      <Input
-                        type="number"
-                        min="0"
-                        step="1"
-                        value={ppfDiscount}
-                        onChange={(e) => setPpfDiscount(e.target.value)}
-                        placeholder="Enter discount amount"
-                        data-testid="input-ppf-discount"
-                        className="pl-7"
-                      />
-                    </div>
-                  </div>
-                )}
-
                 <div className="flex items-center gap-2 p-3 border rounded-lg bg-blue-50 dark:bg-blue-950">
                   <Checkbox 
                     id="include-gst" 
@@ -959,9 +955,17 @@ export default function CustomerService() {
                   <h4 className="font-bold text-base text-slate-900">Cost Summary</h4>
                   
                   {ppfPrice > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span>PPF ({ppfCategory}):</span>
-                      <span>₹{ppfPrice.toLocaleString('en-IN')}</span>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span>PPF ({ppfCategory}):</span>
+                        <span>₹{ppfPrice.toLocaleString('en-IN')}</span>
+                      </div>
+                      {ppfDiscountAmount > 0 && (
+                        <div className="flex justify-between text-xs text-slate-600">
+                          <span>Discount:</span>
+                          <span>-₹{ppfDiscountAmount.toLocaleString('en-IN')}</span>
+                        </div>
+                      )}
                     </div>
                   )}
                   
