@@ -462,19 +462,19 @@ Balance: Rs.${(selectedInvoice.totalAmount - selectedInvoice.paidAmount).toLocal
               <Separator />
 
               <div>
-                <h3 className="font-semibold mb-4">Services & Items</h3>
-                <div className="space-y-3">
+                <h3 className="font-semibold mb-4">Services</h3>
+                <div className="space-y-2">
                   {selectedInvoice.items?.filter((i: any) => i.type === 'service' && i.description !== 'Labor Charge').map((item: any, index: number) => (
-                    <div key={index} className="space-y-1">
-                      <div className="flex justify-between">
-                        <span className="text-gray-700">{item.description}:</span>
-                        <span className="flex items-center font-medium">
+                    <div key={index}>
+                      <div className="flex justify-between text-slate-700">
+                        <span>{item.description}:</span>
+                        <span className="flex items-center">
                           <IndianRupee className="w-3 h-3" />
                           {item.total.toLocaleString("en-IN")}
                         </span>
                       </div>
                       {item.discount && item.discount > 0 && (
-                        <div className="flex justify-between text-slate-600 text-sm pl-4">
+                        <div className="flex justify-between text-slate-600 text-sm pl-2">
                           <span>Discount:</span>
                           <span className="flex items-center">
                             -<IndianRupee className="w-3 h-3" />
@@ -485,18 +485,6 @@ Balance: Rs.${(selectedInvoice.totalAmount - selectedInvoice.paidAmount).toLocal
                     </div>
                   ))}
                 </div>
-
-                {selectedInvoice.discount > 0 && (
-                  <div className="mt-4 pt-3 border-t border-slate-200">
-                    <div className="flex justify-between font-semibold text-slate-700">
-                      <span>Total Service Cost (after discount):</span>
-                      <span className="flex items-center">
-                        <IndianRupee className="w-3 h-3" />
-                        {(selectedInvoice.items?.filter((i: any) => i.type === 'service' && i.description !== 'Labor Charge').reduce((sum: number, i: any) => sum + (i.total - (i.discount || 0)), 0) || 0).toLocaleString("en-IN")}
-                      </span>
-                    </div>
-                  </div>
-                )}
               </div>
 
               <div className="flex justify-end mt-6">
