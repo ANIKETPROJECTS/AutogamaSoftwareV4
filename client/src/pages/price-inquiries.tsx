@@ -214,11 +214,18 @@ function getPriceForService(service: string, carType: string): number | null {
   return null;
 }
 
+type ServiceItem = {
+  id: string;
+  name: string;
+  carType: string;
+  price: number;
+};
+
 export default function PriceInquiries() {
   const [showForm, setShowForm] = useState(false);
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
-  const [selectedCarType, setSelectedCarType] = useState('');
-  const [autoPrice, setAutoPrice] = useState<number>(0);
+  const [selectedServiceItems, setSelectedServiceItems] = useState<ServiceItem[]>([]);
+  const [tempServiceName, setTempServiceName] = useState('');
+  const [tempCarType, setTempCarType] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterService, setFilterService] = useState('');
   const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
@@ -236,9 +243,9 @@ export default function PriceInquiries() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/price-inquiries'] });
       setShowForm(false);
-      setSelectedServices([]);
-      setSelectedCarType('');
-      setAutoPrice(0);
+      setSelectedServiceItems([]);
+      setTempServiceName('');
+      setTempCarType('');
       toast({ title: 'Price inquiry saved successfully' });
     },
     onError: () => {
@@ -257,32 +264,36 @@ export default function PriceInquiries() {
     }
   });
 
-  const handleServiceChange = (service: string) => {
-    setSelectedServices(prev => 
-      prev.includes(service) 
-        ? prev.filter(s => s !== service)
-        : [...prev, service]
-    );
-    // Recalculate price if car type is selected
-    if (selectedCarType && selectedServices.length > 0) {
-      calculateTotalPrice([...selectedServices.filter(s => s !== service), service], selectedCarType);
+  const addServiceItem = () => {
+    if (!tempServiceName || !tempCarType) {
+      toast({ title: 'Please select both service and car type', variant: 'destructive' });
+      return;
     }
+    
+    const price = getPriceForService(tempServiceName, tempCarType);
+    if (price === null) {
+      toast({ title: 'Unable to get price for this combination', variant: 'destructive' });
+      return;
+    }
+
+    const newItem: ServiceItem = {
+      id: Date.now().toString(),
+      name: tempServiceName,
+      carType: tempCarType,
+      price: price
+    };
+
+    setSelectedServiceItems([...selectedServiceItems, newItem]);
+    setTempServiceName('');
+    setTempCarType('');
   };
 
-  const handleCarTypeChange = (carType: string) => {
-    setSelectedCarType(carType);
-    calculateTotalPrice(selectedServices, carType);
+  const removeServiceItem = (id: string) => {
+    setSelectedServiceItems(selectedServiceItems.filter(item => item.id !== id));
   };
 
-  const calculateTotalPrice = (services: string[], carType: string) => {
-    let total = 0;
-    services.forEach(service => {
-      const price = getPriceForService(service, carType);
-      if (price !== null) {
-        total += price;
-      }
-    });
-    setAutoPrice(total);
+  const getTotalPrice = () => {
+    return selectedServiceItems.reduce((sum, item) => sum + item.price, 0);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -306,25 +317,23 @@ export default function PriceInquiries() {
       return;
     }
 
-    if (selectedServices.length === 0 || !selectedCarType) {
-      toast({ title: 'Please select at least one service and car type', variant: 'destructive' });
+    if (selectedServiceItems.length === 0) {
+      toast({ title: 'Please add at least one service', variant: 'destructive' });
       return;
     }
 
     setErrors({});
+    const serviceDetails = selectedServiceItems.map(item => `${item.name} (${item.carType})`).join(', ');
     createMutation.mutate({
       name: formData.get('name'),
       phone: phone,
       email: email || '',
-      service: `${selectedServices.join(', ')} - ${selectedCarType}`,
-      priceOffered: autoPrice,
+      service: serviceDetails,
+      priceOffered: getTotalPrice(),
       priceStated: parseFloat(formData.get('priceStated') as string),
       notes: formData.get('notes') || ''
     });
     
-    setSelectedServices([]);
-    setSelectedCarType('');
-    setAutoPrice(0);
     form.reset();
   };
 
@@ -455,7 +464,7 @@ export default function PriceInquiries() {
                   </div>
                 </div>
                 
-                {/* Row 2: Email and Service */}
+                {/* Row 2: Email */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="email">Email</Label>
@@ -475,51 +484,31 @@ export default function PriceInquiries() {
                       </div>
                     )}
                   </div>
-                  <div>
-                    <Label htmlFor="service">Service Type (Select Multiple)</Label>
-                    <Select value="" onValueChange={handleServiceChange}>
-                      <SelectTrigger id="service" data-testid="select-service">
-                        <SelectValue placeholder="Click to add services" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {ALL_SERVICES.map((service) => (
-                          <SelectItem key={service} value={service} data-testid={`option-service-${service}`}>
-                            {service}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {selectedServices.length > 0 && (
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {selectedServices.map((service) => (
-                          <div
-                            key={service}
-                            className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center gap-2"
-                            data-testid={`tag-service-${service}`}
-                          >
-                            {service}
-                            <button
-                              type="button"
-                              onClick={() => handleServiceChange(service)}
-                              className="text-blue-600 hover:text-blue-900 font-bold"
-                              data-testid={`button-remove-service-${service}`}
-                            >
-                              ×
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
                 </div>
 
-                {/* Row 3: Car Type and Auto Price */}
-                {selectedServices.length > 0 && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Services Section */}
+                <div className="border-t pt-4">
+                  <h3 className="font-semibold mb-4">Add Services</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div>
-                      <Label htmlFor="carType">Car Type</Label>
-                      <Select value={selectedCarType} onValueChange={handleCarTypeChange}>
-                        <SelectTrigger id="carType" data-testid="select-car-type">
+                      <Label htmlFor="tempService">Service Type</Label>
+                      <Select value={tempServiceName} onValueChange={setTempServiceName}>
+                        <SelectTrigger id="tempService" data-testid="select-service">
+                          <SelectValue placeholder="Select service" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {ALL_SERVICES.map((service) => (
+                            <SelectItem key={service} value={service} data-testid={`option-service-${service}`}>
+                              {service}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="tempCarType">Car Type</Label>
+                      <Select value={tempCarType} onValueChange={setTempCarType}>
+                        <SelectTrigger id="tempCarType" data-testid="select-car-type">
                           <SelectValue placeholder="Select car type" />
                         </SelectTrigger>
                         <SelectContent>
@@ -531,22 +520,56 @@ export default function PriceInquiries() {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div>
-                      <Label htmlFor="priceOffered">Our Price (Auto) (₹)</Label>
-                      <Input
-                        id="priceOffered"
-                        name="priceOffered"
-                        type="number"
-                        value={autoPrice || 0}
-                        disabled
-                        data-testid="input-price-offered"
-                        className="bg-secondary"
-                      />
+                    <div className="flex items-end">
+                      <Button 
+                        type="button" 
+                        onClick={addServiceItem}
+                        className="w-full"
+                        data-testid="button-add-service"
+                      >
+                        Add Service
+                      </Button>
                     </div>
                   </div>
-                )}
 
-                {/* Row 4: Customer Price and Notes */}
+                  {/* Selected Services Table */}
+                  {selectedServiceItems.length > 0 && (
+                    <div className="mb-4">
+                      <div className="border rounded-lg overflow-hidden">
+                        <div className="bg-slate-100 p-3 font-semibold text-sm grid grid-cols-4 gap-2">
+                          <div>Service</div>
+                          <div>Car Type</div>
+                          <div>Price (₹)</div>
+                          <div>Action</div>
+                        </div>
+                        {selectedServiceItems.map((item) => (
+                          <div key={item.id} className="border-t p-3 grid grid-cols-4 gap-2 items-center text-sm">
+                            <div>{item.name}</div>
+                            <div>{item.carType}</div>
+                            <div className="font-semibold">{item.price}</div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeServiceItem(item.id)}
+                              data-testid={`button-remove-service-${item.id}`}
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))}
+                        <div className="border-t bg-blue-50 p-3 font-bold grid grid-cols-4 gap-2 text-sm">
+                          <div>Total:</div>
+                          <div></div>
+                          <div className="text-blue-600">₹{getTotalPrice()}</div>
+                          <div></div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Customer Price and Notes */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="priceStated">Price Stated by Customer (₹)</Label>
@@ -585,9 +608,9 @@ export default function PriceInquiries() {
                     variant="outline"
                     onClick={() => {
                       setShowForm(false);
-                      setSelectedServices([]);
-                      setSelectedCarType('');
-                      setAutoPrice(0);
+                      setSelectedServiceItems([]);
+                      setTempServiceName('');
+                      setTempCarType('');
                     }}
                     data-testid="button-cancel-inquiry"
                   >
