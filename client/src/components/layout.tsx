@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'wouter';
-import { Menu, X, LayoutDashboard, UserPlus, Filter, Users, Wrench, UserCog, FileText, CreditCard, Package, Calendar, MessageCircle, Settings, LogOut, Bell, User } from 'lucide-react';
+import { Menu, X, LayoutDashboard, UserPlus, Filter, Users, Wrench, UserCog, FileText, CreditCard, Package, Calendar, MessageCircle, Settings, LogOut, Bell, User, DollarSign } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/auth-context';
@@ -15,6 +15,7 @@ import { Card } from '@/components/ui/card';
 
 const menuItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/price-inquiries', label: 'Price Inquiries', icon: DollarSign },
   { href: '/register', label: 'Register Customers', icon: UserPlus },
   { href: '/registered-customers', label: 'Registered Customers', icon: Filter },
   { href: '/customer-service', label: 'Customers Service', icon: Wrench },
