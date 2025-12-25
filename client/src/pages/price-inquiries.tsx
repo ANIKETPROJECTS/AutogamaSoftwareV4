@@ -286,7 +286,7 @@ export default function PriceInquiries() {
         inquiry.phone.includes(searchQuery) ||
         inquiry.email?.toLowerCase().includes(searchQuery.toLowerCase());
       
-      const matchesFilter = !filterService || inquiry.service.includes(filterService);
+      const matchesFilter = filterService === 'all' || !filterService || inquiry.service.includes(filterService);
       
       return matchesSearch && matchesFilter;
     });
@@ -480,7 +480,7 @@ export default function PriceInquiries() {
               <SelectValue placeholder="Filter by service" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Services</SelectItem>
+              <SelectItem value="all">All Services</SelectItem>
               {ALL_SERVICES.map((service) => (
                 <SelectItem key={service} value={service} data-testid={`filter-option-${service}`}>
                   {service}
