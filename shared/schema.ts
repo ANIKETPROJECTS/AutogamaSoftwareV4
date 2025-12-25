@@ -38,7 +38,8 @@ export const customerSchema = z.object({
   status: z.enum(['Inquired', 'Working', 'Waiting', 'Completed']).default('Inquired'),
   createdAt: z.date().optional(),
   vehicles: z.array(vehicleSchema).default([]),
-  referrerName: z.string().optional()
+  referrerName: z.string().optional(),
+  referrerPhone: z.string().optional()
 });
 
 export const serviceItemSchema = z.object({
