@@ -42,6 +42,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
   const { title: pageTitle, subtitle: pageSubtitle } = usePageContext();
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [dismissedCompletedJobs, setDismissedCompletedJobs] = useState<Set<string>>(new Set());
 
   const { data: appointments = [] } = useQuery({
     queryKey: ['appointments'],
@@ -62,13 +63,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const completedJobsToday = jobs.filter((job: any) => {
     const jobDate = new Date(job.createdAt);
     const today = new Date();
-    return job.stage === 'Completed' && jobDate.toDateString() === today.toDateString();
+    return job.stage === 'Completed' && jobDate.toDateString() === today.toDateString() && !dismissedCompletedJobs.has(job._id);
   });
 
   const todayCompletedJobs = completedJobsToday.length;
 
   const handleClearNotifications = () => {
     setNotifications([]);
+    const allCompletedIds = jobs
+      .filter((job: any) => {
+        const jobDate = new Date(job.createdAt);
+        const today = new Date();
+        return job.stage === 'Completed' && jobDate.toDateString() === today.toDateString();
+      })
+      .map((job: any) => job._id);
+    
+    setDismissedCompletedJobs(new Set([...Array.from(dismissedCompletedJobs), ...allCompletedIds]));
   };
 
   return (
