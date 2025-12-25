@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Phone, MapPin, Car, Mail, DollarSign, Wrench, ArrowLeft, Calendar, User, X, Plus, Package } from "lucide-react";
+import { Phone, MapPin, Car, Mail, DollarSign, Wrench, ArrowLeft, Calendar, User, X, Plus, Package, Users } from "lucide-react";
 import { Link, useRoute } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -88,7 +88,7 @@ export default function CustomerDetails() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Contact Details */}
             <div className="space-y-3">
               <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
@@ -203,6 +203,41 @@ export default function CustomerDetails() {
                 </div>
               )}
             </div>
+
+            {/* Referral Information */}
+            {(customer.referrerName || customer.referrerPhone) && (
+              <div className="space-y-3">
+                <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                  <Users className="w-3.5 h-3.5" />
+                  Referral Information
+                </h3>
+                <div className="bg-blue-50/30 rounded-xl p-4 border border-blue-100 space-y-3">
+                  {customer.referrerName && (
+                    <div className="flex items-start gap-3">
+                      <div className="mt-0.5 p-1.5 bg-white rounded-md shadow-sm border border-slate-100">
+                        <User className="w-3 h-3 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-slate-400 font-medium uppercase mb-0.5">Referred By</p>
+                        <p className="text-sm font-semibold text-slate-900">{customer.referrerName}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {customer.referrerPhone && (
+                    <div className="flex items-start gap-3 pt-3 border-t border-blue-200/60">
+                      <div className="mt-0.5 p-1.5 bg-white rounded-md shadow-sm border border-slate-100">
+                        <Phone className="w-3 h-3 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-slate-400 font-medium uppercase mb-0.5">Referrer Phone</p>
+                        <p className="text-sm font-semibold text-slate-900">{customer.referrerPhone}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
