@@ -19,9 +19,9 @@ const PPF_ITEMS = [
   { name: 'Garware Matt', category: 'Garware Matt' }
 ];
 
-const UNITS = ['sheets', 'meter'];
+const UNITS = ['sheets', 'Square Feet'];
 const MIN_STOCK = 5;
-const DEFAULT_UNIT = 'meter';
+const DEFAULT_UNIT = 'Square Feet';
 
 const CATEGORY_COLORS: Record<string, string> = {
   'Elite': 'bg-blue-500/20 text-blue-400',
@@ -41,9 +41,7 @@ export default function Inventory() {
   const [sortBy, setSortBy] = useState<'name' | 'quantity'>('name');
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [rollName, setRollName] = useState('');
-  const [rollMeters, setRollMeters] = useState('');
-  const [rollSqft, setRollSqft] = useState('');
-  const [rollUnit, setRollUnit] = useState<'Meters' | 'Square KM'>('Meters');
+  const [rollQuantity, setRollQuantity] = useState('');
   const [expandedRolls, setExpandedRolls] = useState<string>('');
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -87,8 +85,7 @@ export default function Inventory() {
       queryClient.invalidateQueries({ queryKey: ['inventory'] });
       setRollDialogOpen(false);
       setRollName('');
-      setRollMeters('');
-      setRollSqft('');
+      setRollQuantity('');
       toast({ title: 'Roll added successfully' });
     },
     onError: () => {
@@ -343,9 +340,9 @@ export default function Inventory() {
                             </Button>
                           </div>
                           <div className="text-xs space-y-1 text-muted-foreground">
-                            <p><span className="font-medium">Unit:</span> {roll.unit || 'Meters'}</p>
-                            <p><span className="font-medium">Total:</span> {roll.meters}m / {roll.squareFeet?.toFixed(1)} sqft</p>
-                            <p><span className="font-medium">Remaining:</span> {roll.remaining_meters}m / {roll.remaining_sqft?.toFixed(1)} sqft</p>
+                            <p><span className="font-medium">Unit:</span> {roll.unit || 'Square Feet'}</p>
+                            <p><span className="font-medium">Total:</span> {roll.squareFeet?.toFixed(1)} sqft</p>
+                            <p><span className="font-medium">Remaining:</span> {roll.remaining_sqft?.toFixed(1)} sqft</p>
                           </div>
                         </div>
                       </Card>
@@ -365,20 +362,18 @@ export default function Inventory() {
           </DialogHeader>
           <form onSubmit={(e) => {
             e.preventDefault();
-            const quantity = rollUnit === 'Meters' ? rollMeters : rollSqft;
-            if (!rollName || !quantity) {
+            if (!rollName || !rollQuantity) {
               toast({ title: 'Fill all fields', variant: 'destructive' });
               return;
             }
-            const meters = rollUnit === 'Meters' ? parseFloat(rollMeters) : 0;
-            const sqft = rollUnit === 'Square KM' ? parseFloat(rollSqft) : 0;
+            const quantity = parseFloat(rollQuantity);
             addRollMutation.mutate({
               id: selectedItem._id,
               roll: {
                 name: rollName,
-                meters: meters,
-                squareFeet: sqft,
-                unit: rollUnit
+                squareFeet: quantity,
+                meters: 0,
+                unit: 'Square Feet'
               }
             });
           }} className="space-y-4">
@@ -392,26 +387,14 @@ export default function Inventory() {
               />
             </div>
             <div className="space-y-2">
-              <Label>Measurement Unit</Label>
-              <Select value={rollUnit} onValueChange={(val) => setRollUnit(val as 'Meters' | 'Square KM')}>
-                <SelectTrigger data-testid="select-roll-unit">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Meters">Meters</SelectItem>
-                  <SelectItem value="Square KM">Square KM</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>{rollUnit === 'Meters' ? 'Quantity (Meters)' : 'Quantity (Square KM)'}</Label>
+              <Label>Quantity (Square Feet)</Label>
               <Input 
                 type="number" 
                 step="0.1" 
                 placeholder="0" 
-                value={rollUnit === 'Meters' ? rollMeters : rollSqft}
-                onChange={(e) => rollUnit === 'Meters' ? setRollMeters(e.target.value) : setRollSqft(e.target.value)}
-                data-testid={`input-roll-${rollUnit === 'Meters' ? 'meters' : 'sqkm'}`}
+                value={rollQuantity}
+                onChange={(e) => setRollQuantity(e.target.value)}
+                data-testid="input-roll-sqft"
               />
             </div>
             <Button 

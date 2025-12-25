@@ -61,8 +61,14 @@ export default function CustomerDetails() {
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center border-2 border-red-100">
-                <User className="w-7 h-7 text-red-600" />
+              <div className="relative">
+                <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center border-2 border-red-100 overflow-hidden">
+                  {customer.vehicles?.[0]?.image ? (
+                    <img src={customer.vehicles[0].image} alt="Vehicle" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-7 h-7 text-red-600" />
+                  )}
+                </div>
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{customer.name}</h1>
@@ -136,8 +142,12 @@ export default function CustomerDetails() {
                     <div key={i} className="group bg-slate-50 hover:bg-red-50/50 rounded-xl p-3 border border-slate-100 hover:border-red-200 transition-all">
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
-                          <div className="p-2 bg-white rounded-lg shadow-sm border border-slate-100">
-                            <Car className="w-4 h-4 text-slate-600 group-hover:text-red-600 transition-colors" />
+                          <div className="w-12 h-12 rounded-lg bg-white shadow-sm border border-slate-100 overflow-hidden flex items-center justify-center">
+                            {vehicle.image ? (
+                              <img src={vehicle.image} alt="Vehicle" className="w-full h-full object-cover" />
+                            ) : (
+                              <Car className="w-5 h-5 text-slate-600 group-hover:text-red-600 transition-colors" />
+                            )}
                           </div>
                           <div>
                             <p className="text-sm font-bold text-slate-900">{vehicle.make} {vehicle.model}</p>
