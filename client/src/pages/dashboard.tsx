@@ -35,20 +35,24 @@ import {
   Legend,
 } from "recharts";
 
-const COLORS = ["#3B82F6", "#22C55E", "#F97316", "#dc2626"];
+const COLORS = ["#3B82F6", "#EAB308", "#F97316", "#10B981", "#22C55E", "#dc2626"];
 
-const FUNNEL_STAGES = [
-  { key: "Inquired", label: "Inquired", color: "#3B82F6" },
-  { key: "Working", label: "Working", color: "#F97316" },
-  { key: "Waiting", label: "Waiting", color: "#EAB308" },
+const JOB_STAGES = [
+  { key: "New Lead", label: "New Lead", color: "#3B82F6" },
+  { key: "Inspection Done", label: "Inspection Done", color: "#EAB308" },
+  { key: "Work In Progress", label: "Work In Progress", color: "#F97316" },
+  { key: "Ready for Delivery", label: "Ready for Delivery", color: "#10B981" },
   { key: "Completed", label: "Completed", color: "#22C55E" },
+  { key: "Cancelled", label: "Cancelled", color: "#dc2626" },
 ];
 
 const STATUS_COLORS: Record<string, string> = {
-  Inquired: "#3B82F6",
-  Working: "#F97316",
-  Waiting: "#EAB308",
+  "New Lead": "#3B82F6",
+  "Inspection Done": "#EAB308",
+  "Work In Progress": "#F97316",
+  "Ready for Delivery": "#10B981",
   Completed: "#22C55E",
+  Cancelled: "#dc2626",
 };
 
 export default function Dashboard() {
@@ -79,12 +83,12 @@ export default function Dashboard() {
 
   const getCustomerStatus = (customerId: string) => {
     const customerJobs = jobs.filter((job: any) => job.customerId === customerId);
-    if (customerJobs.length === 0) return "Inquired";
+    if (customerJobs.length === 0) return "New Lead";
     const lastJob = customerJobs[customerJobs.length - 1];
-    return lastJob.stage || "Inquired";
+    return lastJob.stage || "New Lead";
   };
 
-  const customerStatusCount = FUNNEL_STAGES.reduce((acc: Record<string, number>, stage) => {
+  const customerStatusCount = JOB_STAGES.reduce((acc: Record<string, number>, stage) => {
     acc[stage.key] = 0;
     return acc;
   }, {});
@@ -96,7 +100,7 @@ export default function Dashboard() {
     }
   });
 
-  const customerStatusData = FUNNEL_STAGES.map(stage => ({
+  const customerStatusData = JOB_STAGES.map(stage => ({
     name: stage.label,
     value: customerStatusCount[stage.key] || 0,
   })).filter(item => item.value > 0);
