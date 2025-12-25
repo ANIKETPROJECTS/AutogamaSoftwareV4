@@ -23,7 +23,7 @@ const validatePhone = (phone: string): boolean => {
 };
 
 const validateEmail = (email: string): boolean => {
-  if (!email) return true;
+  if (!email) return false;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 };
@@ -280,7 +280,7 @@ export default function PriceInquiries() {
       newErrors.phone = 'Phone number must be 10 digits';
     }
 
-    if (email && !validateEmail(email)) {
+    if (!validateEmail(email)) {
       newErrors.email = 'Please enter a valid email address';
     }
 
@@ -374,12 +374,13 @@ export default function PriceInquiries() {
                 {/* Row 2: Email and Service */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="email">Email (optional)</Label>
+                    <Label htmlFor="email">Email</Label>
                     <Input
                       id="email"
                       name="email"
                       type="email"
                       placeholder="john@example.com"
+                      required
                       data-testid="input-email"
                       className={errors.email ? 'border-red-500' : ''}
                     />
