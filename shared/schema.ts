@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export type JobStage = 'New Lead' | 'Inspection Done' | 'Work In Progress' | 'Ready for Delivery' | 'Completed' | 'Cancelled';
+export type JobStage = 'New Lead' | 'Inspection Done' | 'Work In Progress' | 'Completed' | 'Cancelled';
 export type PaymentStatus = 'Pending' | 'Partially Paid' | 'Paid';
 export type TechnicianStatus = 'Available' | 'Busy' | 'Off';
 export type InventoryCategory = 'Elite' | 'Garware Plus' | 'Garware Premium' | 'Garware Matt';
@@ -13,7 +13,6 @@ export const JOB_STAGES: JobStage[] = [
   'New Lead',
   'Inspection Done', 
   'Work In Progress',
-  'Ready for Delivery',
   'Completed',
   'Cancelled'
 ];
@@ -60,7 +59,7 @@ export const jobSchema = z.object({
   customerName: z.string(),
   vehicleName: z.string(),
   plateNumber: z.string(),
-  stage: z.enum(['New Lead', 'Inspection Done', 'Work In Progress', 'Ready for Delivery', 'Completed', 'Cancelled']).default('New Lead'),
+  stage: z.enum(['New Lead', 'Inspection Done', 'Work In Progress', 'Completed', 'Cancelled']).default('New Lead'),
   technicianId: z.string().optional(),
   technicianName: z.string().optional(),
   notes: z.string().default(''),

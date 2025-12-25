@@ -41,7 +41,6 @@ const JOB_STAGES = [
   { key: "New Lead", label: "New Lead", color: "#3B82F6" },
   { key: "Inspection Done", label: "Inspection Done", color: "#EAB308" },
   { key: "Work In Progress", label: "Work In Progress", color: "#F97316" },
-  { key: "Ready for Delivery", label: "Ready for Delivery", color: "#10B981" },
   { key: "Completed", label: "Completed", color: "#22C55E" },
   { key: "Cancelled", label: "Cancelled", color: "#dc2626" },
 ];
@@ -50,7 +49,6 @@ const STATUS_COLORS: Record<string, string> = {
   "New Lead": "#3B82F6",
   "Inspection Done": "#EAB308",
   "Work In Progress": "#F97316",
-  "Ready for Delivery": "#10B981",
   Completed: "#22C55E",
   Cancelled: "#dc2626",
 };

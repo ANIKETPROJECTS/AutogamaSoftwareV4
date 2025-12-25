@@ -27,7 +27,6 @@ const FUNNEL_STAGES = [
   { key: "New Lead", label: "New Lead", color: "blue" },
   { key: "Inspection Done", label: "Inspection Done", color: "cyan" },
   { key: "Work In Progress", label: "Work In Progress", color: "orange" },
-  { key: "Ready for Delivery", label: "Ready for Delivery", color: "yellow" },
   { key: "Completed", label: "Completed", color: "green" },
   { key: "Cancelled", label: "Cancelled", color: "red" },
 ];
@@ -36,7 +35,6 @@ const PHASE_COLORS: Record<string, string> = {
   "New Lead": "bg-blue-100 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300",
   "Inspection Done": "bg-cyan-100 dark:bg-cyan-950/50 text-cyan-700 dark:text-cyan-300",
   "Work In Progress": "bg-orange-100 dark:bg-orange-950/50 text-orange-700 dark:text-orange-300",
-  "Ready for Delivery": "bg-yellow-100 dark:bg-yellow-950/50 text-yellow-700 dark:text-yellow-300",
   "Completed": "bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-300",
   "Cancelled": "bg-red-100 dark:bg-red-950/50 text-red-700 dark:text-red-300",
 };
@@ -45,7 +43,6 @@ const STAGE_BG_COLORS: Record<string, string> = {
   "New Lead": "bg-blue-50 dark:bg-blue-950/20",
   "Inspection Done": "bg-cyan-50 dark:bg-cyan-950/20",
   "Work In Progress": "bg-orange-50 dark:bg-orange-950/20",
-  "Ready for Delivery": "bg-yellow-50 dark:bg-yellow-950/20",
   "Completed": "bg-green-50 dark:bg-green-950/20",
   "Cancelled": "bg-red-50 dark:bg-red-950/20",
 };
@@ -112,14 +109,13 @@ export default function CustomerFunnel() {
 
   return (
     <div className="space-y-8">
-      {/* Summary Cards - All 6 Stages */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      {/* Summary Cards - All 5 Stages */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
         {FUNNEL_STAGES.map((stage) => (
           <Card key={stage.key} className={cn("border-2", "hover:shadow-md transition-all", 
             stage.key === "New Lead" ? "border-blue-300" :
             stage.key === "Inspection Done" ? "border-cyan-300" :
             stage.key === "Work In Progress" ? "border-orange-300" :
-            stage.key === "Ready for Delivery" ? "border-yellow-300" :
             stage.key === "Completed" ? "border-green-300" :
             "border-red-300"
           )}>

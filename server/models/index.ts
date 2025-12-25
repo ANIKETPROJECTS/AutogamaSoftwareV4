@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export type JobStage = 'New Lead' | 'Inspection Done' | 'Work In Progress' | 'Ready for Delivery' | 'Completed' | 'Cancelled';
+export type JobStage = 'New Lead' | 'Inspection Done' | 'Work In Progress' | 'Completed' | 'Cancelled';
 export type PaymentStatus = 'Pending' | 'Partially Paid' | 'Paid';
 export type TechnicianStatus = 'Available' | 'Busy' | 'Off';
 export type InventoryCategory = 'Elite' | 'Garware Plus' | 'Garware Premium' | 'Garware Matt';

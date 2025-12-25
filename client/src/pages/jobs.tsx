@@ -17,7 +17,6 @@ const JOB_STAGES = [
   'New Lead',
   'Inspection Done',
   'Work In Progress',
-  'Ready for Delivery',
   'Completed',
   'Cancelled'
 ];
@@ -26,7 +25,6 @@ const STAGE_COLORS: Record<string, string> = {
   'New Lead': 'bg-blue-500/20 text-blue-400 border-blue-500/30',
   'Inspection Done': 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
   'Work In Progress': 'bg-orange-500/20 text-orange-400 border-orange-500/30',
-  'Ready for Delivery': 'bg-gray-500/20 text-green-400 border-green-500/30',
   'Completed': 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
   'Cancelled': 'bg-red-500/20 text-red-400 border-red-500/30'
 };
@@ -35,7 +33,6 @@ const STAGE_BG_COLORS: Record<string, string> = {
   'New Lead': 'bg-white border-blue-200',
   'Inspection Done': 'bg-white border-yellow-200',
   'Work In Progress': 'bg-white border-orange-200',
-  'Ready for Delivery': 'bg-white border-gray-200',
   'Completed': 'bg-white border-emerald-200',
   'Cancelled': 'bg-white border-red-200'
 };
@@ -44,7 +41,6 @@ const STAGE_BADGE_COLORS: Record<string, string> = {
   'New Lead': 'bg-blue-100 text-blue-700 border-blue-200',
   'Inspection Done': 'bg-yellow-100 text-yellow-700 border-yellow-200',
   'Work In Progress': 'bg-orange-100 text-orange-700 border-orange-200',
-  'Ready for Delivery': 'bg-gray-100 text-slate-600 border-gray-200',
   'Completed': 'bg-emerald-100 text-emerald-700 border-emerald-200',
   'Cancelled': 'bg-red-100 text-red-700 border-red-200'
 };
@@ -117,14 +113,16 @@ export default function ServiceFunnel() {
     'PHASE 1': ['New Lead'],
     'PHASE 2': ['Inspection Done'],
     'PHASE 3': ['Work In Progress'],
-    'PHASE 4': ['Ready for Delivery', 'Completed', 'Cancelled']
+    'PHASE 4': ['Completed'],
+    'PHASE 5': ['Cancelled']
   };
 
   const PHASE_BORDERS: Record<string, string> = {
     'PHASE 1': 'border-blue-500',
     'PHASE 2': 'border-yellow-500',
     'PHASE 3': 'border-orange-500',
-    'PHASE 4': 'border-red-500'
+    'PHASE 4': 'border-green-500',
+    'PHASE 5': 'border-red-500'
   };
 
   const getPhaseTitle = (phase: string) => {
@@ -135,7 +133,7 @@ export default function ServiceFunnel() {
   return (
     <div className="space-y-8">
       {/* Phase Summary Header */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         {Object.entries(PHASE_STAGE_MAPPING).map(([phase, stages]) => {
           const phaseJobCount = stages.reduce((sum, stage) => sum + (groupedJobs[stage]?.length || 0), 0);
           const primaryStage = stages[0];
