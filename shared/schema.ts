@@ -95,7 +95,8 @@ export const inventorySchema = z.object({
 
 export const appointmentSchema = z.object({
   customerName: z.string().min(1),
-  customerPhone: z.string().min(1),
+  customerPhone: z.string().regex(/^\d{10}$/, "Phone must be 10 digits"),
+  customerEmail: z.string().email("Invalid email").optional(),
   vehicleInfo: z.string().min(1),
   serviceType: z.string().min(1),
   date: z.string(),
