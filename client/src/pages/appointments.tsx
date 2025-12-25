@@ -81,6 +81,8 @@ export default function Appointments() {
     
     const phone = (formData.get('customerPhone') as string) || '';
     const email = (formData.get('customerEmail') as string) || '';
+    const selectedDate = (formData.get('date') as string) || '';
+    const selectedTime = (formData.get('time') as string) || '';
     const errors: Record<string, string> = {};
 
     if (!validatePhone(phone)) {
@@ -88,6 +90,22 @@ export default function Appointments() {
     }
     if (email && !validateEmail(email)) {
       errors.customerEmail = 'Invalid email address';
+    }
+
+    // Validate that appointment time is not in the past
+    if (selectedDate && selectedTime) {
+      const today = new Date();
+      const todayString = format(today, 'yyyy-MM-dd');
+      
+      if (selectedDate === todayString) {
+        const [hours, minutes] = selectedTime.split(':');
+        const appointmentTime = new Date();
+        appointmentTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+        
+        if (appointmentTime <= today) {
+          errors.time = 'Cannot book appointments for past times. Please select a future time.';
+        }
+      }
     }
 
     if (Object.keys(errors).length > 0) {
@@ -101,8 +119,8 @@ export default function Appointments() {
       customerEmail: formData.get('customerEmail') as string || undefined,
       vehicleInfo: formData.get('vehicleInfo') as string,
       serviceType: formData.get('serviceType') as string,
-      date: formData.get('date') as string,
-      time: formData.get('time') as string,
+      date: selectedDate,
+      time: selectedTime,
       notes: formData.get('notes') as string || undefined,
       status: 'Scheduled'
     });
@@ -287,7 +305,14 @@ export default function Appointments() {
                       required
                       placeholder="HH:MM"
                       data-testid="input-time"
+                      className={formErrors.time ? 'border-red-500' : ''}
                     />
+                    {formErrors.time && (
+                      <div className="flex items-center gap-1 mt-1 text-sm text-red-600">
+                        <AlertCircle className="w-4 h-4" />
+                        {formErrors.time}
+                      </div>
+                    )}
                   </div>
                 </div>
 
