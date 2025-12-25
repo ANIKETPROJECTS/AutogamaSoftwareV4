@@ -78,6 +78,12 @@ export const api = {
     update: (id: string, data: any) => request<any>(`/appointments/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
     convert: (id: string) => request<any>(`/appointments/${id}/convert`, { method: 'POST' }),
   },
+
+  priceInquiries: {
+    list: () => request<any[]>('/price-inquiries'),
+    create: (data: any) => request<any>('/price-inquiries', { method: 'POST', body: JSON.stringify(data) }),
+    delete: (id: string) => request<any>(`/price-inquiries/${id}`, { method: 'DELETE' }),
+  },
   
   whatsapp: {
     templates: () => request<any[]>('/whatsapp/templates'),

@@ -104,6 +104,17 @@ export const appointmentSchema = z.object({
   status: z.enum(['Scheduled', 'Confirmed', 'Cancelled', 'Converted']).default('Scheduled')
 });
 
+export const priceInquirySchema = z.object({
+  name: z.string().min(1),
+  phone: z.string().min(1),
+  email: z.string().email().optional(),
+  service: z.string().min(1),
+  priceOffered: z.number().min(0),
+  priceStated: z.number().min(0),
+  notes: z.string().optional(),
+  createdAt: z.date().optional()
+});
+
 export type Vehicle = z.infer<typeof vehicleSchema>;
 export type Customer = z.infer<typeof customerSchema>;
 export type ServiceItem = z.infer<typeof serviceItemSchema>;
@@ -112,3 +123,4 @@ export type Job = z.infer<typeof jobSchema>;
 export type Technician = z.infer<typeof technicianSchema>;
 export type InventoryItem = z.infer<typeof inventorySchema>;
 export type Appointment = z.infer<typeof appointmentSchema>;
+export type PriceInquiry = z.infer<typeof priceInquirySchema>;

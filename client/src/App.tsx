@@ -17,6 +17,7 @@ import CustomerService from "@/pages/customer-service";
 import Technicians from "@/pages/technicians";
 import Inventory from "@/pages/inventory";
 import Appointments from "@/pages/appointments";
+import PriceInquiries from "@/pages/price-inquiries";
 import Invoices from "@/pages/invoices";
 import Settings from "@/pages/settings";
 import NotFound from "@/pages/not-found";
@@ -39,6 +40,7 @@ function ProtectedRoutes() {
           <Route path="/invoices" component={Invoices} />
           <Route path="/inventory" component={Inventory} />
           <Route path="/appointments" component={Appointments} />
+          <Route path="/price-inquiries" component={PriceInquiries} />
           <Route path="/settings" component={Settings} />
           <Route component={NotFound} />
           </Switch>

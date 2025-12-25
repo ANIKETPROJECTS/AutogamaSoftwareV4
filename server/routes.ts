@@ -558,5 +558,50 @@ export async function registerRoutes(
     }
   });
 
+  // Price Inquiries
+  app.get("/api/price-inquiries", async (req, res) => {
+    try {
+      const inquiries = await (global as any).priceInquiries || [];
+      res.json(inquiries);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch price inquiries" });
+    }
+  });
+
+  app.post("/api/price-inquiries", async (req, res) => {
+    try {
+      const { name, phone, email, service, priceOffered, priceStated, notes } = req.body;
+      if (!name || !phone || !service || typeof priceOffered !== 'number' || typeof priceStated !== 'number') {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+      const inquiry = {
+        _id: new (require('mongodb')).ObjectId(),
+        name,
+        phone,
+        email: email || '',
+        service,
+        priceOffered,
+        priceStated,
+        notes: notes || '',
+        createdAt: new Date()
+      };
+      if (!(global as any).priceInquiries) (global as any).priceInquiries = [];
+      (global as any).priceInquiries.push(inquiry);
+      res.status(201).json(inquiry);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create price inquiry" });
+    }
+  });
+
+  app.delete("/api/price-inquiries/:id", async (req, res) => {
+    try {
+      if (!(global as any).priceInquiries) (global as any).priceInquiries = [];
+      (global as any).priceInquiries = (global as any).priceInquiries.filter((i: any) => i._id.toString() !== req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete price inquiry" });
+    }
+  });
+
   return httpServer;
 }
