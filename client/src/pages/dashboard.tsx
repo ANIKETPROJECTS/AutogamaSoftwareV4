@@ -81,22 +81,19 @@ export default function Dashboard() {
     queryFn: api.inventory.list,
   });
 
-  const getCustomerStatus = (customerId: string) => {
-    const customerJobs = jobs.filter((job: any) => job.customerId === customerId);
-    if (customerJobs.length === 0) return "New Lead";
-    const lastJob = customerJobs[customerJobs.length - 1];
-    return lastJob.stage || "New Lead";
-  };
-
   const customerStatusCount = JOB_STAGES.reduce((acc: Record<string, number>, stage) => {
     acc[stage.key] = 0;
     return acc;
   }, {});
 
   customers.forEach((customer: any) => {
-    const status = getCustomerStatus(customer._id);
-    if (customerStatusCount.hasOwnProperty(status)) {
-      customerStatusCount[status]++;
+    const customerJobs = jobs.filter((job: any) => job.customerId === customer._id);
+    if (customerJobs.length > 0) {
+      const lastJob = customerJobs[customerJobs.length - 1];
+      const stage = lastJob.stage || "New Lead";
+      if (customerStatusCount.hasOwnProperty(stage)) {
+        customerStatusCount[stage]++;
+      }
     }
   });
 
