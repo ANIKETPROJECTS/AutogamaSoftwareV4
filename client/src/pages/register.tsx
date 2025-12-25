@@ -372,7 +372,7 @@ export default function CustomerRegistration() {
     vehicleData.make && vehicleData.model && vehicleData.plateNumber;
 
   return (
-    <div className="p-4 pt-8">
+    <div className="p-4 pt-2">
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Step 1: Customer Information */}
         {step === 1 && (
