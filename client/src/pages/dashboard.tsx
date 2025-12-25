@@ -207,28 +207,14 @@ export default function Dashboard() {
   return (
     <div className="space-y-8">
       {/* Notification Bar with Alerts */}
-      <div className="flex items-center gap-4 flex-wrap">
-        {(todayCompletedJobs > 0 || todayAppointments > 0) && (
-          <div className="flex items-center gap-4 flex-wrap">
-            {todayCompletedJobs > 0 && (
-              <div className="flex items-center gap-2 px-4 py-2 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg">
-                <Bell className="w-5 h-5 text-green-600 dark:text-green-400" />
-                <span className="text-sm font-medium text-green-800 dark:text-green-300">
-                  {todayCompletedJobs} service{todayCompletedJobs !== 1 ? 's' : ''} completed today
-                </span>
-              </div>
-            )}
-            {todayAppointments > 0 && (
-              <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
-                <Bell className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                <span className="text-sm font-medium text-blue-800 dark:text-blue-300">
-                  {todayAppointments} appointment{todayAppointments !== 1 ? 's' : ''} today
-                </span>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+      {todayCompletedJobs > 0 && (
+        <div className="flex items-center gap-2 px-4 py-2 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg w-fit">
+          <Bell className="w-5 h-5 text-green-600 dark:text-green-400" />
+          <span className="text-sm font-medium text-green-800 dark:text-green-300">
+            {todayCompletedJobs} service{todayCompletedJobs !== 1 ? 's' : ''} completed today
+          </span>
+        </div>
+      )}
 
       {/* Summary Metric Cards */}
       <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">

@@ -1,10 +1,13 @@
 import { Link, useLocation } from 'wouter';
 import { Menu, X, LayoutDashboard, UserPlus, Filter, Users, Wrench, UserCog, FileText, CreditCard, Package, Calendar, MessageCircle, Settings, LogOut, Bell, User, MessageSquare } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/auth-context';
 import { usePageContext } from '@/contexts/page-context';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { api } from '@/lib/api';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,6 +42,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
   const { title: pageTitle, subtitle: pageSubtitle } = usePageContext();
   const [notifications, setNotifications] = useState<Notification[]>([]);
+
+  const { data: appointments = [] } = useQuery({
+    queryKey: ['appointments'],
+    queryFn: () => api.appointments.list(),
+  });
+
+  const pendingAppointments = appointments.filter((appt: any) => {
+    const apptDate = new Date(appt.date);
+    const today = new Date();
+    return apptDate.toDateString() === today.toDateString() && appt.status === 'Scheduled';
+  }).length;
 
   const handleClearNotifications = () => {
     setNotifications([]);
@@ -119,6 +133,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </div>
           )}
           <div className="flex items-center gap-4 ml-auto">
+          {/* Appointment Badge */}
+          {pendingAppointments > 0 && (
+            <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <Calendar className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <span className="text-xs font-medium text-blue-700 dark:text-blue-300">
+                {pendingAppointments} {pendingAppointments === 1 ? 'appointment' : 'appointments'}
+              </span>
+            </div>
+          )}
+
           {/* Notification Button */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
