@@ -21,7 +21,12 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
 
 export const api = {
   customers: {
-    list: (search?: string) => request<any[]>(`/customers${search ? `?search=${encodeURIComponent(search)}` : ''}`),
+    list: (options?: { search?: string; page?: number; limit?: number }) => 
+      request<{ customers: any[]; total: number }>(`/customers?${new URLSearchParams({
+        ...(options?.search && { search: options.search }),
+        ...(options?.page && { page: options.page.toString() }),
+        ...(options?.limit && { limit: options.limit.toString() }),
+      })}`),
     get: (id: string) => request<any>(`/customers/${id}`),
     create: (data: any) => request<any>('/customers', { method: 'POST', body: JSON.stringify(data) }),
     update: (id: string, data: any) => request<any>(`/customers/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
@@ -34,7 +39,12 @@ export const api = {
   },
   
   jobs: {
-    list: (stage?: string) => request<any[]>(`/jobs${stage ? `?stage=${encodeURIComponent(stage)}` : ''}`),
+    list: (options?: { stage?: string; page?: number; limit?: number }) => 
+      request<{ jobs: any[]; total: number }>(`/jobs?${new URLSearchParams({
+        ...(options?.stage && { stage: options.stage }),
+        ...(options?.page && { page: options.page.toString() }),
+        ...(options?.limit && { limit: options.limit.toString() }),
+      })}`),
     get: (id: string) => request<any>(`/jobs/${id}`),
     create: (data: any) => request<any>('/jobs', { method: 'POST', body: JSON.stringify(data) }),
     update: (id: string, data: any) => request<any>(`/jobs/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
@@ -73,7 +83,12 @@ export const api = {
   },
   
   appointments: {
-    list: (date?: string) => request<any[]>(`/appointments${date ? `?date=${date}` : ''}`),
+    list: (options?: { date?: string; page?: number; limit?: number }) => 
+      request<{ appointments: any[]; total: number }>(`/appointments?${new URLSearchParams({
+        ...(options?.date && { date: options.date }),
+        ...(options?.page && { page: options.page.toString() }),
+        ...(options?.limit && { limit: options.limit.toString() }),
+      })}`),
     create: (data: any) => request<any>('/appointments', { method: 'POST', body: JSON.stringify(data) }),
     update: (id: string, data: any) => request<any>(`/appointments/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
     delete: (id: string) => request<any>(`/appointments/${id}`, { method: 'DELETE' }),
@@ -81,7 +96,11 @@ export const api = {
   },
 
   priceInquiries: {
-    list: () => request<any[]>('/price-inquiries'),
+    list: (options?: { page?: number; limit?: number }) => 
+      request<{ inquiries: any[]; total: number }>(`/price-inquiries?${new URLSearchParams({
+        ...(options?.page && { page: options.page.toString() }),
+        ...(options?.limit && { limit: options.limit.toString() }),
+      })}`),
     create: (data: any) => request<any>('/price-inquiries', { method: 'POST', body: JSON.stringify(data) }),
     delete: (id: string) => request<any>(`/price-inquiries/${id}`, { method: 'DELETE' }),
   },
