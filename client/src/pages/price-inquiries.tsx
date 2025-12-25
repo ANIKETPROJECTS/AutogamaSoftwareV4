@@ -653,28 +653,28 @@ export default function PriceInquiries() {
                     <div className="flex-1 space-y-1">
                       <div className="flex items-center gap-2">
                         <h3 className="font-bold text-lg" data-testid={`text-name-${inquiry._id}`}>{inquiry.name}</h3>
-                        <span className="text-xs text-secondary">
+                        <span className="text-xs text-muted-foreground">
                           {inquiry.createdAt ? format(new Date(inquiry.createdAt), 'MMM dd, yyyy') : 'N/A'}
                         </span>
                       </div>
-                      <div className="flex flex-wrap gap-4 text-sm text-secondary">
-                        <span className="flex items-center gap-1"><Phone className="h-3 w-3" /> {inquiry.phone}</span>
-                        {inquiry.email && <span className="flex items-center gap-1"><Mail className="h-3 w-3" /> {inquiry.email}</span>}
+                      <div className="flex flex-wrap gap-4 text-sm">
+                        <span className="flex items-center gap-1 text-muted-foreground"><Phone className="h-3 w-3" /> {inquiry.phone}</span>
+                        {inquiry.email && <span className="flex items-center gap-1 text-muted-foreground"><Mail className="h-3 w-3" /> {inquiry.email}</span>}
                         <span className="font-medium text-foreground">{inquiry.service}</span>
                       </div>
                     </div>
                     
                     <div className="flex items-center gap-6 text-sm">
                       <div className="text-center">
-                        <p className="text-xs text-secondary">Our Price</p>
-                        <p className="font-bold">₹{inquiry.priceOffered.toLocaleString()}</p>
+                        <p className="text-xs text-muted-foreground">Our Price</p>
+                        <p className="font-bold text-foreground">₹{inquiry.priceOffered.toLocaleString()}</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-xs text-secondary">Customer</p>
+                        <p className="text-xs text-muted-foreground">Customer</p>
                         <p className="font-bold text-destructive">₹{inquiry.priceStated.toLocaleString()}</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-xs text-secondary">Diff</p>
+                        <p className="text-xs text-muted-foreground">Diff</p>
                         <p className={`font-bold ${priceDifference >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                           {priceDifference >= 0 ? '+' : ''}₹{priceDifference.toLocaleString()} ({percentageDifference}%)
                         </p>
