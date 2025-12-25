@@ -59,11 +59,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
     return apptDate.toDateString() === today.toDateString() && appt.status === 'Scheduled';
   }).length;
 
-  const todayCompletedJobs = jobs.filter((job: any) => {
+  const completedJobsToday = jobs.filter((job: any) => {
     const jobDate = new Date(job.createdAt);
     const today = new Date();
     return job.stage === 'Completed' && jobDate.toDateString() === today.toDateString();
-  }).length;
+  });
+
+  const todayCompletedJobs = completedJobsToday.length;
 
   const handleClearNotifications = () => {
     setNotifications([]);
@@ -166,7 +168,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Bell className="w-5 h-5" />
                 {(todayCompletedJobs > 0 || notifications.length > 0) && (
                   <span className={cn(
-                    "absolute top-1 right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white",
+                    "absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white text-center leading-none",
                     todayCompletedJobs > 0 ? "bg-green-500" : "bg-red-500"
                   )}>
                     {todayCompletedJobs > 0 ? todayCompletedJobs : notifications.length}
@@ -174,19 +176,36 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 )}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80">
-              <div className="p-2">
+            <DropdownMenuContent align="end" className="w-96">
+              <div className="p-3">
                 <h3 className="font-semibold text-sm mb-3">Notifications</h3>
                 
                 {/* Completed Services Section */}
                 {todayCompletedJobs > 0 && (
-                  <div className="mb-3 p-2 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-md">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <p className="text-xs font-semibold text-green-700 dark:text-green-300">
-                        {todayCompletedJobs} service{todayCompletedJobs !== 1 ? 's' : ''} completed today
-                      </p>
-                    </div>
+                  <div className="mb-3 space-y-2">
+                    <p className="text-xs font-semibold text-green-700 dark:text-green-300 px-2">
+                      Completed Services Today
+                    </p>
+                    {completedJobsToday.map((job: any) => (
+                      <div key={job._id} className="p-2 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-md">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1">
+                            <p className="text-sm font-semibold text-green-900 dark:text-green-100">
+                              {job.customerName}
+                            </p>
+                            <p className="text-xs text-green-700 dark:text-green-300 mt-1">
+                              {job.vehicleName} {job.plateNumber && `(${job.plateNumber})`}
+                            </p>
+                            {job.serviceType && (
+                              <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                                Service: {job.serviceType}
+                              </p>
+                            )}
+                          </div>
+                          <div className="w-2 h-2 bg-green-500 rounded-full mt-1 flex-shrink-0"></div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
 
@@ -196,27 +215,31 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     <p className="text-sm text-muted-foreground" data-testid="text-no-notifications">No notifications</p>
                   </div>
                 ) : (
-                  <div className="space-y-2">
-                    {notifications.map((notif) => (
-                      <div key={notif.id} className="text-sm p-2 bg-secondary rounded">
-                        <p>{notif.message}</p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {notif.timestamp.toLocaleTimeString()}
-                        </p>
+                  <>
+                    {notifications.length > 0 && (
+                      <div className="space-y-2 mt-3">
+                        {notifications.map((notif) => (
+                          <div key={notif.id} className="text-sm p-2 bg-secondary rounded">
+                            <p>{notif.message}</p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {notif.timestamp.toLocaleTimeString()}
+                            </p>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
                     {(todayCompletedJobs > 0 || notifications.length > 0) && (
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={handleClearNotifications}
-                        className="w-full"
+                        className="w-full mt-3"
                         data-testid="button-clear-notifications"
                       >
                         Clear All
                       </Button>
                     )}
-                  </div>
+                  </>
                 )}
               </div>
             </DropdownMenuContent>
