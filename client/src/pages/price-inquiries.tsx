@@ -617,11 +617,11 @@ export default function PriceInquiries() {
                       <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100">
                         <div className="text-center">
                           <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Our Price</p>
-                          <p className="text-sm font-bold text-primary">₹{inquiry.priceOffered.toLocaleString()}</p>
+                          <p className="text-sm font-bold text-foreground">₹{inquiry.priceOffered.toLocaleString()}</p>
                         </div>
                         <div className="text-center border-x border-slate-100 px-1">
                           <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Customer</p>
-                          <p className="text-sm font-bold text-destructive">₹{inquiry.priceStated.toLocaleString()}</p>
+                          <p className="text-sm font-bold text-foreground">₹{inquiry.priceStated.toLocaleString()}</p>
                         </div>
                         <div className="text-center">
                           <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Diff</p>
@@ -671,7 +671,7 @@ export default function PriceInquiries() {
                       </div>
                       <div className="text-center">
                         <p className="text-xs text-muted-foreground">Customer</p>
-                        <p className="font-bold text-destructive">₹{inquiry.priceStated.toLocaleString()}</p>
+                        <p className="font-bold text-foreground">₹{inquiry.priceStated.toLocaleString()}</p>
                       </div>
                       <div className="text-center">
                         <p className="text-xs text-muted-foreground">Diff</p>
