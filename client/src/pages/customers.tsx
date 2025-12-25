@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Search, User, Phone, Car, ChevronRight, MapPin, Wrench, X } from 'lucide-react';
+import { Plus, Search, User, Phone, Car, ChevronRight, MapPin, Wrench, X, Trash2 } from 'lucide-react';
 import { Link } from 'wouter';
 
 const CUSTOMER_STATUSES = ['Inquired', 'Working', 'Waiting', 'Completed'];
@@ -153,6 +153,23 @@ export default function Customers() {
       toast({ title: 'Failed to add vehicle', variant: 'destructive' });
     }
   });
+
+  const deleteCustomerMutation = useMutation({
+    mutationFn: (id: string) => api.customers.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['customers'] });
+      toast({ title: 'Customer deleted successfully' });
+    },
+    onError: () => {
+      toast({ title: 'Failed to delete customer', variant: 'destructive' });
+    }
+  });
+
+  const handleDeleteCustomer = (customerId: string) => {
+    if (confirm('Are you sure you want to delete this customer? This action cannot be undone.')) {
+      deleteCustomerMutation.mutate(customerId);
+    }
+  };
 
   const handleCreateCustomer = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -553,12 +570,22 @@ export default function Customers() {
                   </div>
                 </div>
 
-                <Link href={`/customers/${customer._id}`}>
-                  <Button variant="outline" className="w-full mt-2" data-testid={`button-view-customer-${customer._id}`}>
-                    View History
-                     
+                <div className="flex gap-2 mt-4">
+                  <Link href={`/customers/${customer._id}`} className="flex-1">
+                    <Button variant="outline" className="w-full" data-testid={`button-view-customer-${customer._id}`}>
+                      Details
+                    </Button>
+                  </Link>
+                  <Button 
+                    variant="destructive" 
+                    size="icon"
+                    onClick={() => handleDeleteCustomer(customer._id)}
+                    disabled={deleteCustomerMutation.isPending}
+                    data-testid={`button-delete-customer-${customer._id}`}
+                  >
+                    <Trash2 className="w-4 h-4" />
                   </Button>
-                </Link>
+                </div>
               </CardContent>
             </Card>
           ))
