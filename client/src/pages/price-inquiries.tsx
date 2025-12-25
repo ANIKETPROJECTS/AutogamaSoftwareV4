@@ -587,7 +587,7 @@ export default function PriceInquiries() {
                     <div className="flex flex-col h-full gap-3">
                       <div className="flex justify-between items-start">
                         <div>
-                          <h3 className="font-semibold text-lg text-slate-900 group-hover:text-primary transition-colors truncate">
+                          <h3 className="font-semibold text-lg text-slate-900 truncate">
                             {inquiry.name}
                           </h3>
                           <p className="text-sm text-slate-700 font-medium">{inquiry.phone}</p>
