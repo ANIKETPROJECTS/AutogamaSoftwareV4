@@ -110,6 +110,7 @@ export const priceInquirySchema = z.object({
   phone: z.string().min(1),
   email: z.string().email().optional(),
   service: z.string().min(1),
+  serviceDetailsJson: z.string().optional(), // Store the JSON breakdown of services
   priceOffered: z.number().min(0),
   priceStated: z.number().min(0),
   notes: z.string().optional(),

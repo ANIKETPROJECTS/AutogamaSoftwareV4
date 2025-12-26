@@ -237,8 +237,16 @@ export default function PriceInquiries() {
   const [inquiryToDelete, setInquiryToDelete] = useState<any>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [selectedInquiry, setSelectedInquiry] = useState<any>(null);
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
+
+  const inquiryDetails = useMemo(() => {
+    if (!selectedInquiry?.serviceDetailsJson) return [];
+    try {
+      return JSON.parse(selectedInquiry.serviceDetailsJson);
+    } catch (e) {
+      console.error('Failed to parse service details:', e);
+      return [];
+    }
+  }, [selectedInquiry]);
 
   const { data: inquiriesData, isLoading } = useQuery({
     queryKey: ['/api/price-inquiries', searchQuery, filterService],
