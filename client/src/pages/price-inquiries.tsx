@@ -336,7 +336,7 @@ export default function PriceInquiries() {
     return selectedServiceItems.reduce((sum, item) => sum + (item.customerPrice || 0), 0);
   };
 
-  const updateServiceCustomerPrice = (id: string, newPrice: number) => {
+  const updateServiceCustomerPrice = (id: string, newPrice: number | undefined) => {
     setSelectedServiceItems(selectedServiceItems.map(item =>
       item.id === id ? { ...item, customerPrice: newPrice } : item
     ));
@@ -597,8 +597,11 @@ export default function PriceInquiries() {
                             <div>
                               <Input
                                 type="number"
-                                value={item.customerPrice}
-                                onChange={(e) => updateServiceCustomerPrice(item.id, parseFloat(e.target.value) || 0)}
+                                value={item.customerPrice ?? ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  updateServiceCustomerPrice(item.id, val === '' ? undefined : parseFloat(val));
+                                }}
                                 className="w-32"
                                 min="0"
                                 data-testid={`input-service-customer-price-${item.id}`}
