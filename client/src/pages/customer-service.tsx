@@ -119,17 +119,20 @@ export default function CustomerService() {
   const createJobMutation = useMutation({
     mutationFn: async (data: any) => {
       const job = await api.jobs.create(data);
+      
+      // Add materials to job using proper backend endpoint
+      // This will automatically validate and reduce inventory
       if (selectedItems.length > 0) {
-        for (const item of selectedItems) {
-          try {
-            if (item.rollId && item.metersUsed) {
-              await api.inventory.deductRoll(item.inventoryId, item.rollId, item.metersUsed);
-            } else if (item.quantity) {
-              await api.inventory.adjust(item.inventoryId, -item.quantity);
-            }
-          } catch (error: any) {
-            console.error(`Failed to reduce inventory for ${item.name}:`, error);
-          }
+        const materialsToAdd = selectedItems.map(item => ({
+          inventoryId: item.inventoryId,
+          quantity: item.quantity || item.metersUsed || 0
+        }));
+        
+        try {
+          await api.jobs.addMaterials(job._id, materialsToAdd);
+        } catch (error: any) {
+          console.error('Failed to add materials to job:', error);
+          throw new Error(error?.message || 'Failed to add materials to job');
         }
       }
       return job;
@@ -139,7 +142,7 @@ export default function CustomerService() {
       queryClient.invalidateQueries({ queryKey: ['inventory'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       resetForm();
-      toast({ title: 'Service created successfully! Inventory reduced automatically.' });
+      toast({ title: 'Service created successfully! Materials added to job and inventory reduced.' });
     },
     onError: (error: any) => {
       toast({ title: error?.message || 'Failed to create service', variant: 'destructive' });
