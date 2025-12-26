@@ -124,12 +124,16 @@ export default function CustomerService() {
       if (selectedItems.length > 0) {
         // Deduct from rolls first (handles roll-specific deductions)
         for (const item of selectedItems) {
-          if (item.rollId && item.metersUsed) {
-            try {
-              await api.inventory.deductRoll(item.inventoryId, item.rollId, item.metersUsed);
-            } catch (error: any) {
-              console.error(`Failed to deduct from roll ${item.rollId}:`, error);
-              throw new Error(error?.message || `Failed to deduct from roll ${item.name}`);
+          if (item.rollId) {
+            // Use metersUsed for meters, quantity for square feet
+            const amountToDeduct = item.unit === 'Square Feet' ? item.quantity : item.metersUsed;
+            if (amountToDeduct && amountToDeduct > 0) {
+              try {
+                await api.inventory.deductRoll(item.inventoryId, item.rollId, amountToDeduct);
+              } catch (error: any) {
+                console.error(`Failed to deduct from roll ${item.rollId}:`, error);
+                throw new Error(error?.message || `Failed to deduct from roll ${item.name}`);
+              }
             }
           }
         }

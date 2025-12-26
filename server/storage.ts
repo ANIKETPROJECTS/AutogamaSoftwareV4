@@ -338,11 +338,30 @@ export class MongoStorage implements IStorage {
     const roll = item.rolls.find(r => r._id?.toString() === rollId);
     if (!roll) return null;
     
-    roll.remaining_meters = Math.max(0, roll.remaining_meters - metersUsed);
-    const sqftPerMeter = roll.squareFeet / roll.meters;
-    roll.remaining_sqft = roll.remaining_meters * sqftPerMeter;
+    // Handle deduction based on unit type
+    // Check if roll is in square feet mode (when remaining_sqft is non-zero but remaining_meters is 0 or very small)
+    const isSquareFeetMode = roll.remaining_sqft > 0 && (roll.remaining_meters === 0 || roll.squareFeet > roll.meters);
     
-    if (roll.remaining_meters === 0) {
+    if (isSquareFeetMode) {
+      // For square feet rolls, deduct from remaining_sqft directly
+      roll.remaining_sqft = Math.max(0, roll.remaining_sqft - metersUsed);
+      // Recalculate remaining_meters based on the ratio
+      if (roll.squareFeet > 0 && roll.meters > 0) {
+        const metersPerSqft = roll.meters / roll.squareFeet;
+        roll.remaining_meters = roll.remaining_sqft * metersPerSqft;
+      }
+    } else {
+      // For meter-based rolls, deduct from remaining_meters
+      roll.remaining_meters = Math.max(0, roll.remaining_meters - metersUsed);
+      // Recalculate remaining_sqft based on the ratio
+      if (roll.meters > 0) {
+        const sqftPerMeter = roll.squareFeet / roll.meters;
+        roll.remaining_sqft = roll.remaining_meters * sqftPerMeter;
+      }
+    }
+    
+    // Mark as Finished if all stock is depleted
+    if (roll.remaining_meters === 0 || roll.remaining_sqft === 0) {
       roll.status = 'Finished';
     }
     
