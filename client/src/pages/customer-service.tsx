@@ -205,10 +205,12 @@ export default function CustomerService() {
       try {
         const prefs = await api.customers.getVehiclePreferences(selectedCustomerId, parseInt(selectedVehicleIndex, 10));
         if (prefs) {
-          // Load PPF preferences
+          // Load PPF preferences - ensure warranty is set even if empty
           const category = prefs.ppfCategory || '';
           const vehicleType = prefs.ppfVehicleType || '';
           const warranty = prefs.ppfWarranty || '';
+          
+          console.log('Vehicle Preferences Loaded:', { category, vehicleType, warranty, ppfPrice: prefs.ppfPrice });
           
           // Calculate price from catalog if needed
           let price = prefs.ppfPrice || 0;
@@ -250,6 +252,8 @@ export default function CustomerService() {
               setOtherServiceVehicleType(servicesWithPrices[0].vehicleType);
             }
           }
+        } else {
+          console.log('No preferences found for this vehicle');
         }
       } catch (error) {
         console.error("Error loading vehicle preferences:", error);
@@ -640,31 +644,34 @@ export default function CustomerService() {
                 <div className="space-y-2">
                   <Label>Assign Technician</Label>
                   <Select value={selectedTechnicianId} onValueChange={setSelectedTechnicianId}>
-                    <SelectTrigger data-testid="select-technician" className="text-black dark:text-white bg-white dark:bg-slate-950">
-                      <SelectValue placeholder="Choose a technician" className="text-black dark:text-white" />
+                    <SelectTrigger data-testid="select-technician" className="text-black dark:text-white">
+                      <SelectValue placeholder="Choose a technician" />
                     </SelectTrigger>
                     <SelectContent>
-                      {technicians.map((t: any) => (
-                        <SelectItem 
-                          key={t._id} 
-                          value={t._id}
-                          disabled={t.status !== 'Available'}
-                        >
-                          <div className="flex items-center justify-between w-full gap-2">
-                            <span>{t.name} - {t.specialty}</span>
-                            <Badge 
-                              variant={t.status === 'Available' ? "outline" : "secondary"}
-                              className={`ml-2 text-[10px] px-1.5 py-0 h-4 ${
-                                t.status === 'Available' ? "text-green-600 border-green-200" : 
-                                t.status === 'Busy' ? "text-amber-600 border-amber-200" : 
-                                "text-slate-500 border-slate-200"
-                              }`}
-                            >
-                              {t.status}
-                            </Badge>
-                          </div>
-                        </SelectItem>
-                      ))}
+                      {technicians.map((t: any) => {
+                        const isSelected = selectedTechnicianId === t._id;
+                        return (
+                          <SelectItem 
+                            key={t._id} 
+                            value={t._id}
+                            disabled={t.status !== 'Available'}
+                          >
+                            <div className="flex items-center justify-between w-full gap-2">
+                              <span className={isSelected ? "text-black dark:text-white" : ""}>{t.name} - {t.specialty}</span>
+                              <Badge 
+                                variant={t.status === 'Available' ? "outline" : "secondary"}
+                                className={`ml-2 text-[10px] px-1.5 py-0 h-4 ${
+                                  t.status === 'Available' ? "text-green-600 border-green-200" : 
+                                  t.status === 'Busy' ? "text-amber-600 border-amber-200" : 
+                                  "text-slate-500 border-slate-200"
+                                }`}
+                              >
+                                {t.status}
+                              </Badge>
+                            </div>
+                          </SelectItem>
+                        );
+                      })}
                     </SelectContent>
                   </Select>
                 </div>
@@ -684,7 +691,7 @@ export default function CustomerService() {
                           setPpfCategory(val);
                           setPpfWarranty('');
                           setPpfWarrantyFromPreferences(false);
-                        }} disabled={isLoadingLastService}>
+                        }}>
                           <SelectTrigger data-testid="select-ppf-category">
                             <SelectValue placeholder="Select category" />
                           </SelectTrigger>
@@ -702,7 +709,7 @@ export default function CustomerService() {
                           setPpfVehicleType(val);
                           setPpfWarranty('');
                           setPpfWarrantyFromPreferences(false);
-                        }} disabled={isLoadingLastService}>
+                        }}>
                           <SelectTrigger data-testid="select-ppf-vehicle-type">
                             <SelectValue placeholder="Select vehicle type" />
                           </SelectTrigger>
