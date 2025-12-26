@@ -640,8 +640,8 @@ export default function CustomerService() {
                 <div className="space-y-2">
                   <Label>Assign Technician</Label>
                   <Select value={selectedTechnicianId} onValueChange={setSelectedTechnicianId}>
-                    <SelectTrigger data-testid="select-technician" className="text-black dark:text-white">
-                      <SelectValue placeholder="Choose a technician" />
+                    <SelectTrigger data-testid="select-technician" className="text-black dark:text-white bg-white dark:bg-slate-950">
+                      <SelectValue placeholder="Choose a technician" className="text-black dark:text-white" />
                     </SelectTrigger>
                     <SelectContent>
                       {technicians.map((t: any) => (
@@ -719,7 +719,7 @@ export default function CustomerService() {
                         <Select value={ppfWarranty} onValueChange={(val) => {
                           setPpfWarranty(val);
                           setPpfWarrantyFromPreferences(false);
-                        }} disabled={!ppfCategory || !ppfVehicleType || isLoadingLastService}>
+                        }} disabled={!ppfCategory || !ppfVehicleType}>
                           <SelectTrigger data-testid="select-ppf-warranty" className={ppfWarranty && ppfWarrantyFromPreferences ? 'border-red-500' : ''}>
                             <SelectValue placeholder="Select warranty" />
                           </SelectTrigger>
