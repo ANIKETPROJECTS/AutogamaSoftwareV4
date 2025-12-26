@@ -224,11 +224,6 @@ export default function CustomerService() {
             setPpfWarrantyFromPreferences(true);
           }
           
-          // Load labor cost
-          if (typeof prefs.laborCost === 'number' && prefs.laborCost > 0) {
-            setLaborCost(prefs.laborCost.toString());
-          }
-          
           // Load other services
           if (Array.isArray(prefs.otherServices) && prefs.otherServices.length > 0) {
             const servicesWithPrices = prefs.otherServices.map((svc: any) => {
