@@ -979,16 +979,16 @@ export default function CustomerService() {
 
                     {selectedRollId && (
                       <div>
-                        <Label className="text-xs">Quantity to Use (Meters)</Label>
+                        <Label className="text-xs">Square Feet to be Used</Label>
                         <Input 
                           type="number"
                           min="0.1"
                           step="0.1"
-                          placeholder="1"
+                          placeholder="Enter square feet"
                           value={metersUsed}
                           onChange={(e) => setMetersUsed(e.target.value)}
                           className="mt-1"
-                          data-testid="input-meters-used"
+                          data-testid="input-square-feet-used"
                         />
                       </div>
                     )}
