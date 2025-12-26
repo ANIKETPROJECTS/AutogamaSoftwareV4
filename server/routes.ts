@@ -273,7 +273,8 @@ export async function registerRoutes(
     try {
       const { stage, discount = 0 } = req.body;
       
-      // Check if job has an invoice - only block if changing to non-Completed stages
+      // Check if THIS JOB has an invoice
+      // Each job is independent - a customer can have multiple jobs, each with its own invoice
       const existingInvoice = await storage.getInvoiceByJob(req.params.id);
       if (existingInvoice && stage !== 'Completed') {
         return res.status(409).json({ message: "Cannot change stage after invoice has been created" });
@@ -289,10 +290,16 @@ export async function registerRoutes(
       
       if (stage === 'Completed') {
         try {
+          // Generate or retrieve existing invoice for this specific job
           const taxRate = 18; // Default rate, storage handles requiresGST
-          await storage.generateInvoiceForJob(req.params.id, taxRate, discount);
+          const invoice = await storage.generateInvoiceForJob(req.params.id, taxRate, discount);
+          if (!invoice) {
+            return res.status(500).json({ 
+              message: "Failed to generate invoice for completed job"
+            });
+          }
         } catch (invoiceError) {
-          console.error("Invoice generation error:", invoiceError);
+          console.error("Invoice generation error for job:", req.params.id, invoiceError);
           return res.status(500).json({ 
             message: "Job marked as completed but invoice generation failed",
             error: invoiceError instanceof Error ? invoiceError.message : "Unknown error"
