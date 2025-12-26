@@ -120,9 +120,21 @@ export default function CustomerService() {
     mutationFn: async (data: any) => {
       const job = await api.jobs.create(data);
       
-      // Add materials to job using proper backend endpoint
-      // This will automatically validate and reduce inventory
+      // Handle materials - rolls and regular items separately
       if (selectedItems.length > 0) {
+        // Deduct from rolls first (handles roll-specific deductions)
+        for (const item of selectedItems) {
+          if (item.rollId && item.metersUsed) {
+            try {
+              await api.inventory.deductRoll(item.inventoryId, item.rollId, item.metersUsed);
+            } catch (error: any) {
+              console.error(`Failed to deduct from roll ${item.rollId}:`, error);
+              throw new Error(error?.message || `Failed to deduct from roll ${item.name}`);
+            }
+          }
+        }
+        
+        // Add all materials to job (for tracking and total calculations)
         const materialsToAdd = selectedItems.map(item => ({
           inventoryId: item.inventoryId,
           quantity: item.quantity || item.metersUsed || 0
@@ -142,7 +154,7 @@ export default function CustomerService() {
       queryClient.invalidateQueries({ queryKey: ['inventory'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       resetForm();
-      toast({ title: 'Service created successfully! Materials added to job and inventory reduced.' });
+      toast({ title: 'Service created successfully! Rolls deducted and materials added to job.' });
     },
     onError: (error: any) => {
       toast({ title: error?.message || 'Failed to create service', variant: 'destructive' });
