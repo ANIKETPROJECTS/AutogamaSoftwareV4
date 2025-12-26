@@ -201,7 +201,10 @@ export default function CustomerFunnel() {
                         {job.totalAmount > 0 && (
                           <div className="flex items-center justify-between py-1 px-2 bg-slate-50 rounded border border-slate-200">
                             <span className="text-[10px] font-medium text-slate-600">Cost:</span>
-                            <span className="text-xs font-bold text-slate-900">₹{job.totalAmount.toLocaleString('en-IN')}</span>
+                            <span className="text-xs font-bold text-slate-900">
+                              ₹{job.totalAmount.toLocaleString('en-IN')}
+                              {!job.requiresGST && <span className="text-[8px] ml-1 text-slate-400 font-normal">(No GST)</span>}
+                            </span>
                           </div>
                         )}
 

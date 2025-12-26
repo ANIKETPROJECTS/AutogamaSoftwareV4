@@ -57,7 +57,64 @@ export interface IStorage {
   getInvoice(id: string): Promise<IInvoice | null>;
   getInvoiceByJob(jobId: string): Promise<IInvoice | null>;
   createInvoice(data: Partial<IInvoice>): Promise<IInvoice>;
-  generateInvoiceForJob(jobId: string, taxRate?: number, discount?: number): Promise<IInvoice | null>;
+  async generateInvoiceForJob(jobId: string, taxRate: number = 18, discount: number = 0): Promise<IInvoice | null> {
+    if (!mongoose.Types.ObjectId.isValid(jobId)) return null;
+    const job = await Job.findById(jobId);
+    if (!job) return null;
+
+    const invoiceExists = await Invoice.findOne({ jobId });
+    if (invoiceExists) return invoiceExists;
+
+    const materialsTotal = job.materials.reduce((sum, m) => sum + m.cost, 0);
+    const servicesTotal = job.serviceItems.reduce((sum, s) => sum + (s.price - (s.discount || 0)), 0);
+    const subtotal = materialsTotal + servicesTotal;
+    
+    const appliedTaxRate = job.requiresGST ? taxRate : 0;
+    const taxAmount = (subtotal * appliedTaxRate) / 100;
+    const totalAmount = subtotal + taxAmount - discount;
+
+    const highestInvoice = await Invoice.findOne().sort({ invoiceNumber: -1 });
+    let nextNumber = 1;
+    if (highestInvoice && highestInvoice.invoiceNumber) {
+      const match = highestInvoice.invoiceNumber.match(/\d+/);
+      if (match) {
+        nextNumber = parseInt(match[0], 10) + 1;
+      }
+    }
+    const invoiceNumber = `INV${String(nextNumber).padStart(4, '0')}`;
+
+    const invoice = new Invoice({
+      jobId: job._id,
+      customerId: job.customerId,
+      customerName: job.customerName,
+      vehicleName: job.vehicleName,
+      plateNumber: job.plateNumber,
+      invoiceNumber,
+      items: job.serviceItems.map(s => ({
+        description: s.name,
+        quantity: 1,
+        unitPrice: s.price,
+        totalPrice: s.price - (s.discount || 0)
+      })),
+      subtotal,
+      taxRate: appliedTaxRate,
+      taxAmount,
+      discount,
+      totalAmount,
+      paidAmount: job.paidAmount,
+      paymentStatus: job.paymentStatus,
+      dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    });
+
+    await invoice.save();
+    
+    // Update job totalAmount to match invoice if needed
+    if (job.totalAmount !== totalAmount) {
+      await Job.findByIdAndUpdate(jobId, { totalAmount });
+    }
+    
+    return invoice;
+  }
   
   getDashboardStats(): Promise<{
     totalJobs: number;
@@ -646,9 +703,10 @@ export class MongoStorage implements IStorage {
 
     const allMaterials = [...job.materials, ...newMaterials];
     const materialsTotal = allMaterials.reduce((sum, m) => sum + m.cost, 0);
-    const servicesTotal = job.serviceItems.reduce((sum, s) => sum + s.price, 0);
-    const serviceCost = job.serviceCost || 0;
-    const totalAmount = materialsTotal + servicesTotal + serviceCost;
+    const servicesTotal = job.serviceItems.reduce((sum, s) => sum + (s.price - (s.discount || 0)), 0);
+    const subtotal = materialsTotal + servicesTotal;
+    const appliedTaxRate = job.requiresGST ? 18 : 0;
+    const totalAmount = subtotal + (subtotal * appliedTaxRate / 100);
 
     const updatedJob = await Job.findByIdAndUpdate(jobId, {
       materials: allMaterials,
