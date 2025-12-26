@@ -4,9 +4,10 @@ export type JobStage = 'New Lead' | 'Inspection Done' | 'Work In Progress' | 'Co
 export type PaymentStatus = 'Pending' | 'Partially Paid' | 'Paid';
 export type TechnicianStatus = 'Available' | 'Busy' | 'Off';
 export type InventoryCategory = 'Elite' | 'Garware Plus' | 'Garware Premium' | 'Garware Matt';
-export type PaymentMode = 'Cash' | 'UPI' | 'Card' | 'Bank Transfer';
+export type PaymentMode = 'Cash' | 'UPI' | 'Credit Card' | 'Debit Card' | 'Bank Transfer' | 'Cheque' | 'Other';
 export type CustomerStatus = 'Inquired' | 'Working' | 'Waiting' | 'Completed';
 
+export const PAYMENT_MODES: PaymentMode[] = ['Cash', 'UPI', 'Credit Card', 'Debit Card', 'Bank Transfer', 'Cheque', 'Other'];
 export const CUSTOMER_STATUSES: CustomerStatus[] = ['Inquired', 'Working', 'Waiting', 'Completed'];
 
 export const JOB_STAGES: JobStage[] = [

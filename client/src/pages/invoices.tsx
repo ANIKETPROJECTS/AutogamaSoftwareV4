@@ -36,6 +36,7 @@ export default function Invoices() {
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<"date-desc" | "date-asc" | "amount-desc" | "amount-asc">("date-desc");
   const [filterStatus, setFilterStatus] = useState<"all" | "paid" | "unpaid">("all");
+  const [filterPaymentMode, setFilterPaymentMode] = useState<string>("all");
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
@@ -50,7 +51,7 @@ export default function Invoices() {
 
   const markPaidMutation = useMutation({
     mutationFn: (data: { invoiceId: string; paymentMode: string }) => 
-      api.invoices.markPaid(data.invoiceId),
+      api.invoices.markPaid(data.invoiceId, data.paymentMode),
     onSuccess: (updatedInvoice: any) => {
       queryClient.invalidateQueries({ queryKey: ["invoices"] });
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
@@ -77,7 +78,11 @@ export default function Invoices() {
       (filterStatus === "paid" && invoice.paymentStatus === "Paid") ||
       (filterStatus === "unpaid" && invoice.paymentStatus !== "Paid");
     
-    return matchesSearch && matchesStatus;
+    const matchesPaymentMode =
+      filterPaymentMode === "all" ||
+      invoice.paymentMode === filterPaymentMode;
+    
+    return matchesSearch && matchesStatus && matchesPaymentMode;
   });
 
   filteredInvoices = [...filteredInvoices].sort((a: any, b: any) => {
@@ -411,6 +416,25 @@ export default function Invoices() {
                 <SelectItem value="all">All Invoices</SelectItem>
                 <SelectItem value="paid">Paid Only</SelectItem>
                 <SelectItem value="unpaid">Unpaid Only</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <CreditCard className="w-4 h-4 text-slate-600" />
+            <Select value={filterPaymentMode} onValueChange={(value: any) => setFilterPaymentMode(value)}>
+              <SelectTrigger className="w-40 h-9" data-testid="select-filter-payment-mode">
+                <SelectValue placeholder="Payment Method" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Methods</SelectItem>
+                <SelectItem value="Cash">Cash</SelectItem>
+                <SelectItem value="UPI">UPI</SelectItem>
+                <SelectItem value="Credit Card">Credit Card</SelectItem>
+                <SelectItem value="Debit Card">Debit Card</SelectItem>
+                <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
+                <SelectItem value="Cheque">Cheque</SelectItem>
+                <SelectItem value="Other">Other</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -756,7 +780,7 @@ export default function Invoices() {
       <Dialog open={paymentDialogOpen} onOpenChange={setPaymentDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Mark as Paid</DialogTitle>
+            <DialogTitle>Mark Invoice as Paid</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
@@ -768,8 +792,11 @@ export default function Invoices() {
                 <SelectContent>
                   <SelectItem value="Cash">Cash</SelectItem>
                   <SelectItem value="UPI">UPI</SelectItem>
-                  <SelectItem value="Card">Card</SelectItem>
+                  <SelectItem value="Credit Card">Credit Card</SelectItem>
+                  <SelectItem value="Debit Card">Debit Card</SelectItem>
                   <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
+                  <SelectItem value="Cheque">Cheque</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>
