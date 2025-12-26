@@ -70,49 +70,53 @@ const TimePicker = ({ value, onChange, error }: { value: string, onChange: (val:
   return (
     <div className="space-y-2">
       <div className={cn(
-        "flex items-center gap-2 p-2 border rounded-md bg-background w-fit",
-        error ? "border-red-500" : "border-input"
+        "flex items-center justify-between p-4 bg-slate-50/50 rounded-xl border border-slate-100 w-fit gap-6",
+        error && "border-red-200 bg-red-50/30"
       )}>
-        <Clock className="w-4 h-4 text-muted-foreground mr-1" />
-        
-        {/* Hours */}
-        <div className="flex flex-col items-center">
-          <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={incrementHours}>
-            <ChevronUp className="h-4 w-4" />
-          </Button>
-          <span className="font-mono text-lg w-8 text-center">{hours.toString().padStart(2, '0')}</span>
-          <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={decrementHours}>
-            <ChevronDown className="h-4 w-4" />
-          </Button>
+        <div className="flex items-center gap-4">
+          <Clock className="w-5 h-5 text-slate-400" />
+          
+          {/* Hours Column */}
+          <div className="flex flex-col items-center gap-1">
+            <button type="button" onClick={incrementHours} className="p-1 hover:bg-slate-200 rounded transition-colors">
+              <ChevronUp className="w-5 h-5 text-slate-600" />
+            </button>
+            <span className="text-2xl font-bold text-slate-800 w-10 text-center tabular-nums">
+              {hours.toString().padStart(2, '0')}
+            </span>
+            <button type="button" onClick={decrementHours} className="p-1 hover:bg-slate-200 rounded transition-colors">
+              <ChevronDown className="w-5 h-5 text-slate-600" />
+            </button>
+          </div>
+
+          <span className="text-2xl font-bold text-slate-400 mb-1">:</span>
+
+          {/* Minutes Column */}
+          <div className="flex flex-col items-center gap-1">
+            <button type="button" onClick={incrementMinutes} className="p-1 hover:bg-slate-200 rounded transition-colors">
+              <ChevronUp className="w-5 h-5 text-slate-600" />
+            </button>
+            <span className="text-2xl font-bold text-slate-800 w-10 text-center tabular-nums">
+              {minutes.toString().padStart(2, '0')}
+            </span>
+            <button type="button" onClick={decrementMinutes} className="p-1 hover:bg-slate-200 rounded transition-colors">
+              <ChevronDown className="w-5 h-5 text-slate-600" />
+            </button>
+          </div>
         </div>
 
-        <span className="text-lg font-bold">:</span>
-
-        {/* Minutes */}
-        <div className="flex flex-col items-center">
-          <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={incrementMinutes}>
-            <ChevronUp className="h-4 w-4" />
-          </Button>
-          <span className="font-mono text-lg w-8 text-center">{minutes.toString().padStart(2, '0')}</span>
-          <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={decrementMinutes}>
-            <ChevronDown className="h-4 w-4" />
-          </Button>
-        </div>
-
-        {/* AM/PM */}
-        <div className="flex flex-col items-center ml-1">
-          <Button 
-            type="button" 
-            variant="outline" 
-            className="h-10 px-2 font-bold"
-            onClick={toggleAmpm}
-          >
-            {ampm}
-          </Button>
-        </div>
+        {/* AM/PM Toggle */}
+        <Button 
+          type="button" 
+          variant="outline" 
+          className="h-12 w-16 text-lg font-bold border-2 border-slate-200 bg-white hover:bg-slate-50 rounded-xl shadow-sm"
+          onClick={toggleAmpm}
+        >
+          {ampm}
+        </Button>
       </div>
       {error && (
-        <div className="flex items-center gap-1 text-sm text-red-600">
+        <div className="flex items-center gap-1.5 px-1 text-sm font-medium text-red-600">
           <AlertCircle className="w-4 h-4" />
           {error}
         </div>
