@@ -33,6 +33,14 @@ const TimePicker = ({ value, onChange, error }: { value: string, onChange: (val:
   const h12 = initialHours24 === 0 ? 12 : initialHours24 > 12 ? initialHours24 - 12 : initialHours24;
   const initialAmPm = initialHours24 >= 12 ? 'PM' : 'AM';
 
+  const [hoursInput, setHoursInput] = useState(h12.toString().padStart(2, '0'));
+  const [minutesInput, setMinutesInput] = useState(initialMinutes.toString().padStart(2, '0'));
+
+  useEffect(() => {
+    setHoursInput(h12.toString().padStart(2, '0'));
+    setMinutesInput(initialMinutes.toString().padStart(2, '0'));
+  }, [h12, initialMinutes]);
+
   const handleTimeChange = (h: string, m: string, p: string) => {
     let h24 = parseInt(h);
     if (p === 'PM' && h24 < 12) h24 += 12;
@@ -56,20 +64,28 @@ const TimePicker = ({ value, onChange, error }: { value: string, onChange: (val:
           value={h12.toString().padStart(2, '0')} 
           onValueChange={(h) => handleTimeChange(h, initialMinutes.toString(), initialAmPm)}
         >
-          <SelectTrigger className="w-[60px] h-8 font-bold text-sm border-slate-200 bg-white shadow-sm">
+          <div className="relative group">
             <input
-              className="w-full bg-transparent outline-none"
-              value={h12.toString().padStart(2, '0')}
+              className="w-[60px] h-8 font-bold text-sm border border-slate-200 bg-white shadow-sm rounded-md px-2 focus:ring-1 focus:ring-primary outline-none"
+              value={hoursInput}
               onChange={(e) => {
                 const val = e.target.value.replace(/\D/g, '').slice(0, 2);
+                setHoursInput(val);
                 const h = parseInt(val);
                 if (!isNaN(h) && h >= 1 && h <= 12) {
                   handleTimeChange(val.padStart(2, '0'), initialMinutes.toString(), initialAmPm);
                 }
               }}
-              onClick={(e) => e.stopPropagation()}
+              onBlur={() => {
+                if (!hoursInput || parseInt(hoursInput) < 1 || parseInt(hoursInput) > 12) {
+                  setHoursInput(h12.toString().padStart(2, '0'));
+                }
+              }}
             />
-          </SelectTrigger>
+            <SelectTrigger className="absolute right-0 top-0 h-8 w-6 border-0 bg-transparent hover:bg-slate-100 transition-colors p-0 flex items-center justify-center opacity-0 group-hover:opacity-100">
+              <ChevronDown className="h-3 w-3 text-slate-400" />
+            </SelectTrigger>
+          </div>
           <SelectContent className="max-h-[200px]">
             {hours.map(h => <SelectItem key={h} value={h}>{h}</SelectItem>)}
           </SelectContent>
@@ -81,20 +97,28 @@ const TimePicker = ({ value, onChange, error }: { value: string, onChange: (val:
           value={initialMinutes.toString().padStart(2, '0')} 
           onValueChange={(m) => handleTimeChange(h12.toString(), m, initialAmPm)}
         >
-          <SelectTrigger className="w-[60px] h-8 font-bold text-sm border-slate-200 bg-white shadow-sm">
+          <div className="relative group">
             <input
-              className="w-full bg-transparent outline-none"
-              value={initialMinutes.toString().padStart(2, '0')}
+              className="w-[60px] h-8 font-bold text-sm border border-slate-200 bg-white shadow-sm rounded-md px-2 focus:ring-1 focus:ring-primary outline-none"
+              value={minutesInput}
               onChange={(e) => {
                 const val = e.target.value.replace(/\D/g, '').slice(0, 2);
+                setMinutesInput(val);
                 const m = parseInt(val);
                 if (!isNaN(m) && m >= 0 && m <= 59) {
                   handleTimeChange(h12.toString(), val.padStart(2, '0'), initialAmPm);
                 }
               }}
-              onClick={(e) => e.stopPropagation()}
+              onBlur={() => {
+                if (!minutesInput || parseInt(minutesInput) < 0 || parseInt(minutesInput) > 59) {
+                  setMinutesInput(initialMinutes.toString().padStart(2, '0'));
+                }
+              }}
             />
-          </SelectTrigger>
+            <SelectTrigger className="absolute right-0 top-0 h-8 w-6 border-0 bg-transparent hover:bg-slate-100 transition-colors p-0 flex items-center justify-center opacity-0 group-hover:opacity-100">
+              <ChevronDown className="h-3 w-3 text-slate-400" />
+            </SelectTrigger>
+          </div>
           <SelectContent className="max-h-[200px]">
             {minutes.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
           </SelectContent>
