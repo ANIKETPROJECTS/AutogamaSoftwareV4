@@ -729,31 +729,33 @@ export default function PriceInquiries() {
                           </h3>
                           <p className="text-sm text-slate-700 font-medium">{inquiry.phone}</p>
                         </div>
+                        <div className="flex items-center gap-1">
                           <Button
-                            size="icon"
                             variant="ghost"
-                            className="h-8 w-8 text-primary hover:text-primary hover:bg-primary/10"
+                            size="sm"
+                            className="text-primary hover:text-primary hover:bg-primary/10 h-8 px-2 text-xs"
                             onClick={() => {
                               setSelectedInquiry(inquiry);
                               setViewDialogOpen(true);
                             }}
                             data-testid={`button-view-${inquiry._id}`}
                           >
-                            <ChevronDown className="w-4 h-4" />
+                            View Details
                           </Button>
                           <Button
                             size="icon"
                             variant="ghost"
                             className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-                          onClick={() => {
-                            setInquiryToDelete(inquiry);
-                            setDeleteDialogOpen(true);
-                          }}
-                          disabled={deleteMutation.isPending}
-                          data-testid={`button-delete-${inquiry._id}`}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                            onClick={() => {
+                              setInquiryToDelete(inquiry);
+                              setDeleteDialogOpen(true);
+                            }}
+                            disabled={deleteMutation.isPending}
+                            data-testid={`button-delete-${inquiry._id}`}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
 
                       <div className="space-y-1">
@@ -926,23 +928,30 @@ export default function PriceInquiries() {
                       <tr className="bg-slate-100">
                         <th className="p-3 text-left">Service</th>
                         <th className="p-3 text-left">Car Type</th>
-                        <th className="p-3 text-left">Service Price (₹)</th>
-                        <th className="p-3 text-left">Customer Price (₹)</th>
+                        <th className="p-3 text-right">Service Price (₹)</th>
+                        <th className="p-3 text-right">Customer Price (₹)</th>
+                        <th className="p-3 text-right">Difference (₹)</th>
                       </tr>
                     </thead>
                     <tbody>
                       {selectedInquiry.serviceDetailsJson ? (
-                        JSON.parse(selectedInquiry.serviceDetailsJson).map((service: any, idx: number) => (
-                          <tr key={idx} className="border-t">
-                            <td className="p-3">{service.name}</td>
-                            <td className="p-3">{service.carType}</td>
-                            <td className="p-3 font-semibold">{service.servicePrice}</td>
-                            <td className="p-3 font-semibold">{service.customerPrice || '-'}</td>
-                          </tr>
-                        ))
+                        JSON.parse(selectedInquiry.serviceDetailsJson).map((service: any, idx: number) => {
+                          const diff = (service.customerPrice || 0) - (service.servicePrice || 0);
+                          return (
+                            <tr key={idx} className="border-t">
+                              <td className="p-3">{service.name}</td>
+                              <td className="p-3">{service.carType}</td>
+                              <td className="p-3 text-right font-semibold">₹{service.servicePrice?.toLocaleString()}</td>
+                              <td className="p-3 text-right font-semibold">₹{service.customerPrice?.toLocaleString() || '0'}</td>
+                              <td className={`p-3 text-right font-bold ${diff >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                {diff >= 0 ? '+' : ''}₹{diff.toLocaleString()}
+                              </td>
+                            </tr>
+                          );
+                        })
                       ) : (
                         <tr className="border-t">
-                          <td colSpan={4} className="p-3 text-center text-muted-foreground">
+                          <td colSpan={5} className="p-3 text-center text-muted-foreground">
                             {selectedInquiry.service}
                           </td>
                         </tr>
