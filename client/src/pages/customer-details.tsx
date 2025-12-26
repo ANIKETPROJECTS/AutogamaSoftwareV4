@@ -322,15 +322,66 @@ export default function CustomerDetails() {
                     <div className="border-t border-slate-100 pt-3">
                       <p className="text-slate-400 font-bold uppercase tracking-wider text-[10px] mb-2">Services</p>
                       <div className="space-y-1">
-                        {job.serviceItems.map((item: any, idx: number) => (
-                          <div key={idx} className="flex items-center justify-between text-xs bg-slate-50 p-2 rounded-lg border border-slate-100">
-                            <span className="font-medium text-slate-700 truncate">{item.description || item.name || 'Service'}</span>
-                            <span className="font-bold text-slate-900 whitespace-nowrap ml-2">₹{item.price?.toLocaleString('en-IN') || item.cost?.toLocaleString('en-IN') || '0'}</span>
-                          </div>
-                        ))}
+                        {job.serviceItems.map((item: any, idx: number) => {
+                          const itemTotal = (item.price || 0) - (item.discount || 0);
+                          return (
+                            <div key={idx} className="bg-slate-50 p-2 rounded-lg border border-slate-100 space-y-1">
+                              <div className="flex items-center justify-between text-xs">
+                                <span className="font-medium text-slate-700 truncate">{item.description || item.name || 'Service'}</span>
+                                <span className="font-bold text-slate-900 whitespace-nowrap ml-2">₹{item.price?.toLocaleString('en-IN') || '0'}</span>
+                              </div>
+                              {item.discount > 0 && (
+                                <div className="flex items-center justify-between text-[10px] text-red-600 font-medium">
+                                  <span>Discount Applied</span>
+                                  <span>-₹{item.discount.toLocaleString('en-IN')}</span>
+                                </div>
+                              )}
+                              {item.discount > 0 && (
+                                <div className="flex items-center justify-between text-[10px] text-slate-500 border-t border-slate-200/50 pt-1">
+                                  <span>Item Total</span>
+                                  <span className="font-bold">₹{itemTotal.toLocaleString('en-IN')}</span>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
+
+                  {/* Labor Cost */}
+                  {job.laborCost > 0 && (
+                    <div className="border-t border-slate-100 pt-2 flex items-center justify-between text-xs">
+                      <span className="text-slate-500 font-medium">Labor Charges</span>
+                      <span className="font-bold text-slate-900">₹{job.laborCost.toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
+
+                  {/* Breakdown and GST */}
+                  <div className="border-t border-slate-100 pt-3 space-y-1">
+                    <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                      <span>Breakdown</span>
+                      <Badge variant="outline" className={`h-4 text-[9px] px-1 ${customer?.requiresGST ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-slate-50 text-slate-500 border-slate-200'}`}>
+                        {customer?.requiresGST ? 'GST 18%' : 'NO GST'}
+                      </Badge>
+                    </div>
+                    
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-slate-600">Subtotal (after discounts)</span>
+                      <span className="font-semibold text-slate-900">
+                        ₹{((job.serviceItems?.reduce((sum: number, item: any) => sum + (item.price || 0) - (item.discount || 0), 0) || 0) + (job.laborCost || 0)).toLocaleString('en-IN')}
+                      </span>
+                    </div>
+
+                    {customer?.requiresGST && (
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-slate-600">GST (18%)</span>
+                        <span className="font-semibold text-slate-900">
+                          ₹{(Math.round(((job.serviceItems?.reduce((sum: number, item: any) => sum + (item.price || 0) - (item.discount || 0), 0) || 0) + (job.laborCost || 0)) * 0.18)).toLocaleString('en-IN')}
+                        </span>
+                      </div>
+                    )}
+                  </div>
 
                   {/* Payment Status and Paid Amount */}
                   <div className="border-t border-slate-100 pt-3 flex items-center justify-between">
