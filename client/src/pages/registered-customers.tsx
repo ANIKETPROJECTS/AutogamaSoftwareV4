@@ -16,7 +16,6 @@ export default function RegisteredCustomers() {
   const [selectedCity, setSelectedCity] = useState("all");
   const [selectedDistrict, setSelectedDistrict] = useState("all");
   const [selectedState, setSelectedState] = useState("all");
-  const [selectedStatus, setSelectedStatus] = useState("all");
   const [dateRange, setDateRange] = useState("all");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -30,7 +29,7 @@ export default function RegisteredCustomers() {
   const queryClient = useQueryClient();
 
   const { data: customersData = [], isLoading, refetch } = useQuery({
-    queryKey: ["customers", searchQuery, selectedCity, selectedDistrict, selectedState, selectedStatus, dateRange, fromDate, toDate],
+    queryKey: ["customers", searchQuery, selectedCity, selectedDistrict, selectedState, dateRange, fromDate, toDate],
     queryFn: () => api.customers.list(),
   });
   
@@ -53,16 +52,20 @@ export default function RegisteredCustomers() {
     mutationFn: (customerId: string) => api.customers.delete(customerId),
     onMutate: async (customerId) => {
       await queryClient.cancelQueries({ queryKey: ["customers"] });
-      const previousCustomers = queryClient.getQueryData(["customers", searchQuery, selectedCity, selectedDistrict, selectedState, selectedStatus, dateRange, fromDate, toDate]);
-      
-      queryClient.setQueryData(["customers", searchQuery, selectedCity, selectedDistrict, selectedState, selectedStatus, dateRange, fromDate, toDate], (old: any) => 
-        Array.isArray(old) ? old.filter((c: any) => c._id !== customerId) : old
-      );
+    const previousCustomers = queryClient.getQueryData(["customers", searchQuery, selectedCity, selectedDistrict, selectedState, dateRange, fromDate, toDate]);
+    
+    queryClient.setQueryData(["customers", searchQuery, selectedCity, selectedDistrict, selectedState, dateRange, fromDate, toDate], (old: any) => 
+      Array.isArray(old) ? old.filter((c: any) => c._id !== customerId) : old
+    );
 
       return { previousCustomers };
     },
     onError: (err, customerId, context: any) => {
-      queryClient.setQueryData(["customers", searchQuery, selectedCity, selectedDistrict, selectedState, selectedStatus, dateRange, fromDate, toDate], context.previousCustomers);
+    const previousCustomers = queryClient.getQueryData(["customers", searchQuery, selectedCity, selectedDistrict, selectedState, dateRange, fromDate, toDate]);
+    
+    queryClient.setQueryData(["customers", searchQuery, selectedCity, selectedDistrict, selectedState, dateRange, fromDate, toDate], (old: any) => 
+      Array.isArray(old) ? old.filter((c: any) => c._id !== customerId) : old
+    );
       toast({ title: "Error", description: "Failed to delete customer", variant: "destructive" });
     },
     onSuccess: () => {
@@ -207,11 +210,6 @@ export default function RegisteredCustomers() {
       }
     }
 
-    // Apply status filter
-    if (selectedStatus !== "all" && customer.status !== selectedStatus) {
-      return false;
-    }
-
     // Apply date range filter
     const customerDate = customer.createdAt ? new Date(customer.createdAt) : null;
     
@@ -251,7 +249,6 @@ export default function RegisteredCustomers() {
     setSelectedCity("all");
     setSelectedDistrict("all");
     setSelectedState("all");
-    setSelectedStatus("all");
     setDateRange("all");
     setFromDate("");
     setToDate("");
@@ -319,21 +316,6 @@ export default function RegisteredCustomers() {
                     {state}
                   </SelectItem>
                 ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex-1 min-w-[150px]">
-            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-              <SelectTrigger className="h-11 bg-white border border-slate-200 rounded-lg shadow-sm" data-testid="select-status">
-                <SelectValue placeholder="All Status" />
-              </SelectTrigger>
-              <SelectContent position="popper" className="max-h-60 w-[var(--radix-select-trigger-width)]">
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="Inquired">Inquired</SelectItem>
-                <SelectItem value="Working">Working</SelectItem>
-                <SelectItem value="Waiting">Waiting</SelectItem>
-                <SelectItem value="Completed">Completed</SelectItem>
               </SelectContent>
             </Select>
           </div>

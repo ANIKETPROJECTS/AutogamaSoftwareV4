@@ -34,7 +34,7 @@ export const customerSchema = z.object({
   city: z.string().optional(),
   district: z.string().optional(),
   state: z.string().optional(),
-  status: z.enum(['Inquired', 'Working', 'Waiting', 'Completed']).default('Inquired'),
+  status: z.enum(['Inquired', 'Working', 'Waiting', 'Completed']).optional(),
   createdAt: z.date().optional(),
   vehicles: z.array(vehicleSchema).default([]),
   referrerName: z.string().optional(),
