@@ -497,7 +497,7 @@ export class MongoStorage implements IStorage {
       pendingData
     ] = await Promise.all([
       Job.countDocuments(),
-      Job.countDocuments({ stage: { $nin: ['Completed', 'Cancelled'] } }),
+      Job.countDocuments({ stage: { $ne: 'Completed' } }),
       Job.countDocuments({ stage: 'Completed' }),
       Job.aggregate([
         { $group: { _id: '$stage', count: { $sum: 1 } } }

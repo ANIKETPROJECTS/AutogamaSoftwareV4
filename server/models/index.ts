@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export type JobStage = 'New Lead' | 'Inspection Done' | 'Work In Progress' | 'Completed' | 'Cancelled';
+export type JobStage = 'New Lead' | 'Inspection Done' | 'Work In Progress' | 'Ready for Delivery' | 'Completed';
 export type PaymentStatus = 'Pending' | 'Partially Paid' | 'Paid';
 export type TechnicianStatus = 'Available' | 'Busy' | 'Off';
 export type InventoryCategory = 'Elite' | 'Garware Plus' | 'Garware Premium' | 'Garware Matt';
@@ -256,7 +256,7 @@ const JobSchema = new Schema<IJob>({
   plateNumber: { type: String, required: true },
   stage: { 
     type: String, 
-    enum: ['New Lead', 'Inspection Done', 'Work In Progress', 'Ready for Delivery', 'Completed', 'Cancelled'],
+    enum: ['New Lead', 'Inspection Done', 'Work In Progress', 'Ready for Delivery', 'Completed'],
     default: 'New Lead'
   },
   technicianId: { type: Schema.Types.ObjectId, ref: 'Technician' },
@@ -327,7 +327,7 @@ const AppointmentSchema = new Schema<IAppointment>({
 const WhatsAppTemplateSchema = new Schema<IWhatsAppTemplate>({
   stage: { 
     type: String, 
-    enum: ['New Lead', 'Inspection Done', 'Work In Progress', 'Ready for Delivery', 'Completed', 'Cancelled'],
+    enum: ['New Lead', 'Inspection Done', 'Work In Progress', 'Ready for Delivery', 'Completed'],
     required: true,
     unique: true
   },

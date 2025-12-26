@@ -114,16 +114,8 @@ export async function registerRoutes(
 
   app.patch("/api/customers/:id", async (req, res) => {
     try {
-      const existingCustomer = await storage.getCustomer(req.params.id);
-      if (!existingCustomer) return res.status(404).json({ message: "Customer not found" });
-      
       const customer = await storage.updateCustomer(req.params.id, req.body);
       if (!customer) return res.status(404).json({ message: "Customer not found" });
-      
-      if (req.body.status && req.body.status !== existingCustomer.status) {
-        await sendCustomerStatusUpdate(customer.phone, req.body.status as CustomerStatus, customer.service);
-      }
-      
       res.json(customer);
     } catch (error) {
       res.status(500).json({ message: "Failed to update customer" });

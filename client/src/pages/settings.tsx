@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { MessageCircle, Building2, AlertCircle, CheckCircle2, Key, User, Lock } from 'lucide-react';
+import { MessageCircle, Building2, Key, User, Lock } from 'lucide-react';
 
 export default function Settings() {
   const { toast } = useToast();

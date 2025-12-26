@@ -1,11 +1,4 @@
-import { WhatsAppTemplate, type JobStage, type CustomerStatus } from './models';
-
-const STATUS_MESSAGES: Record<CustomerStatus, string> = {
-  'Inquired': 'Thank you for your inquiry! We have received your service request for {{service}}. Our team will contact you shortly.',
-  'Working': 'Work has started on your vehicle for {{service}}. We will keep you updated on the progress.',
-  'Waiting': 'Your vehicle service ({{service}}) is currently on hold. We will notify you once we resume work.',
-  'Completed': 'Great news! Your {{service}} service has been completed. Please visit us to collect your vehicle.'
-};
+import { WhatsAppTemplate, type JobStage } from './models';
 
 export async function sendWhatsAppMessage(phone: string, message: string): Promise<boolean> {
   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
@@ -45,17 +38,6 @@ export async function sendWhatsAppMessage(phone: string, message: string): Promi
   }
 }
 
-export async function sendCustomerStatusUpdate(phone: string, status: CustomerStatus, service?: string): Promise<boolean> {
-  const messageTemplate = STATUS_MESSAGES[status];
-  if (!messageTemplate) {
-    console.log(`[WhatsApp] No template for status: ${status}`);
-    return false;
-  }
-  
-  const message = messageTemplate.replace(/\{\{service\}\}/g, service || 'your vehicle');
-  return sendWhatsAppMessage(phone, message);
-}
-
 export async function sendStageUpdateMessage(phone: string, stage: JobStage, vehicleName: string, plateNumber: string): Promise<boolean> {
   try {
     const template = await WhatsAppTemplate.findOne({ stage, isActive: true });
@@ -66,8 +48,9 @@ export async function sendStageUpdateMessage(phone: string, stage: JobStage, veh
     }
 
     const message = template.message
-      .replace('{{vehicle}}', vehicleName)
-      .replace('{{plate}}', plateNumber);
+      .replace(/\{\{vehicle\}\}/g, vehicleName)
+      .replace(/\{\{plate\}\}/g, plateNumber)
+      .replace(/\{\{stage\}\}/g, stage);
 
     return sendWhatsAppMessage(phone, message);
   } catch (error) {
@@ -81,9 +64,13 @@ export async function initializeWhatsAppTemplates(): Promise<void> {
     { stage: 'New Lead' as JobStage, message: 'Welcome! Your {{vehicle}} ({{plate}}) has been registered. We will contact you shortly.' },
     { stage: 'Inspection Done' as JobStage, message: 'Inspection completed for your {{vehicle}} ({{plate}}). Our team will share the report soon.' },
     { stage: 'Work In Progress' as JobStage, message: 'Work has started on your {{vehicle}} ({{plate}}). We will keep you updated.' },
-    { stage: 'Completed' as JobStage, message: 'Great news! Your {{vehicle}} ({{plate}}) is ready for pickup. Please visit us at your convenience.' },
-    { stage: 'Cancelled' as JobStage, message: 'Your service request for {{vehicle}} ({{plate}}) has been cancelled. Contact us for any queries.' }
+    { stage: 'Ready for Delivery' as JobStage, message: 'Great news! Your {{vehicle}} ({{plate}}) is ready for delivery. Please visit us to collect your vehicle.' },
+    { stage: 'Completed' as JobStage, message: 'Your {{vehicle}} ({{plate}}) service is now complete. Thank you for choosing AutoGarage!' }
   ];
+
+  // Remove any old stages that are not in the current job stages
+  const currentStages = defaultTemplates.map(t => t.stage);
+  await WhatsAppTemplate.deleteMany({ stage: { $nin: currentStages } });
 
   for (const template of defaultTemplates) {
     await WhatsAppTemplate.findOneAndUpdate(
