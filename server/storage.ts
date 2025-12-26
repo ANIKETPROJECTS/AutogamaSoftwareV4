@@ -111,10 +111,19 @@ export class MongoStorage implements IStorage {
   }
 
   async createCustomer(data: Partial<ICustomer>): Promise<ICustomer> {
-    const count = await Customer.countDocuments();
-    const customerId = `cus${String(count + 1).padStart(3, '0')}`;
-    const customer = new Customer({ ...data, customerId });
-    return customer.save();
+    try {
+      const count = await Customer.countDocuments();
+      const customerId = `cus${String(count + 1).padStart(3, '0')}`;
+      
+      // Validate required fields
+      if (!data.name) throw new Error("Name is required");
+      if (!data.phone) throw new Error("Phone number is required");
+      
+      const customer = new Customer({ ...data, customerId });
+      return await customer.save();
+    } catch (error: any) {
+      throw new Error(error?.message || "Failed to create customer in database");
+    }
   }
 
   async updateCustomer(id: string, data: Partial<ICustomer>): Promise<ICustomer | null> {

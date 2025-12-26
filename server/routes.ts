@@ -105,8 +105,10 @@ export async function registerRoutes(
     try {
       const customer = await storage.createCustomer(req.body);
       res.status(201).json(customer);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to create customer" });
+    } catch (error: any) {
+      console.error("Error creating customer:", error?.message || error);
+      const message = error?.message || "Failed to create customer";
+      res.status(500).json({ message });
     }
   });
 
