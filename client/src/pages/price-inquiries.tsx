@@ -227,7 +227,6 @@ export default function PriceInquiries() {
   const [selectedServiceItems, setSelectedServiceItems] = useState<ServiceItem[]>([]);
   const [tempServiceName, setTempServiceName] = useState('');
   const [tempCarType, setTempCarType] = useState('');
-  const [tempCustomerPrice, setTempCustomerPrice] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterService, setFilterService] = useState('');
   const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
@@ -302,8 +301,8 @@ export default function PriceInquiries() {
   });
 
   const addServiceItem = () => {
-    if (!tempServiceName || !tempCarType || !tempCustomerPrice) {
-      toast({ title: 'Please select service, car type, and enter customer price', variant: 'destructive' });
+    if (!tempServiceName || !tempCarType) {
+      toast({ title: 'Please select both service and car type', variant: 'destructive' });
       return;
     }
     
@@ -318,13 +317,12 @@ export default function PriceInquiries() {
       name: tempServiceName,
       carType: tempCarType,
       price: price,
-      customerPrice: parseFloat(tempCustomerPrice)
+      customerPrice: 0
     };
 
     setSelectedServiceItems([...selectedServiceItems, newItem]);
     setTempServiceName('');
     setTempCarType('');
-    setTempCustomerPrice('');
   };
 
   const removeServiceItem = (id: string) => {
@@ -538,7 +536,7 @@ export default function PriceInquiries() {
                 {/* Services Section */}
                 <div className="border-t pt-4">
                   <h3 className="font-semibold mb-4">Add Services</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div>
                       <Label htmlFor="tempService">Service Type</Label>
                       <Select value={tempServiceName} onValueChange={setTempServiceName}>
@@ -568,18 +566,6 @@ export default function PriceInquiries() {
                           ))}
                         </SelectContent>
                       </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="tempCustomerPrice">Customer Price (₹)</Label>
-                      <Input
-                        id="tempCustomerPrice"
-                        type="number"
-                        placeholder="Enter price"
-                        value={tempCustomerPrice}
-                        onChange={(e) => setTempCustomerPrice(e.target.value)}
-                        min="0"
-                        data-testid="input-customer-price"
-                      />
                     </div>
                     <div className="flex items-end">
                       <Button 
@@ -670,7 +656,6 @@ export default function PriceInquiries() {
                       setSelectedServiceItems([]);
                       setTempServiceName('');
                       setTempCarType('');
-                      setTempCustomerPrice('');
                     }}
                     data-testid="button-cancel-inquiry"
                   >
