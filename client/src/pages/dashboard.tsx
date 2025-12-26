@@ -94,22 +94,23 @@ export default function Dashboard() {
     return acc;
   }, {});
 
-  customers.forEach((customer: any) => {
-    // If customer has a status, use it
-    if (customer.status && customerStatusCount.hasOwnProperty(customer.status)) {
-      customerStatusCount[customer.status]++;
-    } else {
-      // Fallback to checking jobs if status is missing or default
-      const customerJobs = jobs.filter((job: any) => job.customerId === customer._id);
-      if (customerJobs.length > 0) {
-        const lastJob = customerJobs[customerJobs.length - 1];
-        const stage = lastJob.stage || "New Lead";
-        if (customerStatusCount.hasOwnProperty(stage)) {
-          customerStatusCount[stage]++;
-        }
-      } else {
-        customerStatusCount["New Lead"]++;
-      }
+  // Group jobs by customer and get the latest job for each customer
+  const latestJobPerCustomer = new Map<string, any>();
+  jobs.forEach((job: any) => {
+    const customerId = job.customerId;
+    const existing = latestJobPerCustomer.get(customerId);
+    
+    // Keep only the most recent job for each customer
+    if (!existing || new Date(job.createdAt) > new Date(existing.createdAt)) {
+      latestJobPerCustomer.set(customerId, job);
+    }
+  });
+
+  // Count unique customers by their latest job stage
+  latestJobPerCustomer.forEach((job: any) => {
+    const stage = job.stage || "New Lead";
+    if (customerStatusCount.hasOwnProperty(stage)) {
+      customerStatusCount[stage]++;
     }
   });
 
