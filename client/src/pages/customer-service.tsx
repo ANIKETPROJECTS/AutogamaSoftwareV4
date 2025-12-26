@@ -649,13 +649,15 @@ export default function CustomerService() {
                     </SelectTrigger>
                     <SelectContent>
                       {technicians.map((t: any) => (
-                        <SelectItem 
-                          key={t._id} 
-                          value={t._id}
-                          disabled={t.status !== 'Available'}
-                        >
-                          <span>{t.name} - {t.specialty}</span>
-                        </SelectItem>
+                        t.status !== 'Off' && (
+                          <SelectItem 
+                            key={t._id} 
+                            value={t._id}
+                            disabled={t.status !== 'Available'}
+                          >
+                            <span>{t.name} - {t.specialty} ({t.status})</span>
+                          </SelectItem>
+                        )
                       ))}
                     </SelectContent>
                   </Select>
