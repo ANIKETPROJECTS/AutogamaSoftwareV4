@@ -301,7 +301,7 @@ export default function CustomerDetails() {
                     </div>
                   </div>
 
-                  {/* Details Grid */}
+                  {/* Amount and Paid */}
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-xs">
                     <div>
                       <p className="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Date</p>
@@ -333,18 +333,16 @@ export default function CustomerDetails() {
                     </div>
                   )}
 
-                  {/* Payment Status */}
+                  {/* Payment Status and Paid Amount */}
                   <div className="border-t border-slate-100 pt-3 flex items-center justify-between">
                     <div>
                       <p className="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Payment Status</p>
                       <p className="font-semibold text-slate-900 mt-1">{job.paymentStatus}</p>
                     </div>
-                    {job.paidAmount > 0 && (
-                      <div className="text-right">
-                        <p className="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Paid</p>
-                        <p className="font-bold text-slate-900 mt-1">₹{job.paidAmount.toLocaleString('en-IN')}</p>
-                      </div>
-                    )}
+                    <div className="text-right">
+                      <p className="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Paid</p>
+                      <p className="font-bold text-slate-900 mt-1">₹{job.paidAmount?.toLocaleString('en-IN') || '0'}</p>
+                    </div>
                   </div>
 
                   {/* Notes */}
