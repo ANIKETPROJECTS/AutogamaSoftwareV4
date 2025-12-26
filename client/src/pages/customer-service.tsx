@@ -223,6 +223,12 @@ export default function CustomerService() {
               };
             });
             setSelectedOtherServices(servicesWithPrices);
+            
+            // Pre-fill the form fields with the first service so user can see and edit it
+            if (servicesWithPrices.length > 0) {
+              setOtherServiceName(servicesWithPrices[0].name);
+              setOtherServiceVehicleType(servicesWithPrices[0].vehicleType);
+            }
           }
         }
       } catch (error) {
@@ -650,7 +656,7 @@ export default function CustomerService() {
                       <div className="space-y-2">
                         <Label className="text-sm">Warranty / Variant</Label>
                         <Select value={ppfWarranty} onValueChange={setPpfWarranty} disabled={!ppfCategory || !ppfVehicleType || isLoadingLastService}>
-                          <SelectTrigger data-testid="select-ppf-warranty">
+                          <SelectTrigger data-testid="select-ppf-warranty" className={ppfWarranty && isLoadingLastService ? 'border-red-500' : ''}>
                             <SelectValue placeholder="Select warranty" />
                           </SelectTrigger>
                           <SelectContent>
@@ -700,7 +706,7 @@ export default function CustomerService() {
                       <div className="space-y-2">
                         <Label className="text-sm">Select Service</Label>
                         <Select value={otherServiceName} onValueChange={setOtherServiceName} disabled={isLoadingLastService}>
-                          <SelectTrigger data-testid="select-other-service">
+                          <SelectTrigger data-testid="select-other-service" className={otherServiceName && !isLoadingLastService ? 'border-red-500' : ''}>
                             <SelectValue placeholder="Choose a service" />
                           </SelectTrigger>
                           <SelectContent>
@@ -714,7 +720,7 @@ export default function CustomerService() {
                       <div className="space-y-2">
                         <Label className="text-sm">Vehicle Type</Label>
                         <Select value={otherServiceVehicleType} onValueChange={setOtherServiceVehicleType} disabled={isLoadingLastService}>
-                          <SelectTrigger data-testid="select-other-service-vehicle-type">
+                          <SelectTrigger data-testid="select-other-service-vehicle-type" className={otherServiceVehicleType && !isLoadingLastService ? 'border-red-500' : ''}>
                             <SelectValue placeholder="Select vehicle type" />
                           </SelectTrigger>
                           <SelectContent>
