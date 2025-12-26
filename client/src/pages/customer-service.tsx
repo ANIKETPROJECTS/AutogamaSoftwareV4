@@ -903,7 +903,11 @@ export default function CustomerService() {
                     {selectedItemId && (
                       <div className="space-y-1">
                         <Label className="text-[10px] text-slate-400 font-bold uppercase">
-                          {selectedRollId ? 'Size to be Used (meters)' : 'Quantity'}
+                          {selectedRollId ? (() => {
+                            const item = (Array.isArray(inventory) ? inventory : []).find((inv: any) => inv._id === selectedItemId);
+                            const roll = item?.rolls?.find((r: any) => r._id === selectedRollId);
+                            return roll?.remaining_sqft > 0 ? 'Size to be Used (Square Feet)' : 'Size to be Used (Meters)';
+                          })() : 'Quantity'}
                         </Label>
                         <div className="flex gap-2">
                           <Input
@@ -912,6 +916,7 @@ export default function CustomerService() {
                             onChange={(e) => setMetersUsed(e.target.value)}
                             min="0.1"
                             step="0.1"
+                            placeholder="Enter amount"
                             className="bg-white"
                             data-testid="input-inventory-quantity"
                           />
