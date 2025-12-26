@@ -51,21 +51,16 @@ export default function ServiceFunnel() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-
   const { data: jobsData, isLoading } = useQuery({
-    queryKey: ['jobs', search, stageFilter, currentPage],
+    queryKey: ['jobs', search, stageFilter],
     queryFn: () => api.jobs.list({ 
       search, 
       stage: stageFilter === 'all' ? undefined : stageFilter,
-      page: currentPage,
-      limit: itemsPerPage
+      limit: 1000
     }),
   });
   const jobs = jobsData?.jobs || [];
   const totalJobs = jobsData?.total || 0;
-  const totalPages = Math.ceil(totalJobs / itemsPerPage);
 
   const { data: customersData } = useQuery({
     queryKey: ['customers'],
@@ -91,9 +86,9 @@ export default function ServiceFunnel() {
     mutationFn: ({ id, stage }: { id: string; stage: string }) => api.jobs.updateStage(id, stage),
     onMutate: async ({ id, stage }) => {
       await queryClient.cancelQueries({ queryKey: ['jobs'] });
-      const previousJobs = queryClient.getQueryData(['jobs', search, stageFilter, currentPage]);
+      const previousJobs = queryClient.getQueryData(['jobs', search, stageFilter]);
       
-      queryClient.setQueryData(['jobs', search, stageFilter, currentPage], (old: any) => ({
+      queryClient.setQueryData(['jobs', search, stageFilter], (old: any) => ({
         ...old,
         jobs: old?.jobs?.map((j: any) => j._id === id ? { ...j, stage } : j)
       }));
@@ -101,7 +96,7 @@ export default function ServiceFunnel() {
       return { previousJobs };
     },
     onError: (err, { id, stage }, context: any) => {
-      queryClient.setQueryData(['jobs', search, stageFilter, currentPage], context.previousJobs);
+      queryClient.setQueryData(['jobs', search, stageFilter], context.previousJobs);
       toast({ title: 'Cannot change stage after invoice is created', variant: 'destructive' });
     },
     onSuccess: (_, variables) => {
@@ -319,29 +314,6 @@ export default function ServiceFunnel() {
       <div className="flex items-center justify-between mt-4">
         <div className="text-sm text-muted-foreground">
           Showing {jobs.length} of {totalJobs} jobs
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-            disabled={currentPage === 1}
-            data-testid="button-pagination-prev"
-          >
-            Previous
-          </Button>
-          <div className="flex items-center px-2 text-sm font-medium">
-            Page {currentPage} of {totalPages || 1}
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-            disabled={currentPage >= totalPages}
-            data-testid="button-pagination-next"
-          >
-            Next
-          </Button>
         </div>
       </div>
     </div>
