@@ -112,12 +112,22 @@ export class MongoStorage implements IStorage {
 
   async createCustomer(data: Partial<ICustomer>): Promise<ICustomer> {
     try {
-      const count = await Customer.countDocuments();
-      const customerId = `cus${String(count + 1).padStart(3, '0')}`;
-      
       // Validate required fields
       if (!data.name) throw new Error("Name is required");
       if (!data.phone) throw new Error("Phone number is required");
+      
+      // Generate unique customerId by finding the highest existing number and incrementing
+      const highestCustomer = await Customer.findOne({ customerId: { $regex: '^cus' } })
+        .sort({ customerId: -1 })
+        .select('customerId');
+      
+      let nextNumber = 1;
+      if (highestCustomer && highestCustomer.customerId) {
+        const currentNumber = parseInt(highestCustomer.customerId.replace('cus', ''), 10);
+        nextNumber = currentNumber + 1;
+      }
+      
+      const customerId = `cus${String(nextNumber).padStart(3, '0')}`;
       
       const customer = new Customer({ ...data, customerId });
       return await customer.save();
