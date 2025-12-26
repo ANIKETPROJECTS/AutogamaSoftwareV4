@@ -305,54 +305,31 @@ export default function Invoices() {
     try {
       const html2pdf = (await import('html2pdf.js')).default;
       
-      // Create HTML content using a template string approach
-      const htmlContent = `
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <meta charset="utf-8" />
-            <style>
-              * { margin: 0; padding: 0; box-sizing: border-box; }
-              body { 
-                font-family: Arial, sans-serif; 
-                line-height: 1.6; 
-                color: #111827;
-                padding: 0;
-              }
-              @page {
-                margin: 8mm;
-              }
-            </style>
-          </head>
-          <body>
-            ${getInvoiceHTML(invoiceToDownload)}
-          </body>
-        </html>
-      `;
-      
-      const element = document.createElement('div');
-      element.innerHTML = htmlContent;
-      
-      const opt = {
-        margin: 8 as any,
-        filename: `Invoice_${invoiceToDownload.invoiceNumber}.pdf`,
-        image: { type: 'jpeg' as const, quality: 0.98 },
-        html2canvas: { 
-          scale: 2, 
-          useCORS: true, 
-          logging: false, 
-          allowTaint: true
-        },
-        jsPDF: { 
-          unit: 'mm' as const, 
-          format: 'a4', 
-          orientation: 'portrait' as const,
-          compress: true
-        }
-      };
+      // Use the actual rendered invoice element from printRef if available
+      if (printRef.current) {
+        const opt = {
+          margin: 5 as any,
+          filename: `Invoice_${invoiceToDownload.invoiceNumber}.pdf`,
+          image: { type: 'jpeg' as const, quality: 0.98 },
+          html2canvas: { 
+            scale: 2, 
+            useCORS: true, 
+            logging: false, 
+            allowTaint: true
+          },
+          jsPDF: { 
+            unit: 'mm' as const, 
+            format: 'a4', 
+            orientation: 'portrait' as const,
+            compress: true
+          }
+        };
 
-      await html2pdf().set(opt).from(element).save();
-      toast({ title: "Invoice downloaded successfully" });
+        await html2pdf().set(opt).from(printRef.current).save();
+        toast({ title: "Invoice downloaded successfully" });
+      } else {
+        throw new Error("Invoice content not rendered");
+      }
     } catch (error) {
       console.error("Download error:", error);
       toast({ title: "Failed to download invoice", variant: "destructive" });
