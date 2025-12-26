@@ -56,24 +56,24 @@ const TimePicker = ({ value, onChange, error }: { value: string, onChange: (val:
           value={h12.toString().padStart(2, '0')} 
           onValueChange={(h) => handleTimeChange(h, initialMinutes.toString(), initialAmPm)}
         >
-          <SelectTrigger className="w-[70px] h-10 font-bold text-lg border-slate-200 bg-white shadow-sm">
+          <SelectTrigger className="w-[60px] h-8 font-bold text-sm border-slate-200 bg-white shadow-sm">
             <SelectValue placeholder="HH" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="max-h-[200px]">
             {hours.map(h => <SelectItem key={h} value={h}>{h}</SelectItem>)}
           </SelectContent>
         </Select>
 
-        <span className="text-xl font-bold text-slate-400">:</span>
+        <span className="text-sm font-bold text-slate-400">:</span>
 
         <Select 
           value={initialMinutes.toString().padStart(2, '0')} 
           onValueChange={(m) => handleTimeChange(h12.toString(), m, initialAmPm)}
         >
-          <SelectTrigger className="w-[70px] h-10 font-bold text-lg border-slate-200 bg-white shadow-sm">
+          <SelectTrigger className="w-[60px] h-8 font-bold text-sm border-slate-200 bg-white shadow-sm">
             <SelectValue placeholder="MM" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="max-h-[200px]">
             {minutes.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
           </SelectContent>
         </Select>
@@ -82,7 +82,7 @@ const TimePicker = ({ value, onChange, error }: { value: string, onChange: (val:
           value={initialAmPm} 
           onValueChange={(p) => handleTimeChange(h12.toString(), initialMinutes.toString(), p)}
         >
-          <SelectTrigger className="w-[75px] h-10 font-bold text-lg border-slate-200 bg-white shadow-sm">
+          <SelectTrigger className="w-[65px] h-8 font-bold text-sm border-slate-200 bg-white shadow-sm">
             <SelectValue placeholder="AM/PM" />
           </SelectTrigger>
           <SelectContent>
@@ -333,7 +333,9 @@ export default function Appointments() {
                 <div className="flex justify-between items-start">
                   <div>
                     <h3 className="font-bold text-slate-900">{appt.customerName}</h3>
-                    <Badge className={cn("text-[10px] uppercase", STATUS_COLORS[appt.status])}>
+                    <p className="text-[11px] text-slate-500 font-medium">{appt.customerPhone}</p>
+                    {appt.customerEmail && <p className="text-[10px] text-slate-400 truncate max-w-[120px]">{appt.customerEmail}</p>}
+                    <Badge className={cn("text-[10px] uppercase mt-1", STATUS_COLORS[appt.status])}>
                       {appt.status}
                     </Badge>
                   </div>
@@ -353,6 +355,12 @@ export default function Appointments() {
                     <p className="font-medium truncate">{appt.serviceType}</p>
                   </div>
                 </div>
+                {appt.notes && (
+                  <div className="pt-1">
+                    <p className="text-slate-400 uppercase font-bold text-[9px]">Notes</p>
+                    <p className="text-[10px] text-slate-600 line-clamp-2">{appt.notes}</p>
+                  </div>
+                )}
                 <div className="flex gap-2 pt-2">
                   {appt.status === 'Scheduled' && (
                     <Button 
