@@ -57,7 +57,18 @@ const TimePicker = ({ value, onChange, error }: { value: string, onChange: (val:
           onValueChange={(h) => handleTimeChange(h, initialMinutes.toString(), initialAmPm)}
         >
           <SelectTrigger className="w-[60px] h-8 font-bold text-sm border-slate-200 bg-white shadow-sm">
-            <SelectValue placeholder="HH" />
+            <input
+              className="w-full bg-transparent outline-none"
+              value={h12.toString().padStart(2, '0')}
+              onChange={(e) => {
+                const val = e.target.value.replace(/\D/g, '').slice(0, 2);
+                const h = parseInt(val);
+                if (!isNaN(h) && h >= 1 && h <= 12) {
+                  handleTimeChange(val.padStart(2, '0'), initialMinutes.toString(), initialAmPm);
+                }
+              }}
+              onClick={(e) => e.stopPropagation()}
+            />
           </SelectTrigger>
           <SelectContent className="max-h-[200px]">
             {hours.map(h => <SelectItem key={h} value={h}>{h}</SelectItem>)}
@@ -71,7 +82,18 @@ const TimePicker = ({ value, onChange, error }: { value: string, onChange: (val:
           onValueChange={(m) => handleTimeChange(h12.toString(), m, initialAmPm)}
         >
           <SelectTrigger className="w-[60px] h-8 font-bold text-sm border-slate-200 bg-white shadow-sm">
-            <SelectValue placeholder="MM" />
+            <input
+              className="w-full bg-transparent outline-none"
+              value={initialMinutes.toString().padStart(2, '0')}
+              onChange={(e) => {
+                const val = e.target.value.replace(/\D/g, '').slice(0, 2);
+                const m = parseInt(val);
+                if (!isNaN(m) && m >= 0 && m <= 59) {
+                  handleTimeChange(h12.toString(), val.padStart(2, '0'), initialAmPm);
+                }
+              }}
+              onClick={(e) => e.stopPropagation()}
+            />
           </SelectTrigger>
           <SelectContent className="max-h-[200px]">
             {minutes.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
