@@ -115,6 +115,11 @@ export const api = {
   dashboard: {
     stats: () => request<any>('/dashboard'),
   },
+  
+  settings: {
+    updateAdmin: (data: { username: string; password?: string }) => 
+      request<any>('/settings/admin', { method: 'PATCH', body: JSON.stringify(data) }),
+  },
 };
 
 export { queryClient };

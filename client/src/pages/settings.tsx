@@ -43,10 +43,21 @@ export default function Settings() {
     }
   });
 
+  const updateAdminMutation = useMutation({
+    mutationFn: (data: { username: string; password?: string }) => api.settings.updateAdmin(data),
+    onSuccess: () => {
+      toast({ title: 'Admin credentials updated successfully' });
+      setSettings(prev => ({ ...prev, adminPassword: '' }));
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Failed to update admin credentials', description: error.message, variant: 'destructive' });
+    }
+  });
+
   const handleSave = () => {
-    toast({
-      title: "Settings Saved",
-      description: "Your settings have been updated.",
+    updateAdminMutation.mutate({
+      username: settings.adminUsername,
+      password: settings.adminPassword || undefined
     });
   };
 
@@ -126,7 +137,7 @@ export default function Settings() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="adminUsername">Admin Username</Label>
+              <Label htmlFor="adminUsername">Admin Name</Label>
               <Input 
                 id="adminUsername"
                 value={settings.adminUsername}

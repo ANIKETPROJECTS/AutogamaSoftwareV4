@@ -46,7 +46,7 @@ Preferred communication style: Simple, everyday language.
 ### Core Business Logic
 - Customers can have multiple vehicles
 - Each vehicle can have multiple service jobs
-- Jobs progress through defined stages with WhatsApp notifications
+- Jobs progress through defined stages with WhatsApp notifications: New Lead → Inspection Done → Work In Progress → Ready for Delivery → Completed
 - Job cards track services, materials, payments, and technician assignments
 - Invoices track billing and payment status, supporting various payment modes (Cash, UPI, Card, Bank Transfer, Credit Card, Debit Card, Cheque, Other)
 - 'Other' payment mode allows entering specific payment details (e.g. Reference No.)

@@ -626,5 +626,28 @@ export async function registerRoutes(
     }
   });
 
+  app.patch("/api/settings/admin", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      const admin = await Admin.findOne({ email: 'Autogarage@system.com' });
+      if (!admin) return res.status(404).json({ message: "Admin not found" });
+      
+      const updateData: any = { name: username };
+      if (password) {
+        updateData.password = password;
+      }
+      
+      const updatedAdmin = await Admin.findOneAndUpdate(
+        { email: 'Autogarage@system.com' },
+        updateData,
+        { new: true }
+      );
+      
+      res.json({ success: true, user: { email: updatedAdmin?.email, name: updatedAdmin?.name } });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update admin credentials" });
+    }
+  });
+
   return httpServer;
 }
