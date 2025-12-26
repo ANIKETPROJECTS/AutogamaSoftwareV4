@@ -29,10 +29,12 @@ export default function RegisteredCustomers() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: customers = [], isLoading, refetch } = useQuery({
+  const { data: customersData = [], isLoading, refetch } = useQuery({
     queryKey: ["customers", searchQuery, selectedCity, selectedDistrict, selectedState, selectedStatus, dateRange, fromDate, toDate],
     queryFn: () => api.customers.list(),
   });
+  
+  const customers = Array.isArray(customersData) ? customersData : (customersData?.customers || []);
 
   const uploadImagesMutation = useMutation({
     mutationFn: () => api.customers.addServiceImages(selectedCustomerForImages._id, uploadedImages),
