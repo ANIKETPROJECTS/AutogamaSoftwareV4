@@ -37,25 +37,20 @@ export default function Appointments() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-
   const { data: appointmentsData, isLoading } = useQuery({
-    queryKey: ['appointments', searchQuery, currentPage],
+    queryKey: ['appointments', searchQuery],
     queryFn: () => api.appointments.list({ 
-      page: currentPage, 
-      limit: itemsPerPage 
+      search: searchQuery
     }),
   });
   const appointments = appointmentsData?.appointments || [];
   const totalAppointments = appointmentsData?.total || 0;
-  const totalPages = Math.ceil(totalAppointments / itemsPerPage);
 
   const createAppointmentMutation = useMutation({
     mutationFn: (data: any) => api.appointments.create(data),
     onMutate: async (newAppointment) => {
       await queryClient.cancelQueries({ queryKey: ['appointments'] });
-      const previousAppointments = queryClient.getQueryData(['appointments', searchQuery, currentPage]);
+      const previousAppointments = queryClient.getQueryData(['appointments', searchQuery]);
       
       const optimisticAppointment = {
         ...newAppointment,
@@ -63,7 +58,7 @@ export default function Appointments() {
         createdAt: new Date().toISOString(),
       };
 
-      queryClient.setQueryData(['appointments', searchQuery, currentPage], (old: any) => ({
+      queryClient.setQueryData(['appointments', searchQuery], (old: any) => ({
         ...old,
         appointments: [optimisticAppointment, ...(old?.appointments || [])]
       }));
@@ -71,7 +66,7 @@ export default function Appointments() {
       return { previousAppointments };
     },
     onError: (err, newAppointment, context: any) => {
-      queryClient.setQueryData(['appointments', searchQuery, currentPage], context.previousAppointments);
+      queryClient.setQueryData(['appointments', searchQuery], context.previousAppointments);
       toast({ title: 'Failed to book appointment', variant: 'destructive' });
     },
     onSuccess: () => {
@@ -88,9 +83,9 @@ export default function Appointments() {
     mutationFn: (id: string) => api.appointments.delete(id),
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: ['appointments'] });
-      const previousAppointments = queryClient.getQueryData(['appointments', searchQuery, currentPage]);
+      const previousAppointments = queryClient.getQueryData(['appointments', searchQuery]);
       
-      queryClient.setQueryData(['appointments', searchQuery, currentPage], (old: any) => ({
+      queryClient.setQueryData(['appointments', searchQuery], (old: any) => ({
         ...old,
         appointments: old?.appointments?.filter((a: any) => a._id !== id)
       }));
@@ -98,7 +93,7 @@ export default function Appointments() {
       return { previousAppointments };
     },
     onError: (err, id, context: any) => {
-      queryClient.setQueryData(['appointments', searchQuery, currentPage], context.previousAppointments);
+      queryClient.setQueryData(['appointments', searchQuery], context.previousAppointments);
       toast({ title: 'Failed to delete appointment', variant: 'destructive' });
     },
     onSuccess: () => {
@@ -113,9 +108,9 @@ export default function Appointments() {
     mutationFn: ({ id, status }: { id: string; status: string }) => api.appointments.update(id, { status }),
     onMutate: async ({ id, status }) => {
       await queryClient.cancelQueries({ queryKey: ['appointments'] });
-      const previousAppointments = queryClient.getQueryData(['appointments', searchQuery, currentPage]);
+      const previousAppointments = queryClient.getQueryData(['appointments', searchQuery]);
       
-      queryClient.setQueryData(['appointments', searchQuery, currentPage], (old: any) => ({
+      queryClient.setQueryData(['appointments', searchQuery], (old: any) => ({
         ...old,
         appointments: old?.appointments?.map((a: any) => a._id === id ? { ...a, status } : a)
       }));
@@ -123,7 +118,7 @@ export default function Appointments() {
       return { previousAppointments };
     },
     onError: (err, { id, status }, context: any) => {
-      queryClient.setQueryData(['appointments', searchQuery, currentPage], context.previousAppointments);
+      queryClient.setQueryData(['appointments', searchQuery], context.previousAppointments);
     },
     onSuccess: () => {
       toast({ title: 'Status updated' });
@@ -554,37 +549,6 @@ export default function Appointments() {
             ))}
           </div>
         )}
-      </div>
-      {totalAppointments > 0 && (
-        <div className="flex items-center justify-between mt-4">
-          <div className="text-sm text-muted-foreground">
-            Showing {appointments.length} of {totalAppointments} appointments
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-              disabled={currentPage === 1}
-              data-testid="button-pagination-prev"
-            >
-              Previous
-            </Button>
-            <div className="flex items-center px-2 text-sm font-medium">
-              Page {currentPage} of {totalPages || 1}
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-              disabled={currentPage >= totalPages}
-              data-testid="button-pagination-next"
-            >
-              Next
-            </Button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
