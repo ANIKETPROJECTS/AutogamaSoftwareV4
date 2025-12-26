@@ -383,6 +383,7 @@ export default function CustomerService() {
           inventoryId: selectedItemId,
           rollId: selectedRollId,
           metersUsed: val,
+          quantity: val, // Ensure quantity is also set for display
           name: `${item.name} - ${roll.name}`,
           unit: 'meters'
         }]);
@@ -789,34 +790,6 @@ export default function CustomerService() {
               </div>
 
               <div className="space-y-6">
-                <div className="flex items-center gap-2 p-3 border rounded-lg bg-blue-50 dark:bg-blue-950">
-                  <Checkbox 
-                    id="include-gst" 
-                    checked={includeGst}
-                    onCheckedChange={(checked) => setIncludeGst(checked as boolean)}
-                    data-testid="checkbox-include-gst"
-                  />
-                  <Label htmlFor="include-gst" className="text-sm cursor-pointer">Include GST (18%) in total</Label>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Labor Cost</Label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">₹</span>
-                    <Input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={laborCost}
-                      onChange={(e) => setLaborCost(e.target.value)}
-                      placeholder="Enter labor charge"
-                      className="pl-7"
-                      data-testid="input-labor-cost"
-                      disabled={isLoadingLastService}
-                    />
-                  </div>
-                </div>
-
                 <div className="space-y-2">
                   <Label>Service Notes</Label>
                   <Textarea
@@ -915,7 +888,7 @@ export default function CustomerService() {
                           <div className="flex flex-col">
                             <span className="text-sm font-medium text-slate-700">{item.name}</span>
                             <span className="text-[10px] text-slate-400 font-semibold uppercase">
-                              {item.rollId ? `${item.metersUsed} Meters` : `${item.quantity} Units`}
+                              {item.unit === 'Square Feet' ? `${item.quantity} Sqft` : `${item.quantity} Meters`}
                             </span>
                           </div>
                           <Button
