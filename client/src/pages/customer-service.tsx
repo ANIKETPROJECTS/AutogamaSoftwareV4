@@ -640,7 +640,7 @@ export default function CustomerService() {
                 <div className="space-y-2">
                   <Label>Assign Technician</Label>
                   <Select value={selectedTechnicianId} onValueChange={setSelectedTechnicianId}>
-                    <SelectTrigger data-testid="select-technician">
+                    <SelectTrigger data-testid="select-technician" className="text-black dark:text-white">
                       <SelectValue placeholder="Choose a technician" />
                     </SelectTrigger>
                     <SelectContent>

@@ -64,8 +64,8 @@ export async function initializeWhatsAppTemplates(): Promise<void> {
     { stage: 'New Lead' as JobStage, message: 'Welcome! Your {{vehicle}} ({{plate}}) has been registered. We will contact you shortly.' },
     { stage: 'Inspection Done' as JobStage, message: 'Inspection completed for your {{vehicle}} ({{plate}}). Our team will share the report soon.' },
     { stage: 'Work In Progress' as JobStage, message: 'Work has started on your {{vehicle}} ({{plate}}). We will keep you updated.' },
-    { stage: 'Ready for Delivery' as JobStage, message: 'Great news! Your {{vehicle}} ({{plate}}) is ready for delivery. Please visit us to collect your vehicle.' },
-    { stage: 'Completed' as JobStage, message: 'Your {{vehicle}} ({{plate}}) service is now complete. Thank you for choosing AutoGarage!' }
+    { stage: 'Completed' as JobStage, message: 'Your {{vehicle}} ({{plate}}) service is now complete. Thank you for choosing AutoGarage!' },
+    { stage: 'Cancelled' as JobStage, message: 'Your {{vehicle}} ({{plate}}) service has been cancelled. Please contact us for more details.' }
   ];
 
   // Remove any old stages that are not in the current job stages
