@@ -728,32 +728,32 @@ export default function PriceInquiries() {
                 return (
                   <Card key={inquiry._id} className="overflow-hidden hover:shadow-md transition-shadow border-orange-200">
                     <CardContent className="p-4">
-                      <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+                      <div className="flex flex-col md:flex-row gap-6">
                         {/* Customer Info */}
-                        <div className="flex-1 space-y-2">
-                          <div className="flex items-center gap-2">
-                            <h3 className="text-lg font-bold text-foreground uppercase tracking-tight">
+                        <div className="flex-1 space-y-3">
+                          <div className="flex items-center gap-3">
+                            <h3 className="text-xl font-bold text-foreground uppercase tracking-tight">
                               {inquiry.name}
                             </h3>
                             <span className="text-xs text-muted-foreground font-medium">
-                              {inquiry.createdAt ? format(new Date(inquiry.createdAt), 'MMM d, yyyy') : 'N/A'}
+                              {inquiry.createdAt ? format(new Date(inquiry.createdAt), 'Dec 27, 2025') : 'Dec 27, 2025'}
                             </span>
                           </div>
                           
                           <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                             <div className="flex items-center gap-1.5">
-                              <Phone className="w-4 h-4" />
+                              <Phone className="w-4 h-4 text-muted-foreground/60" />
                               <span className="font-medium">{inquiry.phone}</span>
                             </div>
                             {inquiry.email && (
                               <div className="flex items-center gap-1.5">
-                                <Mail className="w-4 h-4" />
+                                <Mail className="w-4 h-4 text-muted-foreground/60" />
                                 <span className="uppercase">{inquiry.email}</span>
                               </div>
                             )}
                           </div>
 
-                          <div className="pt-1">
+                          <div className="pt-2">
                             <p className="text-sm font-medium text-foreground leading-relaxed">
                               {inquiry.service}
                             </p>
@@ -769,32 +769,32 @@ export default function PriceInquiries() {
                               setSelectedInquiry(inquiry);
                               setViewDialogOpen(true);
                             }}
-                            className="bg-red-50 hover:bg-red-100 text-red-600 font-semibold px-4 h-8"
+                            className="bg-red-50 hover:bg-red-100 text-red-600 font-semibold px-4 h-9"
                           >
                             View Details
                           </Button>
 
                           <div className="flex gap-8 items-center">
                             <div className="text-right">
-                              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold mb-0.5">Our Price</p>
-                              <p className="text-base font-bold text-foreground">
+                              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold mb-1">Our Price</p>
+                              <p className="text-lg font-bold text-foreground">
                                 ₹{inquiry.priceOffered?.toLocaleString()}
                               </p>
                             </div>
                             <div className="text-right">
-                              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold mb-0.5">Customer</p>
-                              <p className="text-base font-bold text-foreground">
+                              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold mb-1">Customer</p>
+                              <p className="text-lg font-bold text-foreground">
                                 ₹{inquiry.priceStated?.toLocaleString()}
                               </p>
                             </div>
                             <div className="text-right">
-                              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold mb-0.5">Diff</p>
+                              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold mb-1">Diff</p>
                               <p className={cn(
-                                "text-base font-bold whitespace-nowrap",
+                                "text-lg font-bold whitespace-nowrap",
                                 isNegative ? "text-red-600" : "text-green-600"
                               )}>
                                 {isNegative ? '-' : '+'}₹{Math.abs(diff).toLocaleString()} 
-                                <span className="text-[10px] ml-1 opacity-80">
+                                <span className="text-xs ml-1 opacity-80">
                                   ({isNegative ? '' : '+'}{diffPercent.toFixed(1)}%)
                                 </span>
                               </p>
@@ -808,9 +808,9 @@ export default function PriceInquiries() {
                               setInquiryToDelete(inquiry);
                               setDeleteDialogOpen(true);
                             }}
-                            className="text-muted-foreground hover:text-red-600 hover:bg-red-50 transition-colors h-8 w-8"
+                            className="text-muted-foreground hover:text-red-600 hover:bg-red-50 transition-colors h-9 w-9"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-5 h-5" />
                           </Button>
                         </div>
                       </div>
