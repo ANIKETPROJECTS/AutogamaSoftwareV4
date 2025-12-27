@@ -166,14 +166,14 @@ export default function CustomerFunnel() {
               {getJobsByStage(stage.key).length === 0 ? (
                 <p className="text-sm text-slate-500">No services in this phase</p>
               ) : (
-                <div className="overflow-x-auto">
-                  <div className="flex flex-nowrap gap-3 pb-2">
+                <div className="overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent">
+                  <div className="flex flex-nowrap gap-4 min-w-full">
                     {getJobsByStage(stage.key).map((job: any) => {
                       const customer = customers.find((c: any) => c._id === job.customerId);
                       return (
                       <Card
                         key={job._id}
-                        className="bg-white border-slate-200 flex-shrink-0 w-52 hover:shadow-md transition-shadow hover-elevate"
+                        className="bg-white border-slate-200 flex-shrink-0 w-64 hover:shadow-md transition-shadow hover-elevate"
                         data-testid={`funnel-job-${job._id}`}
                       >
                       <CardContent className="p-3 space-y-2">
