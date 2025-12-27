@@ -100,7 +100,22 @@ export default function CustomerFunnel() {
   });
 
   const getJobsByStage = (stage: string) => {
-    return jobs.filter((job: any) => job.stage === stage);
+    return jobs.filter((job: any) => {
+      const isStage = job.stage === stage;
+      if (!isStage) return false;
+      
+      if (!searchQuery.trim()) return true;
+      
+      const query = searchQuery.toLowerCase();
+      const customer = customers.find((c: any) => c._id === job.customerId);
+      
+      const nameMatch = customer?.name?.toLowerCase().includes(query);
+      const phoneMatch = customer?.phone?.includes(query);
+      const vehicleMatch = job.vehicleName?.toLowerCase().includes(query) || 
+                          job.plateNumber?.toLowerCase().includes(query);
+      
+      return nameMatch || phoneMatch || vehicleMatch;
+    });
   };
 
   const stageCounts = FUNNEL_STAGES.reduce(
@@ -139,7 +154,7 @@ export default function CustomerFunnel() {
             <p className="text-sm font-medium text-slate-600">Track service jobs through different stages</p>
           </div>
           <div className="relative w-full md:w-80">
-            
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
             <Input
               placeholder="Search by name, phone, or car..."
               value={searchQuery}
