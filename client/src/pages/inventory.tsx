@@ -317,36 +317,77 @@ export default function Inventory() {
                 </Card>
 
                 {expandedRolls === displayItem._id && displayItem.rolls && displayItem.rolls.length > 0 && (
-                  <div className="bg-slate-50 dark:bg-slate-900 border border-t-0 border-red-300 p-4 rounded-b-md space-y-3">
-                    <h4 className="font-semibold text-sm">Roll Details</h4>
-                    {displayItem.rolls.map((roll: any) => (
-                      <Card key={roll._id} className="p-3 bg-white dark:bg-slate-800 border-0">
-                        <div className="space-y-2">
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <p className="font-semibold text-sm">{roll.name}</p>
-                              <Badge variant="secondary" className="mt-1 text-xs">
-                                {roll.status === 'Finished' ? 'Finished' : 'Available'}
-                              </Badge>
+                  <div className="mt-2 bg-muted/30 border rounded-lg overflow-hidden transition-all animate-in fade-in slide-in-from-top-1">
+                    <div className="p-3 border-b bg-muted/50 flex items-center justify-between">
+                      <h4 className="font-semibold text-sm flex items-center gap-2">
+                        <Package className="w-4 h-4 text-muted-foreground" />
+                        Roll Details
+                      </h4>
+                      <Badge variant="outline" className="text-[10px] h-5">
+                        {displayItem.rolls.length} Rolls
+                      </Badge>
+                    </div>
+                    <div className="p-2 space-y-2 max-h-[400px] overflow-y-auto">
+                      {displayItem.rolls.map((roll: any) => (
+                        <div 
+                          key={roll._id} 
+                          className="group relative p-3 bg-card border rounded-md hover:border-primary/50 transition-colors shadow-sm"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <p className="font-medium text-sm truncate">{roll.name}</p>
+                                <Badge 
+                                  variant={roll.status === 'Finished' ? 'outline' : 'secondary'} 
+                                  className={cn(
+                                    "text-[10px] h-4 px-1.5",
+                                    roll.status !== 'Finished' && "bg-green-500/10 text-green-600 border-green-200"
+                                  )}
+                                >
+                                  {roll.status === 'Finished' ? 'Finished' : 'Available'}
+                                </Badge>
+                              </div>
+                              <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[11px] text-muted-foreground">
+                                <div className="flex items-center gap-1">
+                                  <span className="opacity-70 text-[10px] uppercase tracking-wider font-semibold">Total:</span>
+                                  <span className="text-foreground font-medium">{roll.squareFeet?.toFixed(1)}</span>
+                                  <span className="text-[9px]">sqft</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <span className="opacity-70 text-[10px] uppercase tracking-wider font-semibold">Left:</span>
+                                  <span className={cn(
+                                    "font-bold",
+                                    (roll.remaining_sqft / roll.squareFeet) < 0.2 ? "text-destructive" : "text-primary"
+                                  )}>
+                                    {roll.remaining_sqft?.toFixed(1)}
+                                  </span>
+                                  <span className="text-[9px]">sqft</span>
+                                </div>
+                              </div>
                             </div>
                             <Button
                               size="icon"
                               variant="ghost"
-                              className="h-6 w-6 -mt-1"
+                              className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
                               onClick={() => deleteRollMutation.mutate({ id: displayItem._id, rollId: roll._id })}
                               data-testid={`button-delete-roll-${roll._id}`}
                             >
-                              <Trash2 className="w-3 h-3" />
+                              <Trash2 className="w-3.5 h-3.5" />
                             </Button>
                           </div>
-                          <div className="text-xs space-y-1 text-muted-foreground">
-                            <p><span className="font-medium">Unit:</span> {roll.unit || 'Square Feet'}</p>
-                            <p><span className="font-medium">Total:</span> {roll.squareFeet?.toFixed(1)} sqft</p>
-                            <p><span className="font-medium">Remaining:</span> {roll.remaining_sqft?.toFixed(1)} sqft</p>
+                          {/* Progress Bar for remaining stock */}
+                          <div className="mt-2 h-1 w-full bg-muted rounded-full overflow-hidden">
+                            <div 
+                              className={cn(
+                                "h-full transition-all duration-500",
+                                (roll.remaining_sqft / roll.squareFeet) < 0.2 ? "bg-destructive" : "bg-primary"
+                              )}
+                              style={{ width: `${Math.min(100, (roll.remaining_sqft / (roll.squareFeet || 1)) * 100)}%` }}
+                            />
                           </div>
                         </div>
-                      </Card>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
