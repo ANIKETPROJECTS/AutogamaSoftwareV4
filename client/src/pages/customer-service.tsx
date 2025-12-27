@@ -397,12 +397,8 @@ export default function CustomerService() {
   const totalDiscount = ppfDiscountAmount + otherServicesDiscount;
   const totalServiceAfterDiscount = ppfAfterDiscount + otherServicesAfterDiscount;
   
-  const ppfGst = ppfGstEnabled ? ppfAfterDiscount * 0.18 : 0;
-  const otherServicesGst = otherServicesGstEnabled ? otherServicesAfterDiscount * 0.18 : 0;
-  const laborGst = (ppfGstEnabled || otherServicesGstEnabled) ? parsedLaborCost * 0.18 : 0;
-  
   const subtotal = ppfAfterDiscount + otherServicesAfterDiscount + parsedLaborCost;
-  const gstValue = ppfGst + otherServicesGst + laborGst;
+  const gstValue = includeGst ? subtotal * 0.18 : 0;
   const totalCostValue = subtotal + gstValue;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -464,9 +460,7 @@ export default function CustomerService() {
       totalAmount: totalCostValue,
       paidAmount: 0,
       paymentStatus: 'Pending',
-      requiresGST: ppfGstEnabled || otherServicesGstEnabled,
-      ppfGstEnabled,
-      otherServicesGstEnabled
+      requiresGST: includeGst
     });
   };
 
@@ -618,13 +612,7 @@ export default function CustomerService() {
                           <div className="bg-gray-50 p-3 rounded-md border border-gray-200">
                             <div className="flex justify-between items-center">
                               <Label className="text-sm font-medium">PPF Price</Label>
-                              <div className="flex items-center gap-2">
-                                <span className="text-lg font-bold text-primary">₹{ppfPrice.toLocaleString('en-IN')}</span>
-                                <div className="flex items-center gap-1 ml-2">
-                                  <Checkbox id="ppf-gst" checked={ppfGstEnabled} onCheckedChange={(val) => setPpfGstEnabled(!!val)} />
-                                  <Label htmlFor="ppf-gst" className="text-[10px] cursor-pointer">GST</Label>
-                                </div>
-                              </div>
+                              <span className="text-lg font-bold text-primary">₹{ppfPrice.toLocaleString('en-IN')}</span>
                             </div>
                           </div>
                           <div className="w-full">
@@ -680,12 +668,8 @@ export default function CustomerService() {
 
                       {selectedOtherServices.length > 0 && (
                         <div className="space-y-4 mt-3">
-                          <div className="flex items-center justify-between border-b pb-2">
+                          <div className="border-b pb-2">
                             <Label className="text-sm font-semibold">Selected Services</Label>
-                            <div className="flex items-center gap-1">
-                              <Checkbox id="other-gst" checked={otherServicesGstEnabled} onCheckedChange={(val) => setOtherServicesGstEnabled(!!val)} />
-                              <Label htmlFor="other-gst" className="text-[10px] cursor-pointer">Apply GST</Label>
-                            </div>
                           </div>
                           <div className="border rounded-lg divide-y">
                             {selectedOtherServices.map((service, index) => (
@@ -794,15 +778,43 @@ export default function CustomerService() {
                     Cost Summary
                   </h3>
                   <div className="space-y-2 border-t pt-3">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-slate-500">Subtotal:</span>
-                      <span className="font-medium">₹{subtotal.toLocaleString('en-IN')}</span>
+                    {ppfPrice > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-500">PPF Service:</span>
+                        <span className="font-medium">₹{ppfPrice.toLocaleString('en-IN')}</span>
+                      </div>
+                    )}
+                    {selectedOtherServices.length > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-500">Other Services:</span>
+                        <span className="font-medium">₹{otherServicesTotal.toLocaleString('en-IN')}</span>
+                      </div>
+                    )}
+                    {parsedLaborCost > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-500">Labor Charge:</span>
+                        <span className="font-medium">₹{parsedLaborCost.toLocaleString('en-IN')}</span>
+                      </div>
+                    )}
+                    {totalDiscount > 0 && (
+                      <div className="flex justify-between text-sm text-orange-600">
+                        <span>Discount:</span>
+                        <span>-₹{totalDiscount.toLocaleString('en-IN')}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-sm border-t pt-2 font-medium">
+                      <span>Subtotal:</span>
+                      <span>₹{subtotal.toLocaleString('en-IN')}</span>
                     </div>
-                    {ppfGst > 0 && <div className="flex justify-between text-xs text-slate-400 italic"><span>PPF GST (18%):</span><span>₹{ppfGst.toLocaleString('en-IN')}</span></div>}
-                    {otherServicesGst > 0 && <div className="flex justify-between text-xs text-slate-400 italic"><span>Other GST (18%):</span><span>₹{otherServicesGst.toLocaleString('en-IN')}</span></div>}
-                    {laborGst > 0 && <div className="flex justify-between text-xs text-slate-400 italic"><span>Labor GST (18%):</span><span>₹{laborGst.toLocaleString('en-IN')}</span></div>}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Checkbox id="include-gst" checked={includeGst} onCheckedChange={(val) => setIncludeGst(!!val)} />
+                        <Label htmlFor="include-gst" className="text-sm cursor-pointer">GST (18%)</Label>
+                      </div>
+                      <span className="font-medium">{includeGst ? `₹${gstValue.toLocaleString('en-IN')}` : '₹0'}</span>
+                    </div>
                     <div className="flex justify-between text-base font-bold border-t pt-2 text-red-600">
-                      <span>Total Amount:</span>
+                      <span>Total:</span>
                       <span>₹{totalCostValue.toLocaleString('en-IN')}</span>
                     </div>
                   </div>
