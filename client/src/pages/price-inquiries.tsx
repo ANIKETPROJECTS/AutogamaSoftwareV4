@@ -324,7 +324,7 @@ export default function PriceInquiries() {
                           <Input 
                             type="number" 
                             placeholder="Enter price" 
-                            className="w-full" 
+                            className="w-32" 
                             data-testid={`input-customerprice-${item.id}`}
                             onChange={(e) => {
                               const val = parseInt(e.target.value) || 0;
