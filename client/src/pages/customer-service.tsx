@@ -692,7 +692,7 @@ export default function CustomerService() {
                                     <Label className="text-xs">Discount</Label>
                                     <Input 
                                       type="number" 
-                                      value={service.discount} 
+                                      value={service.discount || ''} 
                                       onChange={(e) => {
                                         const newServices = [...selectedOtherServices];
                                         newServices[index].discount = parseFloat(e.target.value) || 0;
