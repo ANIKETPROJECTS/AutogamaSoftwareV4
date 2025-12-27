@@ -430,7 +430,7 @@ export default function CustomerService() {
         vehicleType: ppfVehicleType,
         warranty: ppfWarranty,
         rollId: ppfMaterialItem?.rollId,
-        rollName: ppfMaterialItem?.name.includes(' - ') ? ppfMaterialItem.name.split(' - ')[1] : ppfMaterialItem?.name,
+        rollName: ppfMaterialItem?.name,
         sizeUsed: ppfMaterialItem ? (ppfMaterialItem.quantity || ppfMaterialItem.metersUsed)?.toString() : undefined
       });
     }
