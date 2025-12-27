@@ -217,7 +217,8 @@ export default function CustomerService() {
           // Load PPF preferences - ensure warranty is set even if empty
           const category = prefs.ppfCategory || '';
           const vehicleType = prefs.ppfVehicleType || '';
-          const warranty = prefs.ppfWarranty || '';
+          // Try both naming conventions for compatibility
+          const warranty = prefs.ppfWarranty || (prefs as any).warranty || '';
           
           console.log('Vehicle Preferences Loaded:', { category, vehicleType, warranty, ppfPrice: prefs.ppfPrice });
           
