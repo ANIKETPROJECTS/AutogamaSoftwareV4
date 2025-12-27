@@ -726,92 +726,80 @@ export default function PriceInquiries() {
                 const isNegative = diff < 0;
 
                 return (
-                  <Card key={inquiry._id} className="overflow-hidden hover:shadow-md transition-shadow border-orange-200">
+                  <Card key={inquiry._id} className="border border-orange-200 rounded-lg hover:shadow-lg transition-all duration-300 group relative">
                     <CardContent className="p-4">
-                      <div className="flex flex-col md:flex-row gap-6">
-                        {/* Customer Info */}
-                        <div className="flex-1 space-y-3">
-                          <div className="flex items-center gap-3">
-                            <h3 className="text-xl font-bold text-foreground uppercase tracking-tight">
+                      <div className="flex flex-col h-full gap-3">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-semibold text-lg text-slate-900 truncate">
                               {inquiry.name}
                             </h3>
-                            <span className="text-xs text-muted-foreground font-medium">
-                              {inquiry.createdAt ? format(new Date(inquiry.createdAt), 'MMM d, yyyy') : 'Dec 27, 2025'}
-                            </span>
+                            <p className="text-sm text-slate-700 font-medium">{inquiry.phone}</p>
                           </div>
-                          
-                          <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-1.5">
-                              <Phone className="w-4 h-4 text-muted-foreground/60" />
-                              <span className="font-medium">{inquiry.phone}</span>
-                            </div>
-                            {inquiry.email && (
-                              <div className="flex items-center gap-1.5">
-                                <Mail className="w-4 h-4 text-muted-foreground/60" />
-                                <span className="uppercase">{inquiry.email}</span>
-                              </div>
-                            )}
+                          <div className="flex items-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="bg-red-50 hover:bg-red-100 text-red-600 font-semibold h-8 px-2 text-xs"
+                              onClick={() => {
+                                setSelectedInquiry(inquiry);
+                                setViewDialogOpen(true);
+                              }}
+                            >
+                              View Details
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                              onClick={() => {
+                                setInquiryToDelete(inquiry);
+                                setDeleteDialogOpen(true);
+                              }}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
                           </div>
+                        </div>
 
-                          <div className="pt-2">
-                            <p className="text-sm font-medium text-foreground leading-relaxed">
-                              {inquiry.service}
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2 text-xs text-slate-600">
+                            <Mail className="w-3 h-3" />
+                            <span className="truncate uppercase">{inquiry.email || 'No email provided'}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs font-medium text-slate-900 bg-slate-100 px-2 py-1 rounded">
+                            {inquiry.service}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100">
+                          <div className="text-center">
+                            <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Our Price</p>
+                            <p className="text-sm font-bold text-foreground">₹{inquiry.priceOffered?.toLocaleString()}</p>
+                          </div>
+                          <div className="text-center border-x border-slate-100 px-1">
+                            <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Customer</p>
+                            <p className="text-sm font-bold text-foreground">₹{inquiry.priceStated?.toLocaleString()}</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Diff</p>
+                            <p className={cn(
+                              "text-sm font-bold",
+                              isNegative ? "text-red-600" : "text-green-600"
+                            )}>
+                              {isNegative ? '-' : '+'}₹{Math.abs(diff).toLocaleString()}
                             </p>
                           </div>
                         </div>
 
-                        {/* Actions and Pricing */}
-                        <div className="flex flex-row items-center gap-6 self-end md:self-center">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedInquiry(inquiry);
-                              setViewDialogOpen(true);
-                            }}
-                            className="bg-red-50 hover:bg-red-100 text-red-600 font-semibold px-4 h-9"
-                          >
-                            View Details
-                          </Button>
-
-                          <div className="flex gap-8 items-center">
-                            <div className="text-right">
-                              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold mb-1">Our Price</p>
-                              <p className="text-lg font-bold text-foreground">
-                                ₹{inquiry.priceOffered?.toLocaleString()}
-                              </p>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold mb-1">Customer</p>
-                              <p className="text-lg font-bold text-foreground">
-                                ₹{inquiry.priceStated?.toLocaleString()}
-                              </p>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold mb-1">Diff</p>
-                              <p className={cn(
-                                "text-lg font-bold whitespace-nowrap",
-                                isNegative ? "text-red-600" : "text-green-600"
-                              )}>
-                                {isNegative ? '-' : '+'}₹{Math.abs(diff).toLocaleString()} 
-                                <span className="text-xs ml-1 opacity-80">
-                                  ({isNegative ? '' : '+'}{diffPercent.toFixed(1)}%)
-                                </span>
-                              </p>
-                            </div>
-                          </div>
-
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              setInquiryToDelete(inquiry);
-                              setDeleteDialogOpen(true);
-                            }}
-                            className="text-muted-foreground hover:text-red-600 hover:bg-red-50 transition-colors h-9 w-9"
-                          >
-                            <Trash2 className="w-5 h-5" />
-                          </Button>
+                        <div className="flex justify-between items-center text-[10px] text-slate-400 font-medium">
+                          <span>{inquiry.createdAt ? format(new Date(inquiry.createdAt), 'MMM d, yyyy') : 'N/A'}</span>
+                          <span className={cn(
+                            "font-bold",
+                            isNegative ? "text-red-600" : "text-green-600"
+                          )}>
+                            {isNegative ? '' : '+'}{diffPercent.toFixed(1)}%
+                          </span>
                         </div>
                       </div>
                     </CardContent>
