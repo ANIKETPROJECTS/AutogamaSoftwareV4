@@ -609,16 +609,7 @@ export default function CustomerService() {
 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label>Select Vehicle *</Label>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowAddVehicle(!showAddVehicle)}
-                      data-testid="button-toggle-add-vehicle"
-                    >
-                      Add New Vehicle
-                    </Button>
+                    <Label className="text-sm font-semibold text-slate-700">Select Vehicle *</Label>
                   </div>
                   <Select value={selectedVehicleIndex} onValueChange={setSelectedVehicleIndex} disabled={!selectedCustomerId}>
                     <SelectTrigger data-testid="select-vehicle">
