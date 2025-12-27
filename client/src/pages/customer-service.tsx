@@ -231,6 +231,26 @@ export default function CustomerService() {
           if (warranty) {
             setPpfWarrantyFromPreferences(true);
           }
+          
+          // Auto-populate Other Services
+          if (Array.isArray(prefs.otherServices) && prefs.otherServices.length > 0) {
+            const servicesWithPrices = prefs.otherServices
+              .filter((svc: any) => svc.name !== 'Labor Charge')
+              .map((svc: any) => {
+                const serviceData = OTHER_SERVICES[svc.name as keyof typeof OTHER_SERVICES];
+                let price = 0;
+                if (serviceData && svc.vehicleType) {
+                  price = (serviceData as any)[svc.vehicleType] || 0;
+                }
+                return {
+                  name: svc.name,
+                  vehicleType: svc.vehicleType || '',
+                  price: price,
+                  discount: svc.discount || 0
+                };
+              });
+            setSelectedOtherServices(servicesWithPrices);
+          }
         }
       } catch (error) {
         console.error("Error loading vehicle preferences:", error);
