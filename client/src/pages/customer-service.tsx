@@ -683,6 +683,24 @@ export default function CustomerService() {
                                     <Trash2 className="w-4 h-4 text-red-500" />
                                   </Button>
                                 </div>
+                                <div className="bg-gray-50 p-2 rounded-md border border-gray-200">
+                                  <div className="flex justify-between items-center mb-2">
+                                    <Label className="text-sm font-medium">Service Price</Label>
+                                    <span className="text-lg font-bold text-primary">₹{service.price.toLocaleString('en-IN')}</span>
+                                  </div>
+                                  <div className="w-full">
+                                    <Label className="text-xs">Discount</Label>
+                                    <Input 
+                                      type="number" 
+                                      value={service.discount} 
+                                      onChange={(e) => {
+                                        const newServices = [...selectedOtherServices];
+                                        newServices[index].discount = parseFloat(e.target.value) || 0;
+                                        setSelectedOtherServices(newServices);
+                                      }} 
+                                    />
+                                  </div>
+                                </div>
                               </div>
                             ))}
                           </div>
@@ -716,7 +734,7 @@ export default function CustomerService() {
                         <SelectContent>
                           {(Array.isArray(inventory) ? inventory : []).map((item: any) => (
                             <SelectItem key={item._id} value={item._id}>
-                              {item.category} - {item.quantity} {item.unit}
+                              {item.category}
                             </SelectItem>
                           ))}
                         </SelectContent>
