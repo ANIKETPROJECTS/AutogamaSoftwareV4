@@ -89,9 +89,9 @@ export default function CustomerFunnel() {
 
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) =>
-      api.customers.update(id, { status }),
+      api.jobs.update(id, { stage: status }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["customers"] });
+      queryClient.invalidateQueries({ queryKey: ["jobs"] });
       toast({ title: "Status updated" });
     },
     onError: () => {
@@ -226,46 +226,33 @@ export default function CustomerFunnel() {
 
                         {/* Payment Status */}
                         {job.paymentStatus && (
-                          <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-5 w-full justify-center">
+                          <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-5 w-full justify-center mb-2">
                             {job.paymentStatus}
                           </Badge>
                         )}
 
-                        {/* Action Buttons */}
-                        <div className="flex gap-1 pt-1.5 border-t border-slate-100">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-6 text-[10px] flex-1 px-1 border-slate-200 text-slate-700"
-                            onClick={() => {
-                              setSelectedCustomer(customer);
-                              setDetailsOpen(true);
+                        {/* Status Update Dropdown */}
+                        <div className="pt-1.5 border-t border-slate-100">
+                          <Select
+                            value={job.stage}
+                            onValueChange={(value) => {
+                              updateStatusMutation.mutate({
+                                id: job._id,
+                                status: value,
+                              });
                             }}
-                            data-testid={`button-view-${job._id}`}
                           >
-                            <Eye className="w-3 h-3" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-6 text-[10px] flex-1 px-1 border-slate-200 text-slate-700"
-                            onClick={() => {
-                              setHistoryCustomer(customer);
-                              setHistoryOpen(true);
-                            }}
-                            data-testid={`button-history-${job._id}`}
-                          >
-                            <History className="w-3 h-3" />
-                          </Button>
-                          <Link href={`/customer-service?customerId=${customer?._id}`}>
-                            <Button
-                              size="sm"
-                              className="h-6 text-[10px] flex-1 px-1 bg-gradient-to-r from-primary to-primary/90 text-white hover:shadow-lg transition-all"
-                              data-testid={`button-create-service-${job._id}`}
-                            >
-                              <Wrench className="w-3 h-3" />
-                            </Button>
-                          </Link>
+                            <SelectTrigger className="h-7 text-[10px] bg-slate-50 border-slate-200">
+                              <SelectValue placeholder="Update status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {FUNNEL_STAGES.map((s) => (
+                                <SelectItem key={s.key} value={s.key} className="text-[10px]">
+                                  {s.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
                       </CardContent>
                     </Card>
