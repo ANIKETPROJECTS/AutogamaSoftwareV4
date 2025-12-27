@@ -371,7 +371,7 @@ export default function Appointments() {
 
       {isLoading ? (
         <div className="text-center py-8 text-muted-foreground">Loading...</div>
-      ) : (
+      ) : viewMode === "card" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredAppointments.map((appt: any) => (
             <Card key={appt._id} className="hover-elevate border-slate-200 shadow-sm overflow-hidden">
@@ -429,6 +429,68 @@ export default function Appointments() {
               </CardContent>
             </Card>
           ))}
+        </div>
+      ) : (
+        <div className="border border-slate-200 rounded-lg overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50 dark:bg-slate-900/30">
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-slate-900 dark:text-slate-50">Customer</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-slate-900 dark:text-slate-50">Phone</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-slate-900 dark:text-slate-50">Vehicle</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-slate-900 dark:text-slate-50">Service</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-slate-900 dark:text-slate-50">Date</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-slate-900 dark:text-slate-50">Time</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-slate-900 dark:text-slate-50">Status</th>
+                  <th className="px-4 py-3 text-right text-sm font-semibold text-slate-900 dark:text-slate-50">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredAppointments.map((appt: any, index: number) => (
+                  <tr key={appt._id} className={cn("border-b border-slate-100 hover:bg-slate-50 dark:hover:bg-slate-900/20", index % 2 === 0 ? "bg-white dark:bg-transparent" : "bg-slate-50/50 dark:bg-slate-950/20")}>
+                    <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-50">{appt.customerName}</td>
+                    <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{appt.customerPhone}</td>
+                    <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{appt.vehicleInfo}</td>
+                    <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{appt.serviceType}</td>
+                    <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{format(new Date(appt.date), 'MMM dd, yyyy')}</td>
+                    <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{appt.time}</td>
+                    <td className="px-4 py-3 text-sm">
+                      <Badge className={cn("text-[10px] uppercase", STATUS_COLORS[appt.status])}>
+                        {appt.status}
+                      </Badge>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-right">
+                      <div className="flex gap-2 justify-end">
+                        {appt.status === 'Scheduled' && (
+                          <Button 
+                            size="sm" 
+                            className="h-8 text-xs" 
+                            onClick={() => updateStatusMutation.mutate({ id: appt._id, status: 'Done' })}
+                          >
+                            Mark Done
+                          </Button>
+                        )}
+                        <Button 
+                          size="icon" 
+                          variant="outline" 
+                          className="h-8 w-8 text-destructive" 
+                          onClick={() => setDeleteId(appt._id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {filteredAppointments.length === 0 && (
+            <div className="text-center py-8 text-muted-foreground">
+              No appointments found
+            </div>
+          )}
         </div>
       )}
 
