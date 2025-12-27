@@ -43,6 +43,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const { title: pageTitle, subtitle: pageSubtitle } = usePageContext();
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
+  const [dismissedJobs, setDismissedJobs] = useState<string[]>([]);
+
   const { data: appointmentsData } = useQuery({
     queryKey: ['appointments'],
     queryFn: () => api.appointments.list(),
@@ -64,13 +66,20 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const completedJobsToday = (Array.isArray(jobs) ? jobs : []).filter((job: any) => {
     const jobDate = new Date(job.createdAt);
     const today = new Date();
-    return job.stage === 'Completed' && jobDate.toDateString() === today.toDateString();
+    return (
+      job.stage === 'Completed' && 
+      jobDate.toDateString() === today.toDateString() &&
+      !dismissedJobs.includes(job._id)
+    );
   });
 
   const todayCompletedJobs = completedJobsToday.length;
 
   const handleClearNotifications = () => {
     setNotifications([]);
+    if (completedJobsToday.length > 0) {
+      setDismissedJobs(prev => [...prev, ...completedJobsToday.map((j: any) => j._id)]);
+    }
   };
 
   return (
@@ -182,7 +191,20 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-96">
               <div className="p-3">
-                <h3 className="font-semibold text-sm mb-3">Notifications</h3>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-semibold text-sm">Notifications</h3>
+                  {(todayCompletedJobs > 0 || notifications.length > 0) && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleClearNotifications}
+                      className="h-7 text-xs text-muted-foreground hover:text-foreground"
+                      data-testid="button-mark-all-done"
+                    >
+                      Mark all done
+                    </Button>
+                  )}
+                </div>
                 
                 {/* Completed Services Section */}
                 {todayCompletedJobs > 0 && (
@@ -215,38 +237,27 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   </div>
                 )}
 
-                {todayCompletedJobs === 0 && notifications.length === 0 ? (
+                {notifications.length > 0 && (
+                  <div className="space-y-2 mt-3">
+                    <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 px-2">
+                      Other Notifications
+                    </p>
+                    {notifications.map((notif) => (
+                      <div key={notif.id} className="text-sm p-2 bg-secondary rounded">
+                        <p>{notif.message}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {notif.timestamp.toLocaleTimeString()}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {todayCompletedJobs === 0 && notifications.length === 0 && (
                   <div className="text-center py-6">
                     <Bell className="w-8 h-8 mx-auto mb-2 text-muted-foreground opacity-50" />
                     <p className="text-sm text-muted-foreground" data-testid="text-no-notifications">No notifications</p>
                   </div>
-                ) : (
-                  <>
-                    {notifications.length > 0 && (
-                      <div className="space-y-2 mt-3">
-                        <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 px-2">
-                          Other Notifications
-                        </p>
-                        {notifications.map((notif) => (
-                          <div key={notif.id} className="text-sm p-2 bg-secondary rounded">
-                            <p>{notif.message}</p>
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {notif.timestamp.toLocaleTimeString()}
-                            </p>
-                          </div>
-                        ))}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={handleClearNotifications}
-                          className="w-full"
-                          data-testid="button-clear-notifications"
-                        >
-                          Clear
-                        </Button>
-                      </div>
-                    )}
-                  </>
                 )}
               </div>
             </DropdownMenuContent>
