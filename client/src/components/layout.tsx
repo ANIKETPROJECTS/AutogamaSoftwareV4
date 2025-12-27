@@ -191,24 +191,26 @@ export function Layout({ children }: { children: React.ReactNode }) {
                       Completed Services Today
                     </p>
                     {completedJobsToday.map((job: any) => (
-                      <div key={job._id} className="p-2 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-md">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1">
-                            <p className="text-sm font-semibold text-green-900 dark:text-green-100">
-                              {job.customerName}
-                            </p>
-                            <p className="text-xs text-green-700 dark:text-green-300 mt-1">
-                              {job.vehicleName} {job.plateNumber && `(${job.plateNumber})`}
-                            </p>
-                            {job.serviceType && (
-                              <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-                                Service: {job.serviceType}
+                      <Link key={job._id} href="/funnel">
+                        <div className="p-2 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-md cursor-pointer hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1">
+                              <p className="text-sm font-semibold text-green-900 dark:text-green-100">
+                                {job.customerName}
                               </p>
-                            )}
+                              <p className="text-xs text-green-700 dark:text-green-300 mt-1">
+                                {job.vehicleName} {job.plateNumber && `(${job.plateNumber})`}
+                              </p>
+                              {job.serviceType && (
+                                <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                                  Service: {job.serviceType}
+                                </p>
+                              )}
+                            </div>
+                            <div className="w-2 h-2 bg-green-500 rounded-full mt-1 flex-shrink-0"></div>
                           </div>
-                          <div className="w-2 h-2 bg-green-500 rounded-full mt-1 flex-shrink-0"></div>
                         </div>
-                      </div>
+                      </Link>
                     ))}
                   </div>
                 )}
