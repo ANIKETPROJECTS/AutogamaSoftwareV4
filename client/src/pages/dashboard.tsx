@@ -440,7 +440,7 @@ export default function Dashboard() {
                       <p className="text-slate-600">Payment Status</p>
                       <p className="font-medium text-slate-900">{job.paymentStatus}</p>
                     </div>
-                    {job.serviceItems?.some((item: any) => item.name?.startsWith('PPF')) && (
+                    {job.serviceItems?.some((item: any) => item.rollName) && (
                       <>
                         <div>
                           <p className="text-slate-600">Roll No</p>
