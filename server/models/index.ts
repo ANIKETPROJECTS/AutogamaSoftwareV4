@@ -58,6 +58,9 @@ export interface IServiceItem {
   warranty?: string;
   discount?: number;
   discountPercentage?: number;
+  rollId?: mongoose.Types.ObjectId;
+  rollName?: string;
+  sizeUsed?: string;
 }
 
 export interface IPayment {
@@ -237,7 +240,10 @@ const ServiceItemSchema = new Schema<IServiceItem>({
   vehicleType: { type: String },
   warranty: { type: String },
   discount: { type: Number, default: 0 },
-  discountPercentage: { type: Number, default: 0 }
+  discountPercentage: { type: Number, default: 0 },
+  rollId: { type: Schema.Types.ObjectId, ref: 'Inventory.rolls' },
+  rollName: { type: String },
+  sizeUsed: { type: String }
 });
 
 const PaymentSchema = new Schema<IPayment>({

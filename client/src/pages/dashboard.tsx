@@ -445,13 +445,13 @@ export default function Dashboard() {
                         <div>
                           <p className="text-slate-600">Roll No</p>
                           <p className="font-medium text-slate-900">
-                            {job.serviceItems.find((item: any) => item.category && item.warranty)?.rollName || 'N/A'}
+                            {job.serviceItems.find((item: any) => item.rollName)?.rollName || 'N/A'}
                           </p>
                         </div>
                         <div>
                           <p className="text-slate-600">Size Used</p>
                           <p className="font-medium text-slate-900">
-                            {job.serviceItems.find((item: any) => item.category && item.warranty)?.sizeUsed || 'N/A'} sqft
+                            {job.serviceItems.find((item: any) => item.sizeUsed)?.sizeUsed || 'N/A'} sqft
                           </p>
                         </div>
                       </>

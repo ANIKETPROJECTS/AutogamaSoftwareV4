@@ -418,7 +418,9 @@ export default function CustomerService() {
 
     const serviceItemsList: any[] = [];
     if (ppfPrice > 0) {
-      const ppfItem = selectedItems.find(item => item.name.includes(' - '));
+      // Find the material item associated with this PPF service
+      const ppfMaterialItem = selectedItems.find(item => item.rollId);
+      
       serviceItemsList.push({
         name: `PPF ${ppfCategory} - ${ppfWarranty}`,
         price: ppfPrice,
@@ -427,8 +429,9 @@ export default function CustomerService() {
         category: ppfCategory,
         vehicleType: ppfVehicleType,
         warranty: ppfWarranty,
-        rollName: ppfItem ? ppfItem.name.split(' - ')[1] : undefined,
-        sizeUsed: ppfItem ? (ppfItem.quantity || ppfItem.metersUsed) : undefined
+        rollId: ppfMaterialItem?.rollId,
+        rollName: ppfMaterialItem?.name.includes(' - ') ? ppfMaterialItem.name.split(' - ')[1] : ppfMaterialItem?.name,
+        sizeUsed: ppfMaterialItem ? (ppfMaterialItem.quantity || ppfMaterialItem.metersUsed)?.toString() : undefined
       });
     }
     selectedOtherServices.forEach(s => {
