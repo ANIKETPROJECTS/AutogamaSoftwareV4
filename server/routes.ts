@@ -301,7 +301,7 @@ export async function registerRoutes(
         return res.status(409).json({ message: "Cannot change stage after invoice has been created" });
       }
       
-      const job = await storage.updateJobStage(req.params.id, stage);
+      const job = await storage.updateJob(req.params.id, { stage });
       if (!job) return res.status(404).json({ message: "Job not found" });
       
       const customer = await Customer.findById(job.customerId);

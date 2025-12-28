@@ -131,18 +131,6 @@ export default function CustomerService() {
     mutationFn: async (data: any) => {
       const job = await api.jobs.create(data);
       if (selectedItems.length > 0) {
-        for (const item of selectedItems) {
-          const amountToDeduct = item.unit === 'Square Feet' ? item.quantity : item.metersUsed;
-          if (amountToDeduct && amountToDeduct > 0) {
-            try {
-              // Use FIFO consumption for automatic roll deduction
-              await api.inventory.consumeRollsWithFIFO(item.inventoryId, amountToDeduct);
-            } catch (error: any) {
-              console.error(`Failed to consume from ${item.name}:`, error);
-              throw new Error(error?.message || `Failed to deduct from ${item.name}`);
-            }
-          }
-        }
         const materialsToAdd = selectedItems.map(item => ({
           inventoryId: item.inventoryId,
           quantity: item.quantity || item.metersUsed || 0
