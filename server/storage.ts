@@ -212,7 +212,9 @@ export class MongoStorage implements IStorage {
       ppfWarranty: vehicle.ppfWarranty,
       ppfPrice: vehicle.ppfPrice,
       laborCost: vehicle.laborCost,
-      otherServices: vehicle.otherServices
+      otherServices: vehicle.otherServices,
+      customerSuppliedMaterial: customer.customerSuppliedMaterial,
+      customerMaterialDetails: customer.customerMaterialDetails
     };
   }
 

@@ -229,6 +229,8 @@ const CustomerSchema = new Schema<ICustomer>({
   vehicles: [VehicleSchema],
   requiresGST: { type: Boolean, default: false },
   serviceImages: [{ type: String }],
+  customerSuppliedMaterial: { type: Boolean, default: false },
+  customerMaterialDetails: { type: String },
   referrerName: { type: String },
   referrerPhone: { type: String },
   createdAt: { type: Date, default: Date.now }
