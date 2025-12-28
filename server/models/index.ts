@@ -28,7 +28,7 @@ export interface IVehicle {
   otherServices?: IOtherService[];
 }
 
-export type CustomerStatus = 'Inquired' | 'Working' | 'Waiting' | 'Completed';
+export type CustomerStatus = 'Inquired' | 'Working' | 'Waiting' | 'Completed' | 'Cancelled';
 
 export interface ICustomer extends Document {
   name: string;
@@ -223,7 +223,7 @@ const CustomerSchema = new Schema<ICustomer>({
   district: { type: String },
   state: { type: String },
   customerId: { type: String, unique: true, required: true },
-  status: { type: String, enum: ['Inquired', 'Working', 'Waiting', 'Completed'], default: 'Inquired' },
+  status: { type: String, enum: ['Inquired', 'Working', 'Waiting', 'Completed', 'Cancelled'], default: 'Inquired' },
   service: { type: String },
   serviceCost: { type: Number, default: 0 },
   vehicles: [VehicleSchema],
@@ -334,7 +334,7 @@ const AppointmentSchema = new Schema<IAppointment>({
 const WhatsAppTemplateSchema = new Schema<IWhatsAppTemplate>({
   stage: { 
     type: String, 
-    enum: ['New Lead', 'Inspection Done', 'Work In Progress', 'Ready for Delivery', 'Completed'],
+    enum: ['New Lead', 'Inspection Done', 'Work In Progress', 'Ready for Delivery', 'Completed', 'Cancelled'],
     required: true,
     unique: true
   },
