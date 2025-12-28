@@ -243,9 +243,9 @@ export class MongoStorage implements IStorage {
     return Job.findByIdAndUpdate(id, { ...data, updatedAt: new Date() }, { new: true });
   }
 
-  async updateJobStage(id: string, stage: JobStage): Promise<IJob | null> {
-    if (!mongoose.Types.ObjectId.isValid(id)) return null;
-    return Job.findByIdAndUpdate(id, { stage, updatedAt: new Date() }, { new: true });
+  async deleteJob(id: string): Promise<void> {
+    if (!mongoose.Types.ObjectId.isValid(id)) return;
+    await Job.findByIdAndDelete(id);
   }
 
   async getTechnicians(): Promise<ITechnician[]> {

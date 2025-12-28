@@ -212,13 +212,21 @@ export async function registerRoutes(
   });
 
   app.post("/api/jobs", async (req, res) => {
+    let createdJobId: string | undefined;
     try {
       const job = await storage.createJob(req.body);
+      createdJobId = job._id.toString();
+      
       const customer = await Customer.findById(job.customerId);
       if (customer) {
-        await sendStageUpdateMessage(customer.phone, job.stage, job.vehicleName, job.plateNumber);
+        // Send WhatsApp message - this is non-critical, so we don't roll back if it fails
+        try {
+          await sendStageUpdateMessage(customer.phone, job.stage, job.vehicleName, job.plateNumber);
+        } catch (waError) {
+          console.error("WhatsApp notification failed:", waError);
+        }
         
-        // Save vehicle service preferences for auto-fill on next service
+        // Save vehicle service preferences
         const jobData = req.body as any;
         const ppfService = jobData.serviceItems?.find((item: any) => item.name?.startsWith('PPF'));
         const otherServices = jobData.serviceItems?.filter((item: any) => !item.name?.startsWith('PPF')).map((item: any) => ({
@@ -247,6 +255,16 @@ export async function registerRoutes(
       res.status(201).json(job);
     } catch (error) {
       console.error("Job creation error:", error);
+      
+      // Rollback: if the job was created but subsequent logic failed, delete it
+      if (createdJobId) {
+        try {
+          await storage.deleteJob(createdJobId);
+        } catch (rollbackError) {
+          console.error("Rollback failed:", rollbackError);
+        }
+      }
+      
       res.status(500).json({ message: "Failed to create job", error: (error as any)?.message });
     }
   });
