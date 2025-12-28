@@ -39,6 +39,7 @@ export default function CustomerService() {
   const [selectedItems, setSelectedItems] = useState<{ inventoryId: string; metersUsed?: number; name: string; unit: string; quantity?: number }[]>([]);
   const [selectedItemId, setSelectedItemId] = useState<string>('');
   const [metersUsed, setMetersUsed] = useState<string>('1');
+  const [expandedInventoryId, setExpandedInventoryId] = useState<string | null>(null);
 
   const [showAddVehicle, setShowAddVehicle] = useState(false);
   const [newVehicleMake, setNewVehicleMake] = useState('');
@@ -704,7 +705,10 @@ export default function CustomerService() {
                   <div className="space-y-3">
                     <div className="space-y-2">
                       <Label className="text-sm">Select Product</Label>
-                      <Select value={selectedItemId} onValueChange={setSelectedItemId}>
+                      <Select value={selectedItemId} onValueChange={(id) => {
+                        setSelectedItemId(id);
+                        setExpandedInventoryId(null);
+                      }}>
                         <SelectTrigger data-testid="select-inventory-item">
                           <SelectValue placeholder="Choose a product" />
                         </SelectTrigger>
@@ -718,6 +722,49 @@ export default function CustomerService() {
                       </Select>
                     </div>
 
+                    {selectedItemId && (
+                      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 space-y-2">
+                        {(() => {
+                          const item = (Array.isArray(inventory) ? inventory : []).find((inv: any) => inv._id === selectedItemId);
+                          const totalAvailable = item?.rolls?.reduce((sum: number, roll: any) => {
+                            if (roll.status !== 'Finished' && roll.remaining_sqft > 0) {
+                              return sum + (roll.remaining_sqft || 0);
+                            }
+                            return sum;
+                          }, 0) || 0;
+                          const activeRolls = item?.rolls?.filter((r: any) => r.status !== 'Finished' && r.remaining_sqft > 0) || [];
+
+                          return (
+                            <>
+                              <div className="flex items-center justify-between cursor-pointer" onClick={() => setExpandedInventoryId(expandedInventoryId === selectedItemId ? null : selectedItemId)}>
+                                <div>
+                                  <p className="text-sm font-medium text-blue-900 dark:text-blue-100">{totalAvailable} sq ft available across {activeRolls.length} roll(s)</p>
+                                </div>
+                                {activeRolls.length > 0 && (
+                                  expandedInventoryId === selectedItemId ? 
+                                  <ChevronUp className="w-4 h-4 text-blue-600 dark:text-blue-400" /> : 
+                                  <ChevronDown className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                                )}
+                              </div>
+                              
+                              {expandedInventoryId === selectedItemId && activeRolls.length > 0 && (
+                                <div className="space-y-2 mt-2 pt-2 border-t border-blue-200 dark:border-blue-800">
+                                  {activeRolls.map((roll: any, idx: number) => (
+                                    <div key={roll._id || idx} className="flex items-center justify-between text-sm bg-white dark:bg-slate-800 p-2 rounded">
+                                      <div>
+                                        <p className="font-medium text-slate-900 dark:text-slate-100">{roll.name}</p>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400">Created: {new Date(roll.createdAt).toLocaleDateString()}</p>
+                                      </div>
+                                      <p className="font-semibold text-blue-600 dark:text-blue-400">{roll.remaining_sqft} sq ft</p>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </>
+                          );
+                        })()}
+                      </div>
+                    )}
 
                     <div className="space-y-2">
                       <Label className="text-sm">Quantity/Amount</Label>
