@@ -353,28 +353,32 @@ export class MongoStorage implements IStorage {
       if (remaining <= 0) break;
       if (!roll._id) continue;
 
-      const availableQty = roll.remaining_sqft && roll.remaining_sqft > 0 ? roll.remaining_sqft : roll.remaining_meters;
+      // Use the unit field to determine which quantity to use
+      const availableQty = roll.unit === 'Square Feet' ? (roll.remaining_sqft || 0) : (roll.remaining_meters || 0);
       if (availableQty <= 0) continue;
 
       const toConsume = Math.min(remaining, availableQty);
       consumedRolls.push({ rollId: roll._id.toString(), quantityUsed: toConsume });
       remaining -= toConsume;
 
-      // Update roll quantities
-      if (roll.remaining_sqft && roll.remaining_sqft > 0) {
-        roll.remaining_sqft = Math.max(0, roll.remaining_sqft - toConsume);
+      // Update roll quantities based on unit
+      if (roll.unit === 'Square Feet') {
+        roll.remaining_sqft = Math.max(0, (roll.remaining_sqft || 0) - toConsume);
+        // Sync meters proportionally if both exist
         if (roll.squareFeet > 0 && roll.meters > 0) {
           roll.remaining_meters = (roll.remaining_sqft / roll.squareFeet) * roll.meters;
         }
       } else {
-        roll.remaining_meters = Math.max(0, roll.remaining_meters - toConsume);
+        // Default to meters
+        roll.remaining_meters = Math.max(0, (roll.remaining_meters || 0) - toConsume);
+        // Sync sqft proportionally if both exist
         if (roll.meters > 0 && roll.squareFeet > 0) {
           roll.remaining_sqft = (roll.remaining_meters / roll.meters) * roll.squareFeet;
         }
       }
 
       // Mark as finished if depleted
-      if (roll.remaining_meters <= 0 && roll.remaining_sqft <= 0) {
+      if ((roll.remaining_meters || 0) <= 0 && (roll.remaining_sqft || 0) <= 0) {
         roll.status = 'Finished';
       }
     }
@@ -709,7 +713,8 @@ export class MongoStorage implements IStorage {
       // For items with rolls, validate using FIFO logic
       if (item.rolls && item.rolls.length > 0) {
         const totalAvailable = item.rolls.reduce((sum, r) => {
-          const qty = r.remaining_sqft && r.remaining_sqft > 0 ? r.remaining_sqft : r.remaining_meters;
+          // Use the unit field to determine which quantity to use
+          const qty = r.unit === 'Square Feet' ? (r.remaining_sqft || 0) : (r.remaining_meters || 0);
           return sum + qty;
         }, 0);
         if (totalAvailable < mat.quantity) {
