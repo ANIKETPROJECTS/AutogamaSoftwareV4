@@ -441,20 +441,19 @@ export default function Dashboard() {
                       <p className="font-medium text-slate-900">{job.paymentStatus}</p>
                     </div>
                     {job.serviceItems?.some((item: any) => item.rollName) && (
-                      <>
-                        <div>
-                          <p className="text-slate-600">Roll No</p>
-                          <p className="font-medium text-slate-900">
-                            {job.serviceItems.find((item: any) => item.rollName)?.rollName || 'N/A'}
-                          </p>
+                      <div className="col-span-2 mt-2 pt-2 border-t border-slate-100">
+                        <p className="text-slate-600 mb-1">Materials Used</p>
+                        <div className="space-y-1">
+                          {job.serviceItems
+                            .filter((item: any) => item.rollName)
+                            .map((item: any, i: number) => (
+                              <div key={i} className="flex justify-between items-center bg-slate-50 p-1.5 rounded text-[10px]">
+                                <span className="font-medium text-slate-700">{item.rollName}</span>
+                                <span className="text-slate-900 font-bold">{item.sizeUsed || 0} sqft</span>
+                              </div>
+                            ))}
                         </div>
-                        <div>
-                          <p className="text-slate-600">Size Used</p>
-                          <p className="font-medium text-slate-900">
-                            {job.serviceItems.find((item: any) => item.sizeUsed)?.sizeUsed || '0'} sqft
-                          </p>
-                        </div>
-                      </>
+                      </div>
                     )}
                     <div>
                       <p className="text-slate-600">Total Amount</p>
