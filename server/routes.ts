@@ -102,6 +102,78 @@ export async function registerRoutes(
     }
   });
 
+  // Save PDF endpoint - receives PDF binary and saves to server
+  app.post("/api/save-pdf", express.raw({ type: 'application/octet-stream' }), async (req, res) => {
+    try {
+      const inquiryId = req.query.inquiryId as string;
+      
+      if (!inquiryId) {
+        return res.status(400).json({ message: "Inquiry ID is required" });
+      }
+
+      if (!fs.existsSync(quotationsDir)) {
+        fs.mkdirSync(quotationsDir, { recursive: true });
+      }
+
+      // Check for existing PDF for this inquiry to avoid duplicates
+      const files = fs.readdirSync(quotationsDir);
+      const existingFile = files.find(f => f.startsWith(`quote_${inquiryId}_`) && f.endsWith('.pdf'));
+
+      if (existingFile) {
+        const protocol = req.headers['x-forwarded-proto'] || 'http';
+        const host = req.headers['host'];
+        return res.json({ url: `${protocol}://${host}/q/${existingFile}` });
+      }
+
+      const pdfBuffer = req.body as Buffer;
+      if (!pdfBuffer || pdfBuffer.length === 0) {
+        return res.status(400).json({ message: "PDF file is required" });
+      }
+
+      const filename = `quote_${inquiryId}_${Date.now()}.pdf`;
+      const filepath = path.join(quotationsDir, filename);
+
+      fs.writeFileSync(filepath, pdfBuffer);
+
+      const protocol = req.headers['x-forwarded-proto'] || 'http';
+      const host = req.headers['host'];
+      const publicUrl = `${protocol}://${host}/q/${filename}`;
+
+      res.json({ url: publicUrl });
+    } catch (error) {
+      console.error("PDF save error:", error);
+      res.status(500).json({ message: "Failed to save PDF" });
+    }
+  });
+
+  // Delete PDF endpoint - removes PDF when inquiry is deleted
+  app.delete("/api/delete-pdf/:inquiryId", async (req, res) => {
+    try {
+      const { inquiryId } = req.params;
+
+      if (!inquiryId) {
+        return res.status(400).json({ message: "Inquiry ID is required" });
+      }
+
+      if (!fs.existsSync(quotationsDir)) {
+        return res.json({ message: "No PDFs directory" });
+      }
+
+      const files = fs.readdirSync(quotationsDir);
+      const pdfFile = files.find(f => f.startsWith(`quote_${inquiryId}_`) && f.endsWith('.pdf'));
+
+      if (pdfFile) {
+        const filepath = path.join(quotationsDir, pdfFile);
+        fs.unlinkSync(filepath);
+      }
+
+      res.json({ message: "PDF deleted" });
+    } catch (error) {
+      console.error("PDF delete error:", error);
+      res.status(500).json({ message: "Failed to delete PDF" });
+    }
+  });
+
   // Seed admin user on startup
   try {
     await seedAdminUser();
