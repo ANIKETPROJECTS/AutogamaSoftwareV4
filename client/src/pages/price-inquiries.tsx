@@ -340,7 +340,7 @@ export default function PriceInquiries() {
       toast({ title: 'Sending to WhatsApp...' });
       
       // Format a highly detailed text message for WhatsApp
-      const details = serviceDetails.map((s: any) => `✅ *${s.name}*\n   (${s.carType})\n   Price: ₹${s.servicePrice.toLocaleString()}`).join('\n\n');
+      const details = serviceDetails.map((s: any) => `✅ *${s.name}*\n   (${s.carType})\n   Our Price: ₹${s.servicePrice.toLocaleString()}\n   Customer Price: ₹${(s.customerPrice || 0).toLocaleString()}`).join('\n\n');
       
       const whatsappText = `*AUTO GAMMA - OFFICIAL QUOTATION*\n\n` +
         `👤 *Customer:* ${inquiry.name}\n` +
@@ -349,9 +349,9 @@ export default function PriceInquiries() {
         `🛠️ *Requested Services:*\n${details}\n\n` +
         (inquiry.notes ? `📝 *Special Notes:* _${inquiry.notes}_\n\n` : '') +
         `----------------------------------\n` +
-        `💰 *GRAND TOTAL: ₹${inquiry.priceOffered.toLocaleString()}*\n` +
+        `💰 *OUR TOTAL: ₹${inquiry.priceOffered.toLocaleString()}*\n` +
+        `💰 *CUSTOMER TOTAL: ₹${inquiry.priceStated.toLocaleString()}*\n` +
         `----------------------------------\n\n` +
-        `The official PDF Quotation has been downloaded to your device. Please attach it to this chat.\n\n` +
         `Thank you for choosing Auto Gamma! We look forward to serving you.\n\n` +
         `📍 *Location:* Auto Gamma Car Care Studio`;
 
