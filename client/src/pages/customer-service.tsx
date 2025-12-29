@@ -552,24 +552,9 @@ export default function CustomerService() {
                             <SelectValue placeholder="Select vehicle type" />
                           </SelectTrigger>
                           <SelectContent className="max-h-64 overflow-y-auto">
-                            {VEHICLE_TYPES.map((type) => {
-                              let priceDisplay = '';
-                              if (ppfCategory) {
-                                const categoryData = PPF_CATEGORIES[ppfCategory as keyof typeof PPF_CATEGORIES];
-                                if (categoryData && categoryData[type as keyof typeof categoryData]) {
-                                  const warranties = Object.values(categoryData[type as keyof typeof categoryData]);
-                                  if (warranties.length > 0) {
-                                    const minPrice = Math.min(...warranties);
-                                    priceDisplay = ` - ₹${minPrice.toLocaleString('en-IN')}`;
-                                  }
-                                }
-                              }
-                              return (
-                                <SelectItem key={type} value={type}>
-                                  {type}{priceDisplay}
-                                </SelectItem>
-                              );
-                            })}
+                            {VEHICLE_TYPES.map((type) => (
+                              <SelectItem key={type} value={type}>{type}</SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
