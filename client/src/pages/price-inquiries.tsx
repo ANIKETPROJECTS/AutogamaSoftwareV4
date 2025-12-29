@@ -337,9 +337,26 @@ export default function PriceInquiries() {
     };
 
     try {
-      toast({ title: 'Sending to WhatsApp...' });
+      toast({ title: 'Preparing WhatsApp sharing...' });
       
-      // Trigger the PDF download so the user has the professional copy
+      const file = new File([receiptHtml], `Quotation_${inquiry.name}.html`, { type: 'text/html' });
+      
+      // Attempt to use Web Share API for professional sharing on mobile
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: `Quotation - ${inquiry.name}`,
+            text: `Professional Quotation from Auto Gamma for ${inquiry.name}`
+          });
+          toast({ title: 'Shared successfully!' });
+          return;
+        } catch (shareError) {
+          console.log('Web Share failed or cancelled, falling back to download + message');
+        }
+      }
+
+      // Fallback: Trigger the PDF download so the user has the professional copy
       html2pdf().from(receiptHtml).set(opt).save();
 
       // Format a highly detailed text message for WhatsApp
@@ -355,8 +372,8 @@ export default function PriceInquiries() {
         `💰 *OUR TOTAL: ₹${inquiry.priceOffered.toLocaleString()}*\n` +
         `💰 *CUSTOMER TOTAL: ₹${inquiry.priceStated.toLocaleString()}*\n` +
         `----------------------------------\n\n` +
-        `The official PDF Quotation has been downloaded to your device. Please attach it to this chat manually.\n\n` +
-        `Thank you for choosing Auto Gamma! We look forward to serving you.\n\n` +
+        `The official PDF Quotation has been downloaded. Please attach it to this chat.\n\n` +
+        `Thank you for choosing Auto Gamma!\n\n` +
         `📍 *Location:* Auto Gamma Car Care Studio`;
 
       // Redirect directly to WhatsApp
