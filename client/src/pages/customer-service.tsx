@@ -551,10 +551,17 @@ export default function CustomerService() {
                           <SelectTrigger data-testid="select-ppf-vehicle-type">
                             <SelectValue placeholder="Select vehicle type" />
                           </SelectTrigger>
-                          <SelectContent>
-                            {VEHICLE_TYPES.map((type) => (
-                              <SelectItem key={type} value={type}>{type}</SelectItem>
-                            ))}
+                          <SelectContent className="max-h-64 overflow-y-auto">
+                            {VEHICLE_TYPES.map((type) => {
+                              const categoryData = ppfCategory ? PPF_CATEGORIES[ppfCategory as keyof typeof PPF_CATEGORIES] : null;
+                              const warranties = categoryData ? Object.keys(categoryData[type as keyof typeof categoryData] || {}) : [];
+                              const priceForType = warranties.length > 0 && categoryData ? (categoryData[type as keyof typeof categoryData] as any)[warranties[0]] : null;
+                              return (
+                                <SelectItem key={type} value={type}>
+                                  {type} {priceForType ? `- ₹${priceForType.toLocaleString('en-IN')}` : ''}
+                                </SelectItem>
+                              );
+                            })}
                           </SelectContent>
                         </Select>
                       </div>
@@ -565,10 +572,17 @@ export default function CustomerService() {
                           <SelectTrigger data-testid="select-ppf-warranty">
                             <SelectValue placeholder="Select warranty" />
                           </SelectTrigger>
-                          <SelectContent>
-                            {getAvailableWarranties().map((warranty) => (
-                              <SelectItem key={warranty} value={warranty}>{warranty}</SelectItem>
-                            ))}
+                          <SelectContent className="max-h-64 overflow-y-auto">
+                            {getAvailableWarranties().map((warranty) => {
+                              const categoryData = PPF_CATEGORIES[ppfCategory as keyof typeof PPF_CATEGORIES];
+                              const vehicleData = categoryData ? (categoryData[ppfVehicleType as keyof typeof categoryData] as Record<string, number>) : null;
+                              const price = vehicleData ? vehicleData[warranty] : null;
+                              return (
+                                <SelectItem key={warranty} value={warranty}>
+                                  {warranty} {price ? `- ₹${price.toLocaleString('en-IN')}` : ''}
+                                </SelectItem>
+                              );
+                            })}
                           </SelectContent>
                         </Select>
                       </div>
@@ -606,7 +620,7 @@ export default function CustomerService() {
                           <SelectTrigger data-testid="select-other-service">
                             <SelectValue placeholder="Choose a service" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="max-h-64 overflow-y-auto">
                             {Object.keys(OTHER_SERVICES).map((service) => (
                               <SelectItem key={service} value={service}>{service}</SelectItem>
                             ))}
@@ -620,10 +634,16 @@ export default function CustomerService() {
                           <SelectTrigger data-testid="select-other-service-vehicle-type">
                             <SelectValue placeholder="Select vehicle type" />
                           </SelectTrigger>
-                          <SelectContent>
-                            {VEHICLE_TYPES.map((type) => (
-                              <SelectItem key={type} value={type}>{type}</SelectItem>
-                            ))}
+                          <SelectContent className="max-h-64 overflow-y-auto">
+                            {VEHICLE_TYPES.map((type) => {
+                              const serviceData = otherServiceName ? OTHER_SERVICES[otherServiceName as keyof typeof OTHER_SERVICES] : null;
+                              const price = serviceData ? (serviceData as any)[type] : null;
+                              return (
+                                <SelectItem key={type} value={type}>
+                                  {type} {price ? `- ₹${price.toLocaleString('en-IN')}` : ''}
+                                </SelectItem>
+                              );
+                            })}
                           </SelectContent>
                         </Select>
                       </div>
