@@ -506,7 +506,7 @@ Auto Gamma Car Care Studio`;
                 setTempCarType('');
                 setTempWarranty('');
               }}>
-                <SelectTrigger><SelectValue placeholder="Service" /></SelectTrigger>
+                <SelectTrigger data-testid="select-service"><SelectValue placeholder="Select Service" /></SelectTrigger>
                 <SelectContent className="max-h-64 overflow-y-auto">
                   {ALL_SERVICES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                 </SelectContent>
@@ -515,13 +515,22 @@ Auto Gamma Car Care Studio`;
                 setTempCarType(value);
                 setTempWarranty('');
               }}>
-                <SelectTrigger><SelectValue placeholder="Car Type" /></SelectTrigger>
-                <SelectContent>{CAR_TYPES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                <SelectTrigger data-testid="select-cartype"><SelectValue placeholder="Select Vehicle Type" /></SelectTrigger>
+                <SelectContent className="max-h-64 overflow-y-auto">
+                  {CAR_TYPES.map(c => {
+                    const price = getPriceForService(tempServiceName, c, tempWarranty);
+                    return (
+                      <SelectItem key={c} value={c}>
+                        {c} {price ? `- ₹${price.toLocaleString()}` : ''}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
               </Select>
               {tempServiceName.startsWith('PPF') && tempCarType && (
                 <Select value={tempWarranty} onValueChange={setTempWarranty}>
-                  <SelectTrigger><SelectValue placeholder="Warranty & Price" /></SelectTrigger>
-                  <SelectContent>
+                  <SelectTrigger data-testid="select-warranty"><SelectValue placeholder="Warranty & Price" /></SelectTrigger>
+                  <SelectContent className="max-h-64 overflow-y-auto">
                     {tempWarrantyOptions.map(w => {
                       const price = getPriceForService(tempServiceName, tempCarType, w);
                       return <SelectItem key={w} value={w}>{w} - ₹{price?.toLocaleString()}</SelectItem>;
@@ -529,7 +538,7 @@ Auto Gamma Car Care Studio`;
                   </SelectContent>
                 </Select>
               )}
-              <Button type="button" onClick={addServiceItem} disabled={!tempServiceName || !tempCarType || (tempServiceName.startsWith('PPF') && !tempWarranty)}>Add</Button>
+              <Button type="button" onClick={addServiceItem} disabled={!tempServiceName || !tempCarType || (tempServiceName.startsWith('PPF') && !tempWarranty)} data-testid="button-add-service">Add</Button>
             </div>
             {selectedServiceItems.length > 0 && (
               <div className="border rounded-lg overflow-hidden">
