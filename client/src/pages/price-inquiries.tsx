@@ -196,42 +196,42 @@ export default function PriceInquiries() {
     const receiptHtml = `
       <div style="font-family: Arial, sans-serif; padding: 40px; color: #333; max-width: 800px; margin: 0 auto; background: white;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <img src="${autogammaLogo}" alt="Auto Gamma Logo" style="height: 80px; margin-bottom: 10px;" />
-          <h1 style="font-size: 28px; font-weight: bold; color: #000; margin: 0; letter-spacing: 1px;">AUTO GAMMA</h1>
-          <p style="font-size: 14px; color: #666; margin-top: 5px;">Professional Car Care & Detailing Studio</p>
+          <img src="${autogammaLogo}" alt="Auto Gamma Logo" style="height: 70px; display: block; margin: 0 auto 10px auto;" />
+          <h1 style="font-size: 24px; font-weight: bold; color: #000; margin: 0; letter-spacing: 1px;">AUTO GAMMA</h1>
+          <p style="font-size: 13px; color: #666; margin-top: 5px;">Professional Car Care & Detailing Studio</p>
         </div>
 
-        <div style="border-top: 2px solid #eee; border-bottom: 2px solid #eee; padding: 20px 0; margin-bottom: 30px; display: flex; justify-content: space-between;">
+        <div style="border-top: 1px solid #eee; border-bottom: 1px solid #eee; padding: 15px 0; margin-bottom: 25px; display: flex; justify-content: space-between;">
           <div>
-            <h2 style="font-size: 12px; font-weight: bold; color: #999; text-transform: uppercase; margin: 0 0 5px 0;">Customer Details</h2>
-            <p style="font-size: 16px; font-weight: bold; margin: 0;">${inquiry.name}</p>
-            <p style="font-size: 14px; margin: 5px 0 0 0;">Phone: ${inquiry.phone}</p>
-            ${inquiry.email ? `<p style="font-size: 14px; margin: 2px 0 0 0;">Email: ${inquiry.email}</p>` : ''}
+            <h2 style="font-size: 11px; font-weight: bold; color: #999; text-transform: uppercase; margin: 0 0 5px 0;">Customer Details</h2>
+            <p style="font-size: 15px; font-weight: bold; margin: 0;">${inquiry.name}</p>
+            <p style="font-size: 13px; margin: 5px 0 0 0;">Phone: ${inquiry.phone}</p>
+            ${inquiry.email ? `<p style="font-size: 13px; margin: 2px 0 0 0;">Email: ${inquiry.email}</p>` : ''}
           </div>
           <div style="text-align: right;">
-            <h2 style="font-size: 12px; font-weight: bold; color: #999; text-transform: uppercase; margin: 0 0 5px 0;">Quotation Info</h2>
-            <p style="font-size: 14px; margin: 0;">ID: INQ${inquiry._id.slice(-6).toUpperCase()}</p>
-            <p style="font-size: 14px; margin: 5px 0 0 0;">Date: ${format(new Date(inquiry.createdAt), 'MMMM d, yyyy')}</p>
+            <h2 style="font-size: 11px; font-weight: bold; color: #999; text-transform: uppercase; margin: 0 0 5px 0;">Quotation Info</h2>
+            <p style="font-size: 13px; margin: 0;">ID: INQ${inquiry._id.slice(-6).toUpperCase()}</p>
+            <p style="font-size: 13px; margin: 5px 0 0 0;">Date: ${format(new Date(inquiry.createdAt), 'MMMM d, yyyy')}</p>
           </div>
         </div>
 
-        <div style="margin-bottom: 30px;">
-          <h2 style="font-size: 18px; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px;">Services Requested</h2>
+        <div style="margin-bottom: 25px;">
+          <h2 style="font-size: 16px; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 15px;">Services Requested</h2>
           <table style="width: 100%; border-collapse: collapse;">
             <thead>
               <tr style="background: #f9f9f9;">
-                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #eee; font-size: 14px;">Service Description</th>
-                <th style="padding: 12px; text-align: right; border-bottom: 2px solid #eee; font-size: 14px;">Price</th>
+                <th style="padding: 10px; text-align: left; border-bottom: 2px solid #eee; font-size: 13px;">Service Description</th>
+                <th style="padding: 10px; text-align: right; border-bottom: 2px solid #eee; font-size: 13px;">Price</th>
               </tr>
             </thead>
             <tbody>
               ${serviceDetails.map((item: any) => `
                 <tr>
-                  <td style="padding: 12px; border-bottom: 1px solid #eee;">
-                    <div style="font-weight: bold; font-size: 15px;">${item.name}</div>
-                    <div style="font-size: 12px; color: #666;">Vehicle Category: ${item.carType}</div>
+                  <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                    <div style="font-weight: bold; font-size: 14px;">${item.name}</div>
+                    <div style="font-size: 11px; color: #666;">Vehicle Category: ${item.carType}</div>
                   </td>
-                  <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right; font-weight: bold; font-size: 15px;">
+                  <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right; font-weight: bold; font-size: 14px;">
                     ₹${item.servicePrice.toLocaleString()}
                   </td>
                 </tr>
@@ -241,20 +241,20 @@ export default function PriceInquiries() {
         </div>
 
         ${inquiry.notes ? `
-          <div style="margin-bottom: 30px; background: #fffcf5; border: 1px solid #fdf2d1; padding: 15px; border-radius: 5px;">
-            <h3 style="font-size: 12px; font-weight: bold; color: #b45309; text-transform: uppercase; margin: 0 0 5px 0;">Special Notes</h3>
-            <p style="font-size: 14px; color: #451a03; margin: 0; font-style: italic;">"${inquiry.notes}"</p>
+          <div style="margin-bottom: 25px; background: #fffcf5; border: 1px solid #fdf2d1; padding: 12px; border-radius: 4px;">
+            <h3 style="font-size: 11px; font-weight: bold; color: #b45309; text-transform: uppercase; margin: 0 0 4px 0;">Special Notes</h3>
+            <p style="font-size: 13px; color: #451a03; margin: 0; font-style: italic;">"${inquiry.notes}"</p>
           </div>
         ` : ''}
 
-        <div style="background: #000; color: white; padding: 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
-          <span style="font-size: 18px; font-weight: bold; text-transform: uppercase;">Total Quotation Amount</span>
-          <span style="font-size: 24px; font-weight: bold;">₹${inquiry.priceOffered.toLocaleString()}</span>
+        <div style="border-top: 2px solid #333; padding-top: 15px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 15px; font-weight: bold; text-transform: uppercase; color: #000;">Total Quotation Amount</span>
+          <span style="font-size: 18px; font-weight: bold; color: #000; background: #f3f4f6; padding: 5px 15px; border-radius: 4px;">₹${inquiry.priceOffered.toLocaleString()}</span>
         </div>
 
-        <div style="margin-top: 40px; text-align: center; color: #999; font-size: 12px;">
+        <div style="margin-top: 35px; text-align: center; color: #999; font-size: 11px;">
           <p>This is a computer-generated quotation.</p>
-          <p style="margin-top: 5px;">© ${new Date().getFullYear()} Auto Gamma Car Care Studio. All rights reserved.</p>
+          <p style="margin-top: 4px;">© ${new Date().getFullYear()} Auto Gamma Car Care Studio. All rights reserved.</p>
         </div>
       </div>
     `;
