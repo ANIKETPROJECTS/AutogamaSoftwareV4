@@ -339,6 +339,9 @@ export default function PriceInquiries() {
     try {
       toast({ title: 'Sending to WhatsApp...' });
       
+      // Trigger the PDF download so the user has the professional copy
+      html2pdf().from(receiptHtml).set(opt).save();
+
       // Format a highly detailed text message for WhatsApp
       const details = serviceDetails.map((s: any) => `✅ *${s.name}*\n   (${s.carType})\n   Our Price: ₹${s.servicePrice.toLocaleString()}\n   Customer Price: ₹${(s.customerPrice || 0).toLocaleString()}`).join('\n\n');
       
@@ -352,6 +355,7 @@ export default function PriceInquiries() {
         `💰 *OUR TOTAL: ₹${inquiry.priceOffered.toLocaleString()}*\n` +
         `💰 *CUSTOMER TOTAL: ₹${inquiry.priceStated.toLocaleString()}*\n` +
         `----------------------------------\n\n` +
+        `The official PDF Quotation has been downloaded to your device. Please attach it to this chat manually.\n\n` +
         `Thank you for choosing Auto Gamma! We look forward to serving you.\n\n` +
         `📍 *Location:* Auto Gamma Car Care Studio`;
 
