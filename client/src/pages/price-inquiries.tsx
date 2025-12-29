@@ -435,7 +435,7 @@ export default function PriceInquiries() {
                         <p className="text-xl font-bold text-slate-900">₹{inquiry.priceOffered?.toLocaleString()}</p>
                       </div>
                       <div className="space-y-1 text-center sm:text-left border-y sm:border-y-0 sm:border-x border-slate-200 py-2 sm:py-0 px-0 sm:px-4">
-                        <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Customer Price</Label>
+                        <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Customer Price</Label>
                         <p className="text-xl font-bold text-slate-900">₹{inquiry.priceStated?.toLocaleString()}</p>
                       </div>
                       <div className="space-y-1 text-center sm:text-left">
@@ -453,7 +453,7 @@ export default function PriceInquiries() {
 
                     <div className="flex flex-col gap-4">
                       <div className="flex items-center justify-between text-xs text-muted-foreground border-b pb-2">
-                        <span className="font-medium">Inquiry ID: <span className="text-slate-900">#{inquiry._id.slice(-6).toUpperCase()}</span></span>
+                        <span className="font-medium">Inquiry ID: <span className="text-slate-900">INQ{inquiry._id.slice(-3).toUpperCase().padStart(3, '0')}</span></span>
                         <span className="font-medium">Date: <span className="text-slate-900">{inquiry.createdAt ? format(new Date(inquiry.createdAt), 'MMMM d, yyyy') : 'N/A'}</span></span>
                       </div>
 
