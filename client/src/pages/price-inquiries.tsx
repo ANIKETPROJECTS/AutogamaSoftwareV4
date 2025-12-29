@@ -339,9 +339,6 @@ export default function PriceInquiries() {
     try {
       toast({ title: 'Sending to WhatsApp...' });
       
-      // Trigger the PDF download so the user has the professional copy
-      html2pdf().from(receiptHtml).set(opt).save();
-
       // Format a highly detailed text message for WhatsApp
       const details = serviceDetails.map((s: any) => `✅ *${s.name}*\n   (${s.carType})\n   Price: ₹${s.servicePrice.toLocaleString()}`).join('\n\n');
       
