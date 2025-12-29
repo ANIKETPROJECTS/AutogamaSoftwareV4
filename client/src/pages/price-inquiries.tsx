@@ -33,6 +33,53 @@ const validateEmail = (email: string): boolean => {
   return emailRegex.test(email);
 };
 
+const PPF_CATEGORIES = {
+  Elite: {
+    "Small Cars": {
+      "TPU 5 Years Gloss": 55000,
+      "TPU 5 Years Matt": 60000,
+      "TPU 7 Years Gloss": 80000,
+      "TPU 10 Years Gloss": 95000,
+    },
+    "Hatchback / Small Sedan": {
+      "TPU 5 Years Gloss": 60000,
+      "TPU 5 Years Matt": 70000,
+      "TPU 7 Years Gloss": 85000,
+      "TPU 10 Years Gloss": 105000,
+    },
+    "Mid-size Sedan / Compact SUV / MUV": {
+      "TPU 5 Years Gloss": 70000,
+      "TPU 5 Years Matt": 75000,
+      "TPU 7 Years Gloss": 90000,
+      "TPU 10 Years Gloss": 112000,
+    },
+    "SUV / MPV": {
+      "TPU 5 Years Gloss": 80000,
+      "TPU 5 Years Matt": 85000,
+      "TPU 7 Years Gloss": 95000,
+      "TPU 10 Years Gloss": 120000,
+    },
+  },
+  "Garware Plus": {
+    "Small Cars": { "TPU 5 Years Gloss": 62000 },
+    "Hatchback / Small Sedan": { "TPU 5 Years Gloss": 65000 },
+    "Mid-size Sedan / Compact SUV / MUV": { "TPU 5 Years Gloss": 70000 },
+    "SUV / MPV": { "TPU 5 Years Gloss": 85000 },
+  },
+  "Garware Premium": {
+    "Small Cars": { "TPU 8 Years Gloss": 80000 },
+    "Hatchback / Small Sedan": { "TPU 8 Years Gloss": 85000 },
+    "Mid-size Sedan / Compact SUV / MUV": { "TPU 8 Years Gloss": 90000 },
+    "SUV / MPV": { "TPU 8 Years Gloss": 95000 },
+  },
+  "Garware Matt": {
+    "Small Cars": { "TPU 5 Years Matt": 105000 },
+    "Hatchback / Small Sedan": { "TPU 5 Years Matt": 110000 },
+    "Mid-size Sedan / Compact SUV / MUV": { "TPU 5 Years Matt": 115000 },
+    "SUV / MPV": { "TPU 5 Years Matt": 120000 },
+  },
+};
+
 const OTHER_SERVICES = {
   'Foam Washing': {
     'Small Cars': 400,
@@ -146,17 +193,30 @@ const OTHER_SERVICES = {
 
 const CAR_TYPES = ['Small Cars', 'Hatchback / Small Sedan', 'Mid-size Sedan / Compact SUV / MUV', 'SUV / MPV'];
 
+const PPF_SERVICES = Object.keys(PPF_CATEGORIES);
 const ALL_SERVICES = [
-  'PPF - Elite',
-  'PPF - Garware Plus',
-  'PPF - Garware Premium',
-  'PPF - Garware Matt',
+  ...PPF_SERVICES.map(cat => `PPF - ${cat}`),
   ...Object.keys(OTHER_SERVICES),
 ];
 
-function getPriceForService(service: string, carType: string): number | null {
+function getWarrantiesForService(service: string, carType: string): string[] {
   if (service.startsWith('PPF')) {
-    return 65000; // Simplified for this reconstruction
+    const categoryName = service.replace('PPF - ', '');
+    const category = PPF_CATEGORIES[categoryName as keyof typeof PPF_CATEGORIES];
+    if (category && (category as any)[carType]) {
+      return Object.keys((category as any)[carType]);
+    }
+  }
+  return [];
+}
+
+function getPriceForService(service: string, carType: string, warranty?: string): number | null {
+  if (service.startsWith('PPF')) {
+    const categoryName = service.replace('PPF - ', '');
+    const category = PPF_CATEGORIES[categoryName as keyof typeof PPF_CATEGORIES];
+    if (warranty && category && (category as any)[carType]) {
+      return (category as any)[carType][warranty] || null;
+    }
   } else {
     const serviceData = OTHER_SERVICES[service as keyof typeof OTHER_SERVICES];
     if (serviceData && (serviceData as any)[carType]) {
@@ -170,6 +230,7 @@ type ServiceItem = {
   id: string;
   name: string;
   carType: string;
+  warranty?: string;
   price: number;
   customerPrice?: number;
 };
@@ -179,6 +240,7 @@ export default function PriceInquiries() {
   const [selectedServiceItems, setSelectedServiceItems] = useState<ServiceItem[]>([]);
   const [tempServiceName, setTempServiceName] = useState('');
   const [tempCarType, setTempCarType] = useState('');
+  const [tempWarranty, setTempWarranty] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterService, setFilterService] = useState('');
   const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
@@ -409,17 +471,24 @@ export default function PriceInquiries() {
 
   const addServiceItem = () => {
     if (!tempServiceName || !tempCarType) return;
-    const price = getPriceForService(tempServiceName, tempCarType);
+    if (tempServiceName.startsWith('PPF') && !tempWarranty) return;
+    
+    const price = getPriceForService(tempServiceName, tempCarType, tempWarranty);
     if (price === null) return;
+    
     setSelectedServiceItems([...selectedServiceItems, {
       id: Date.now().toString(),
       name: tempServiceName,
       carType: tempCarType,
+      warranty: tempWarranty || undefined,
       price: price
     }]);
     setTempServiceName('');
     setTempCarType('');
+    setTempWarranty('');
   };
+
+  const tempWarrantyOptions = tempServiceName && tempCarType ? getWarrantiesForService(tempServiceName, tempCarType) : [];
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -427,6 +496,7 @@ export default function PriceInquiries() {
     const serviceDetailsJson = JSON.stringify(selectedServiceItems.map(item => ({
       name: item.name,
       carType: item.carType,
+      warranty: item.warranty || null,
       servicePrice: item.price,
       customerPrice: item.customerPrice
     })));
@@ -480,18 +550,36 @@ export default function PriceInquiries() {
               <Input name="phone" placeholder="Phone" required maxLength={10} />
             </div>
             <Input name="email" placeholder="Email" type="email" />
-            <div className="grid grid-cols-3 gap-4">
-              <Select value={tempServiceName} onValueChange={setTempServiceName}>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Select value={tempServiceName} onValueChange={(value) => {
+                setTempServiceName(value);
+                setTempCarType('');
+                setTempWarranty('');
+              }}>
                 <SelectTrigger><SelectValue placeholder="Service" /></SelectTrigger>
                 <SelectContent className="max-h-64 overflow-y-auto">
                   {ALL_SERVICES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                 </SelectContent>
               </Select>
-              <Select value={tempCarType} onValueChange={setTempCarType}>
+              <Select value={tempCarType} onValueChange={(value) => {
+                setTempCarType(value);
+                setTempWarranty('');
+              }}>
                 <SelectTrigger><SelectValue placeholder="Car Type" /></SelectTrigger>
                 <SelectContent>{CAR_TYPES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
               </Select>
-              <Button type="button" onClick={addServiceItem}>Add</Button>
+              {tempServiceName.startsWith('PPF') && tempCarType && (
+                <Select value={tempWarranty} onValueChange={setTempWarranty}>
+                  <SelectTrigger><SelectValue placeholder="Warranty & Price" /></SelectTrigger>
+                  <SelectContent>
+                    {tempWarrantyOptions.map(w => {
+                      const price = getPriceForService(tempServiceName, tempCarType, w);
+                      return <SelectItem key={w} value={w}>{w} - ₹{price?.toLocaleString()}</SelectItem>;
+                    })}
+                  </SelectContent>
+                </Select>
+              )}
+              <Button type="button" onClick={addServiceItem} disabled={!tempServiceName || !tempCarType || (tempServiceName.startsWith('PPF') && !tempWarranty)}>Add</Button>
             </div>
             {selectedServiceItems.length > 0 && (
               <div className="border rounded-lg overflow-hidden">
@@ -499,6 +587,7 @@ export default function PriceInquiries() {
                   <thead className="bg-slate-50 border-b">
                     <tr>
                       <th className="p-3 text-left">Service Name</th>
+                      <th className="p-3 text-left">Warranty & Price</th>
                       <th className="p-3 text-right">Service Price</th>
                       <th className="p-3 text-right">Customer Price</th>
                       <th className="p-3 text-center">Action</th>
@@ -510,6 +599,13 @@ export default function PriceInquiries() {
                         <td className="p-3">
                           <div className="font-medium" data-testid={`text-servicename-${item.id}`}>{item.name}</div>
                           <div className="text-xs text-slate-500" data-testid={`text-cartype-${item.id}`}>{item.carType}</div>
+                        </td>
+                        <td className="p-3 text-left">
+                          {item.warranty ? (
+                            <div className="text-sm font-medium" data-testid={`text-warranty-${item.id}`}>{item.warranty}</div>
+                          ) : (
+                            <div className="text-xs text-slate-500">—</div>
+                          )}
                         </td>
                         <td className="p-3 text-right font-medium" data-testid={`text-serviceprice-${item.id}`}>₹{item.price.toLocaleString()}</td>
                         <td className="p-3 text-right">
@@ -606,6 +702,7 @@ export default function PriceInquiries() {
                                   <div>
                                     <span className="font-bold text-slate-900">{item.name}</span>
                                     <span className="text-xs text-slate-500 ml-2">({item.carType})</span>
+                                    {item.warranty && <span className="text-xs text-slate-600 ml-2 font-medium">{item.warranty}</span>}
                                   </div>
                                 </div>
                                 <div className="flex justify-between items-center text-[11px] mt-1">
