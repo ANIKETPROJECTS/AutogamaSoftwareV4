@@ -643,16 +643,16 @@ export default function PriceInquiries() {
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
                         <div className="space-y-1 text-center sm:text-left">
                           <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Our Price</Label>
-                          <p className="text-xl font-bold text-slate-900">₹{inquiry.priceOffered?.toLocaleString()}</p>
+                          <p className="text-lg font-bold text-slate-900">₹{inquiry.priceOffered?.toLocaleString()}</p>
                         </div>
                         <div className="space-y-1 text-center sm:text-left border-y sm:border-y-0 sm:border-x border-slate-200 py-2 sm:py-0 px-0 sm:px-4">
                           <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Customer Price</Label>
-                          <p className="text-xl font-bold text-slate-900">₹{inquiry.priceStated?.toLocaleString()}</p>
+                          <p className="text-lg font-bold text-slate-900">₹{inquiry.priceStated?.toLocaleString()}</p>
                         </div>
                         <div className="space-y-1 text-center sm:text-left">
                           <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Difference</Label>
                           <div className="flex flex-col">
-                            <p className={cn("text-xl font-bold", isNegative ? "text-red-600" : "text-emerald-600")}>
+                            <p className={cn("text-lg font-bold", isNegative ? "text-red-600" : "text-emerald-600")}>
                               {isNegative ? '-' : '+'}₹{Math.abs(diff).toLocaleString()}
                             </p>
                             <span className={cn("text-[10px] font-bold", isNegative ? "text-red-500" : "text-emerald-500")}>
