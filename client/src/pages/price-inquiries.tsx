@@ -334,110 +334,45 @@ export default function PriceInquiries() {
   };
 
   const handleSendWhatsApp = async (inquiry: any) => {
-    const serviceDetails = inquiry.serviceDetailsJson ? JSON.parse(inquiry.serviceDetailsJson) : [];
-    
-    const receiptHtml = `
-      <div style="font-family: Arial, sans-serif; padding: 40px; color: #333; max-width: 800px; margin: 0 auto; background: white;">
-        <div style="text-align: center; margin-bottom: 25px;">
-          <img src="${autogammaLogo}" alt="Auto Gamma Logo" style="height: 65px; display: block; margin: 0 auto 8px auto;" />
-          <h1 style="font-size: 22px; font-weight: bold; color: #000; margin: 0; letter-spacing: 1px;">AUTO GAMMA</h1>
-          <p style="font-size: 12px; color: #666; margin-top: 4px;">Professional Car Care & Detailing Studio</p>
-        </div>
-
-        <div style="border-top: 2px solid #eee; border-bottom: 2px solid #eee; padding: 20px 0; margin-bottom: 30px; display: flex; justify-content: space-between;">
-          <div>
-            <h2 style="font-size: 12px; font-weight: bold; color: #999; text-transform: uppercase; margin: 0 0 5px 0;">Customer Details</h2>
-            <p style="font-size: 16px; font-weight: bold; margin: 0;">${inquiry.name}</p>
-            <p style="font-size: 14px; margin: 5px 0 0 0;">Phone: ${inquiry.phone}</p>
-            ${inquiry.email ? `<p style="font-size: 14px; margin: 2px 0 0 0;">Email: ${inquiry.email}</p>` : ''}
-          </div>
-          <div style="text-align: right;">
-            <h2 style="font-size: 12px; font-weight: bold; color: #999; text-transform: uppercase; margin: 0 0 5px 0;">Quotation Info</h2>
-            <p style="font-size: 14px; margin: 0;">ID: ${inquiry.inquiryId || `INQ${inquiry._id.slice(-6).toUpperCase()}`}</p>
-            <p style="font-size: 14px; margin: 5px 0 0 0;">Date: ${format(new Date(inquiry.createdAt), 'MMMM d, yyyy')}</p>
-          </div>
-        </div>
-
-        <div style="margin-bottom: 30px;">
-          <h2 style="font-size: 18px; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px;">Services Requested</h2>
-          <table style="width: 100%; border-collapse: collapse;">
-            <thead>
-              <tr style="background: #f9f9f9;">
-                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #eee; font-size: 14px;">Service Description</th>
-                <th style="padding: 12px; text-align: right; border-bottom: 2px solid #eee; font-size: 14px;">Price</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${serviceDetails.map((item: any) => `
-                <tr>
-                  <td style="padding: 12px; border-bottom: 1px solid #eee;">
-                    <div style="font-weight: bold; font-size: 15px;">${item.name}</div>
-                    <div style="font-size: 12px; color: #666;">Vehicle Category: ${item.carType}</div>
-                  </td>
-                  <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right; font-weight: bold; font-size: 15px;">
-                    ₹${item.servicePrice.toLocaleString()}
-                  </td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-
-        <div style="border-top: 2px solid #333; padding-top: 15px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
-          <span style="font-size: 14px; font-weight: bold; text-transform: uppercase; color: #000;">Total Quotation Amount</span>
-          <span style="font-size: 18px; font-weight: bold; color: #000; background: #f3f4f6; padding: 5px 15px; border-radius: 4px;">₹${inquiry.priceOffered.toLocaleString()}</span>
-        </div>
-      </div>
-    `;
-
-    const opt = {
-      margin: 0,
-      filename: `Quotation_${inquiry.name}.pdf`,
-      image: { type: 'jpeg' as const, quality: 0.98 },
-      html2canvas: { scale: 3, useCORS: true },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
-    };
-
     try {
-      toast({ title: 'Generating professional quotation link...' });
+      const serviceDetails = inquiry.serviceDetailsJson ? JSON.parse(inquiry.serviceDetailsJson) : [];
       
-      const pdfElement = document.getElementById(`receipt-${inquiry._id}`);
-      if (!pdfElement) {
-        toast({ title: 'Error: Quotation element not found', variant: 'destructive' });
-        return;
-      }
-
-      // Generate the URL via server storage
-      const response = await fetch(`/api/price-inquiries/${inquiry._id}/generate-pdf`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ html: pdfElement.innerHTML })
-      });
-
-      if (!response.ok) throw new Error('Failed to generate link');
-      const { url } = await response.json();
-
-      // Format a highly detailed text message for WhatsApp
-      const details = serviceDetails.map((s: any) => `✅ *${s.name}*\n   (${s.carType})\n   Our Price: ₹${s.servicePrice.toLocaleString()}\n   Customer Price: ₹${(s.customerPrice || 0).toLocaleString()}`).join('\n\n');
+      toast({ title: 'Preparing quotation...' });
+      
+      // Format a highly detailed text message for WhatsApp with all quotation details
+      const details = serviceDetails.map((s: any) => {
+        let serviceInfo = `✅ *${s.name}*\n   (${s.carType})`;
+        if (s.warranty) {
+          serviceInfo += `\n   ${s.warranty}`;
+        }
+        serviceInfo += `\n   Our Price: ₹${s.servicePrice.toLocaleString()}`;
+        if (s.customerPrice) {
+          serviceInfo += `\n   Customer Price: ₹${s.customerPrice.toLocaleString()}`;
+        }
+        return serviceInfo;
+      }).join('\n\n');
       
       const whatsappText = `*AUTO GAMMA - OFFICIAL QUOTATION*\n\n` +
         `👤 *Customer:* ${inquiry.name}\n` +
+        `📞 *Phone:* ${inquiry.phone}\n` +
         `📅 *Date:* ${format(new Date(inquiry.createdAt), 'MMMM d, yyyy')}\n` +
         `🆔 *Quote ID:* ${inquiry.inquiryId || `INQ${inquiry._id.slice(-6).toUpperCase()}`}\n\n` +
         `🛠️ *Requested Services:*\n${details}\n\n` +
         (inquiry.notes ? `📝 *Special Notes:* _${inquiry.notes}_\n\n` : '') +
-        `----------------------------------\n` +
-        `💰 *OUR TOTAL: ₹${inquiry.priceOffered.toLocaleString()}*\n` +
-        `💰 *CUSTOMER TOTAL: ₹${inquiry.priceStated.toLocaleString()}*\n` +
-        `----------------------------------\n\n` +
-        `📄 *View Official Quotation (PDF):* ${url}\n\n` +
-        `Thank you for choosing Auto Gamma!\n\n` +
-        `📍 *Location:* Auto Gamma Car Care Studio`;
+        `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+        `💰 *OUR PRICE: ₹${inquiry.priceOffered.toLocaleString()}*\n` +
+        `💰 *YOUR PRICE: ₹${inquiry.priceStated.toLocaleString()}*\n` +
+        `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+        `Thank you for choosing Auto Gamma!\n` +
+        `📍 Auto Gamma Car Care Studio\n` +
+        `Professional Car Care & Detailing`;
 
       // Redirect directly to WhatsApp
       const phoneNumber = inquiry.phone.replace(/\D/g, '');
       const whatsappUrl = `https://wa.me/91${phoneNumber}?text=${encodeURIComponent(whatsappText)}`;
       window.open(whatsappUrl, '_blank');
+      
+      toast({ title: 'Opening WhatsApp...' });
 
     } catch (error) {
       console.error('Error sharing to WhatsApp:', error);
