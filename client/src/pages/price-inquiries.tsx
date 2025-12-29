@@ -271,23 +271,107 @@ export default function PriceInquiries() {
     toast({ title: 'Quotation generating...' });
   };
 
-  const handleSendWhatsApp = (inquiry: any) => {
+  const handleSendWhatsApp = async (inquiry: any) => {
     const serviceDetails = inquiry.serviceDetailsJson ? JSON.parse(inquiry.serviceDetailsJson) : [];
-    const details = serviceDetails.map((s: any) => `✅ *${s.name}*\n   (${s.carType})\n   Price: ₹${s.servicePrice.toLocaleString()}`).join('\n\n');
     
-    const text = `*AUTO GAMMA - OFFICIAL QUOTATION*\n\n` +
-      `👤 *Customer:* ${inquiry.name}\n` +
-      `📅 *Date:* ${format(new Date(inquiry.createdAt), 'MMMM d, yyyy')}\n` +
-      `🆔 *Quote ID:* INQ${inquiry._id.slice(-6).toUpperCase()}\n\n` +
-      `🛠️ *Requested Services:*\n${details}\n\n` +
-      `----------------------------------\n` +
-      `💰 *GRAND TOTAL: ₹${inquiry.priceOffered.toLocaleString()}*\n` +
-      `----------------------------------\n\n` +
-      `Thank you for choosing Auto Gamma! We look forward to serving you.\n\n` +
-      `📍 *Location:* Auto Gamma Car Care Studio\n` +
-      `📞 *Contact:* +91 [Your Contact]`;
+    const receiptHtml = `
+      <div style="font-family: Arial, sans-serif; padding: 40px; color: #333; max-width: 800px; margin: 0 auto; background: white;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <img src="${autogammaLogo}" alt="Auto Gamma Logo" style="height: 80px; margin-bottom: 10px;" />
+          <h1 style="font-size: 28px; font-weight: bold; color: #000; margin: 0; letter-spacing: 1px;">AUTO GAMMA</h1>
+          <p style="font-size: 14px; color: #666; margin-top: 5px;">Professional Car Care & Detailing Studio</p>
+        </div>
 
-    window.open(`https://wa.me/${inquiry.phone.replace(/\D/g, '')}?text=${encodeURIComponent(text)}`, '_blank');
+        <div style="border-top: 2px solid #eee; border-bottom: 2px solid #eee; padding: 20px 0; margin-bottom: 30px; display: flex; justify-content: space-between;">
+          <div>
+            <h2 style="font-size: 12px; font-weight: bold; color: #999; text-transform: uppercase; margin: 0 0 5px 0;">Customer Details</h2>
+            <p style="font-size: 16px; font-weight: bold; margin: 0;">${inquiry.name}</p>
+            <p style="font-size: 14px; margin: 5px 0 0 0;">Phone: ${inquiry.phone}</p>
+            ${inquiry.email ? `<p style="font-size: 14px; margin: 2px 0 0 0;">Email: ${inquiry.email}</p>` : ''}
+          </div>
+          <div style="text-align: right;">
+            <h2 style="font-size: 12px; font-weight: bold; color: #999; text-transform: uppercase; margin: 0 0 5px 0;">Quotation Info</h2>
+            <p style="font-size: 14px; margin: 0;">ID: INQ${inquiry._id.slice(-6).toUpperCase()}</p>
+            <p style="font-size: 14px; margin: 5px 0 0 0;">Date: ${format(new Date(inquiry.createdAt), 'MMMM d, yyyy')}</p>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 30px;">
+          <h2 style="font-size: 18px; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px;">Services Requested</h2>
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="background: #f9f9f9;">
+                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #eee; font-size: 14px;">Service Description</th>
+                <th style="padding: 12px; text-align: right; border-bottom: 2px solid #eee; font-size: 14px;">Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${serviceDetails.map((item: any) => `
+                <tr>
+                  <td style="padding: 12px; border-bottom: 1px solid #eee;">
+                    <div style="font-weight: bold; font-size: 15px;">${item.name}</div>
+                    <div style="font-size: 12px; color: #666;">Vehicle Category: ${item.carType}</div>
+                  </td>
+                  <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right; font-weight: bold; font-size: 15px;">
+                    ₹${item.servicePrice.toLocaleString()}
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div style="background: #000; color: white; padding: 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 18px; font-weight: bold; text-transform: uppercase;">Total Quotation Amount</span>
+          <span style="font-size: 24px; font-weight: bold;">₹${inquiry.priceOffered.toLocaleString()}</span>
+        </div>
+      </div>
+    `;
+
+    const opt = {
+      margin: 0,
+      filename: `Quotation_${inquiry.name}.pdf`,
+      image: { type: 'jpeg' as const, quality: 0.98 },
+      html2canvas: { scale: 3, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
+    };
+
+    try {
+      toast({ title: 'Preparing PDF for WhatsApp...' });
+      
+      // Generate the PDF blob
+      const pdfBlob = await html2pdf().from(receiptHtml).set(opt).output('blob');
+      
+      // Create a file object from the blob
+      const file = new File([pdfBlob], `Quotation_${inquiry.name}.pdf`, { type: 'application/pdf' });
+
+      // Use the Web Share API if available
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: 'Auto Gamma Quotation',
+          text: `Official Quotation for ${inquiry.name} from Auto Gamma Car Care Studio.`,
+        });
+      } else {
+        // Fallback: If Web Share isn't supported, we send the text and trigger the download
+        const details = serviceDetails.map((s: any) => `✅ *${s.name}* (${s.carType}) - ₹${s.servicePrice.toLocaleString()}`).join('\n');
+        const text = `*AUTO GAMMA - OFFICIAL QUOTATION*\n\n👤 *Customer:* ${inquiry.name}\n💰 *Total: ₹${inquiry.priceOffered.toLocaleString()}*\n\n🛠️ *Services:*\n${details}\n\nDownload the attached PDF quotation.`;
+        
+        // Open WhatsApp with the text
+        window.open(`https://wa.me/${inquiry.phone.replace(/\D/g, '')}?text=${encodeURIComponent(text)}`, '_blank');
+        
+        // Also trigger the PDF download so the user can then upload it manually to the chat
+        html2pdf().from(receiptHtml).set(opt).save();
+        
+        toast({ 
+          title: 'WhatsApp message sent',
+          description: 'PDF has been downloaded. Please upload it to the WhatsApp chat.'
+        });
+      }
+    } catch (error) {
+      console.error('Error sharing PDF:', error);
+      toast({ title: 'Failed to share quotation', variant: 'destructive' });
+    }
   };
 
   const { data: inquiriesData, isLoading } = useQuery({
