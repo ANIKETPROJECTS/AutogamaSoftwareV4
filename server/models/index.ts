@@ -45,6 +45,8 @@ export interface ICustomer extends Document {
   vehicles: IVehicle[];
   requiresGST?: boolean;
   serviceImages?: string[];
+  customerSuppliedMaterial?: boolean;
+  customerMaterialDetails?: string;
   referrerName?: string;
   referrerPhone?: string;
   createdAt: Date;

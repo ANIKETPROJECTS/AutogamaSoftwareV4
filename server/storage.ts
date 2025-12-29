@@ -549,14 +549,14 @@ export class MongoStorage implements IStorage {
 
   async createPriceInquiry(data: Partial<IPriceInquiry>): Promise<IPriceInquiry> {
     const highestInquiry = await PriceInquiry.findOne({ inquiryId: { $regex: '^INQ' } })
-      .sort({ inquiryId: -1 })
+      .sort({ createdAt: -1 })
       .select('inquiryId');
     
     let nextNumber = 1;
     if (highestInquiry && highestInquiry.inquiryId) {
-      const match = highestInquiry.inquiryId.match(/\d+/);
+      const match = highestInquiry.inquiryId.match(/(\d+)/);
       if (match) {
-        nextNumber = parseInt(match[0], 10) + 1;
+        nextNumber = parseInt(match[1], 10) + 1;
       }
     }
     
