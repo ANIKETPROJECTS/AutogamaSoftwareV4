@@ -801,7 +801,11 @@ export class MongoStorage implements IStorage {
       ? job.serviceItems.filter((item: any) => (item.assignedBusiness || 'Auto Gamma') === business)
       : job.serviceItems;
 
-    if (filteredServiceItems.length === 0) return null;
+    // IMPORTANT: Check if we have items for this business
+    if (filteredServiceItems.length === 0) {
+      console.log(`No items found for business: ${business}`);
+      return null;
+    }
 
     // Fetch customer to get phone number
     const customer = await Customer.findById(job.customerId);

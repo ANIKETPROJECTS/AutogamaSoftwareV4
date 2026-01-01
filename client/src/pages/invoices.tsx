@@ -138,10 +138,12 @@ export default function Invoices() {
 
     const businessName = invoice.business === "Business 2" ? "BUSINESS 2" : "AUTOGAMMA";
     const footerText = invoice.business === "Business 2" ? "BUSINESS 2 - Premium Services" : "AUTOGAMMA - Premium Auto Detailing Studio";
+    const logoSrc = invoice.business === "Business 2" ? "/logo2.png" : "/logo.png";
 
     return `
       <div style="font-family: Arial, sans-serif; max-width: 900px; margin: 0 auto; padding: 0;">
         <div style="text-align: center; margin-bottom: 30px;">
+          <img src="${logoSrc}" alt="${businessName} Logo" style="height: 60px; object-contain; margin-bottom: 10px;" />
           <h1 style="margin: 0; color: #111827;">${businessName}</h1>
           <p style="color: #9ca3af; font-size: 12px; margin: 0;">Tax Invoice</p>
         </div>
