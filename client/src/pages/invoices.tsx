@@ -36,6 +36,7 @@ export default function Invoices() {
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<"date-desc" | "date-asc" | "amount-desc" | "amount-asc">("date-desc");
   const [filterStatus, setFilterStatus] = useState<"all" | "paid" | "unpaid">("all");
+  const [filterBusiness, setFilterBusiness] = useState<string>("all");
   const [filterPaymentMode, setFilterPaymentMode] = useState<string>("all");
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
@@ -82,8 +83,13 @@ export default function Invoices() {
     const matchesPaymentMode =
       filterPaymentMode === "all" ||
       invoice.paymentMode === filterPaymentMode;
+
+    const matchesBusiness =
+      filterBusiness === "all" ||
+      (filterBusiness === "Auto Gamma" && !invoice.businessId?.includes("business_2") && !invoice.business?.includes("Business 2")) ||
+      (filterBusiness === "Business 2" && (invoice.businessId?.includes("business_2") || invoice.business?.includes("Business 2")));
     
-    return matchesSearch && matchesStatus && matchesPaymentMode;
+    return matchesSearch && matchesStatus && matchesPaymentMode && matchesBusiness;
   });
 
   filteredInvoices = [...filteredInvoices].sort((a: any, b: any) => {
@@ -460,6 +466,20 @@ export default function Invoices() {
                 <SelectItem value="all">All Invoices</SelectItem>
                 <SelectItem value="paid">Paid Only</SelectItem>
                 <SelectItem value="unpaid">Unpaid Only</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="w-4 h-4 p-0 flex items-center justify-center border-slate-600 text-slate-600">B</Badge>
+            <Select value={filterBusiness} onValueChange={(value: any) => setFilterBusiness(value)}>
+              <SelectTrigger className="w-40 h-9" data-testid="select-filter-business">
+                <SelectValue placeholder="Business" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Businesses</SelectItem>
+                <SelectItem value="Auto Gamma">Auto Gamma</SelectItem>
+                <SelectItem value="Business 2">Business 2</SelectItem>
               </SelectContent>
             </Select>
           </div>
