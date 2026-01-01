@@ -624,192 +624,215 @@ export default function Invoices() {
             </DialogTitle>
           </DialogHeader>
 
-          {selectedInvoice && (
-            <div ref={printRef} className="space-y-6">
-              <div className="header text-center">
-                <img src="/logo.png" alt="Auto Gamma Logo" className="h-10 mx-auto mb-2 object-contain" />
-                <p className="text-muted-foreground">Tax Invoice</p>
-              </div>
+          {selectedInvoice && (() => {
+            const rawBiz = String(selectedInvoice.business || "");
+            const isBusiness2 = rawBiz === "Business 2" || 
+                               rawBiz.toLowerCase().includes("business 2") || 
+                               rawBiz.toLowerCase().includes("business2") || 
+                               selectedInvoice.businessId === "business_2" ||
+                               (selectedInvoice.items && selectedInvoice.items.some((item: any) => 
+                                 item.assignedBusiness === 'Business 2' || 
+                                 (item.description && item.description.toLowerCase().includes('business 2')) ||
+                                 (item.assignedBusiness && item.assignedBusiness.toLowerCase().includes('business 2'))
+                               )) ||
+                               (selectedInvoice.serviceItems && selectedInvoice.serviceItems.some((item: any) => 
+                                 item.assignedBusiness === 'Business 2' || 
+                                 (item.description && item.description.toLowerCase().includes('business 2')) ||
+                                 (item.assignedBusiness && item.assignedBusiness.toLowerCase().includes('business 2'))
+                               ));
+            
+            const currentBusinessName = isBusiness2 ? "BUSINESS 2" : "AUTOGAMMA";
+            const currentFooterText = isBusiness2 ? "BUSINESS 2" : "AUTOGAMMA - Premium Auto Detailing Studio";
+            const currentLogo = isBusiness2 ? "logo2.png" : "logo.png";
+            const logoUrl = `/${currentLogo}`;
 
-              <div className="flex justify-between gap-4 flex-wrap">
-                <div>
-                  <p className="text-sm text-muted-foreground">Invoice Number</p>
-                  <p className="font-bold">{selectedInvoice.invoiceNumber}</p>
+            return (
+              <div ref={printRef} className="space-y-6">
+                <div className="header text-center">
+                  <img src={logoUrl} alt={`${currentBusinessName} Logo`} className="h-10 mx-auto mb-2 object-contain" />
+                  <p className="text-muted-foreground">Tax Invoice</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm text-muted-foreground">Date</p>
-                  <p className="font-bold">
-                    {new Date(selectedInvoice.createdAt).toLocaleDateString("en-IN", {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </p>
-                </div>
-              </div>
 
-              <Separator />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <h3 className="font-semibold mb-2">Customer Details</h3>
-                  <p className="font-medium">{selectedInvoice.customerName}</p>
-                  {selectedInvoice.customerPhone && (
-                    <p className="text-sm text-muted-foreground flex items-center gap-1">
-                      <Phone className="w-3 h-3" /> {selectedInvoice.customerPhone}
+                <div className="flex justify-between gap-4 flex-wrap">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Invoice Number</p>
+                    <p className="font-bold">{selectedInvoice.invoiceNumber}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-muted-foreground">Date</p>
+                    <p className="font-bold">
+                      {new Date(selectedInvoice.createdAt).toLocaleDateString("en-IN", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}
                     </p>
-                  )}
-                  {selectedInvoice.customerEmail && (
-                    <p className="text-sm text-muted-foreground flex items-center gap-1">
-                      <Mail className="w-3 h-3" /> {selectedInvoice.customerEmail}
-                    </p>
-                  )}
-                  {selectedInvoice.customerAddress && (
-                    <p className="text-sm text-muted-foreground flex items-center gap-1">
-                      <MapPin className="w-3 h-3" /> {selectedInvoice.customerAddress}
-                    </p>
-                  )}
+                  </div>
                 </div>
+
+                <Separator />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <h3 className="font-semibold mb-2">Customer Details</h3>
+                    <p className="font-medium">{selectedInvoice.customerName}</p>
+                    {selectedInvoice.customerPhone && (
+                      <p className="text-sm text-muted-foreground flex items-center gap-1">
+                        <Phone className="w-3 h-3" /> {selectedInvoice.customerPhone}
+                      </p>
+                    )}
+                    {selectedInvoice.customerEmail && (
+                      <p className="text-sm text-muted-foreground flex items-center gap-1">
+                        <Mail className="w-3 h-3" /> {selectedInvoice.customerEmail}
+                      </p>
+                    )}
+                    {selectedInvoice.customerAddress && (
+                      <p className="text-sm text-muted-foreground flex items-center gap-1">
+                        <MapPin className="w-3 h-3" /> {selectedInvoice.customerAddress}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2">Vehicle Details</h3>
+                    <p className="font-medium flex items-center gap-1">
+                      <Car className="w-4 h-4" /> {selectedInvoice.vehicleName}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Plate: {selectedInvoice.plateNumber}
+                    </p>
+                  </div>
+                </div>
+
+                <Separator />
+
                 <div>
-                  <h3 className="font-semibold mb-2">Vehicle Details</h3>
-                  <p className="font-medium flex items-center gap-1">
-                    <Car className="w-4 h-4" /> {selectedInvoice.vehicleName}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Plate: {selectedInvoice.plateNumber}
-                  </p>
-                </div>
-              </div>
-
-              <Separator />
-
-              <div>
-                <h3 className="font-semibold mb-3">Items & Services</h3>
-                <div className="border rounded-lg overflow-hidden">
-                  <table className="w-full text-sm">
-                    <thead className="bg-muted">
-                      <tr>
-                        <th className="text-left p-3">Description</th>
-                        <th className="text-right p-3">Unit Price</th>
-                        <th className="text-right p-3">Discount</th>
-                        <th className="text-right p-3">Total</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedInvoice.items?.filter((item: any) => item.type === 'service' && !item.description.toLowerCase().includes('labor')).map((item: any, index: number) => (
-                        <tr key={`item-${index}`} className="border-t">
-                          <td className="p-3">
-                            {item.description}
-                            <Badge variant="outline" className="ml-2 text-xs bg-slate-50">
-                              {item.type}
-                            </Badge>
-                          </td>
-                          <td className="text-right p-3">
-                            <IndianRupee className="w-3 h-3 inline" />
-                            {item.unitPrice.toLocaleString("en-IN")}
-                          </td>
-                          <td className="text-right p-3 text-red-600">
-                            {item.discount > 0 ? (
-                              <>
-                                -<IndianRupee className="w-3 h-3 inline" />
-                                {item.discount.toLocaleString("en-IN")}
-                              </>
-                            ) : "—"}
-                          </td>
-                          <td className="text-right p-3 font-semibold">
-                            <IndianRupee className="w-3 h-3 inline" />
-                            {item.total.toLocaleString("en-IN")}
-                          </td>
+                  <h3 className="font-semibold mb-3">Items & Services</h3>
+                  <div className="border rounded-lg overflow-hidden">
+                    <table className="w-full text-sm">
+                      <thead className="bg-muted">
+                        <tr>
+                          <th className="text-left p-3">Description</th>
+                          <th className="text-right p-3">Unit Price</th>
+                          <th className="text-right p-3">Discount</th>
+                          <th className="text-right p-3">Total</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {selectedInvoice.items?.filter((item: any) => item.type === 'service' && !item.description.toLowerCase().includes('labor')).map((item: any, index: number) => (
+                          <tr key={`item-${index}`} className="border-t">
+                            <td className="p-3">
+                              {item.description}
+                              <Badge variant="outline" className="ml-2 text-xs bg-slate-50">
+                                {item.type}
+                              </Badge>
+                            </td>
+                            <td className="text-right p-3">
+                              <IndianRupee className="w-3 h-3 inline" />
+                              {item.unitPrice.toLocaleString("en-IN")}
+                            </td>
+                            <td className="text-right p-3 text-red-600">
+                              {item.discount > 0 ? (
+                                <>
+                                  -<IndianRupee className="w-3 h-3 inline" />
+                                  {item.discount.toLocaleString("en-IN")}
+                                </>
+                              ) : "—"}
+                            </td>
+                            <td className="text-right p-3 font-semibold">
+                              <IndianRupee className="w-3 h-3 inline" />
+                              {item.total.toLocaleString("en-IN")}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex justify-between items-start gap-8">
-                <div className="flex-1">
-                  {selectedInvoice.notes && (
-                    <div className="text-sm">
-                      <p className="font-semibold mb-1">Notes:</p>
-                      <p className="text-muted-foreground italic">{selectedInvoice.notes}</p>
+                <div className="flex justify-between items-start gap-8">
+                  <div className="flex-1">
+                    {selectedInvoice.notes && (
+                      <div className="text-sm">
+                        <p className="font-semibold mb-1">Notes:</p>
+                        <p className="text-muted-foreground italic">{selectedInvoice.notes}</p>
+                      </div>
+                    )}
+                    {selectedInvoice.paymentStatus === "Paid" && selectedInvoice.paymentMode && (
+                      <div className="mt-4 flex flex-col gap-1 text-green-700 bg-green-50 p-2 rounded-md w-fit border border-green-200">
+                        <div className="flex items-center gap-2">
+                          <CreditCard className="w-4 h-4" />
+                          <span className="text-sm font-semibold uppercase tracking-wider">
+                            Paid via {selectedInvoice.paymentMode}
+                          </span>
+                        </div>
+                        {selectedInvoice.paymentMode === 'Other' && selectedInvoice.otherPaymentDetails && (
+                          <p className="text-xs font-medium ml-6">
+                            Details: {selectedInvoice.otherPaymentDetails}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <div className="w-72 space-y-2">
+                    <div className="flex justify-between text-slate-600">
+                      <span>Subtotal:</span>
+                      <span className="flex items-center">
+                        <IndianRupee className="w-3 h-3" />
+                        {selectedInvoice.subtotal.toLocaleString("en-IN")}
+                      </span>
                     </div>
-                  )}
-                  {selectedInvoice.paymentStatus === "Paid" && selectedInvoice.paymentMode && (
-                    <div className="mt-4 flex flex-col gap-1 text-green-700 bg-green-50 p-2 rounded-md w-fit border border-green-200">
-                      <div className="flex items-center gap-2">
-                        <CreditCard className="w-4 h-4" />
-                        <span className="text-sm font-semibold uppercase tracking-wider">
-                          Paid via {selectedInvoice.paymentMode}
+                    {selectedInvoice.tax > 0 && (
+                      <div className="flex justify-between text-slate-600">
+                        <span>Tax ({selectedInvoice.taxRate}%):</span>
+                        <span className="flex items-center">
+                          <IndianRupee className="w-3 h-3" />
+                          {selectedInvoice.tax.toLocaleString("en-IN")}
                         </span>
                       </div>
-                      {selectedInvoice.paymentMode === 'Other' && selectedInvoice.otherPaymentDetails && (
-                        <p className="text-xs font-medium ml-6">
-                          Details: {selectedInvoice.otherPaymentDetails}
-                        </p>
-                      )}
+                    )}
+                    {selectedInvoice.discount > 0 && (
+                      <div className="flex justify-between text-red-600">
+                        <span>Total Discount:</span>
+                        <span className="flex items-center">
+                          -<IndianRupee className="w-3 h-3" />
+                          {selectedInvoice.discount.toLocaleString("en-IN")}
+                        </span>
+                      </div>
+                    )}
+                    <Separator />
+                    <div className="flex justify-between font-bold text-lg text-slate-900 pt-2">
+                      <span>Grand Total:</span>
+                      <span className="flex items-center">
+                        <IndianRupee className="w-4 h-4" />
+                        {selectedInvoice.totalAmount.toLocaleString("en-IN")}
+                      </span>
                     </div>
-                  )}
-                </div>
-                <div className="w-72 space-y-2">
-                  <div className="flex justify-between text-slate-600">
-                    <span>Subtotal:</span>
-                    <span className="flex items-center">
-                      <IndianRupee className="w-3 h-3" />
-                      {selectedInvoice.subtotal.toLocaleString("en-IN")}
-                    </span>
-                  </div>
-                  {selectedInvoice.tax > 0 && (
-                    <div className="flex justify-between text-slate-600">
-                      <span>Tax ({selectedInvoice.taxRate}%):</span>
+                    <div className="flex justify-between text-sm text-slate-500">
+                      <span>Amount Paid:</span>
                       <span className="flex items-center">
                         <IndianRupee className="w-3 h-3" />
-                        {selectedInvoice.tax.toLocaleString("en-IN")}
+                        {selectedInvoice.paidAmount.toLocaleString("en-IN")}
                       </span>
                     </div>
-                  )}
-                  {selectedInvoice.discount > 0 && (
-                    <div className="flex justify-between text-red-600">
-                      <span>Total Discount:</span>
-                      <span className="flex items-center">
-                        -<IndianRupee className="w-3 h-3" />
-                        {selectedInvoice.discount.toLocaleString("en-IN")}
-                      </span>
-                    </div>
-                  )}
-                  <Separator />
-                  <div className="flex justify-between font-bold text-lg text-slate-900 pt-2">
-                    <span>Grand Total:</span>
-                    <span className="flex items-center">
-                      <IndianRupee className="w-4 h-4" />
-                      {selectedInvoice.totalAmount.toLocaleString("en-IN")}
-                    </span>
+                    {(selectedInvoice.totalAmount - selectedInvoice.paidAmount) > 0 && (
+                      <div className="flex justify-between text-sm font-semibold text-red-600">
+                        <span>Balance Due:</span>
+                        <span className="flex items-center">
+                          <IndianRupee className="w-3 h-3" />
+                          {(selectedInvoice.totalAmount - selectedInvoice.paidAmount).toLocaleString("en-IN")}
+                        </span>
+                      </div>
+                    )}
                   </div>
-                  <div className="flex justify-between text-sm text-slate-500">
-                    <span>Amount Paid:</span>
-                    <span className="flex items-center">
-                      <IndianRupee className="w-3 h-3" />
-                      {selectedInvoice.paidAmount.toLocaleString("en-IN")}
-                    </span>
-                  </div>
-                  {(selectedInvoice.totalAmount - selectedInvoice.paidAmount) > 0 && (
-                    <div className="flex justify-between text-sm font-semibold text-red-600">
-                      <span>Balance Due:</span>
-                      <span className="flex items-center">
-                        <IndianRupee className="w-3 h-3" />
-                        {(selectedInvoice.totalAmount - selectedInvoice.paidAmount).toLocaleString("en-IN")}
-                      </span>
-                    </div>
-                  )}
                 </div>
-              </div>
 
-              <div className="footer mt-12 text-center text-xs text-slate-400">
-                <p>This is a computer-generated invoice. No signature is required.</p>
-                <p className="mt-1 font-bold">AUTOGAMMA - Premium Auto Detailing Studio</p>
+                <div className="footer mt-12 text-center text-xs text-slate-400">
+                  <p>This is a computer-generated invoice. No signature is required.</p>
+                  <p className="mt-1 font-bold">{currentFooterText}</p>
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           <DialogFooter className="flex justify-end items-center gap-3 mt-6 sm:justify-end">
             <Button 
