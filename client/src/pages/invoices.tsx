@@ -718,7 +718,7 @@ export default function Invoices() {
                         </tr>
                       </thead>
                       <tbody>
-                        {selectedInvoice.items?.filter((item: any) => item.type === 'service' && !item.description.toLowerCase().includes('labor')).map((item: any, index: number) => (
+                        {selectedInvoice.items?.filter((item: any) => item.type === 'service').map((item: any, index: number) => (
                           <tr key={`item-${index}`} className="border-t">
                             <td className="p-3">
                               {item.description}
