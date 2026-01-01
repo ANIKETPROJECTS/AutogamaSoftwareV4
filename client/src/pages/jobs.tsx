@@ -83,8 +83,8 @@ export default function ServiceFunnel() {
   const isTerminalStage = (stage: string) => stage === 'Completed' || stage === 'Cancelled';
 
   const updateStageMutation = useMutation({
-    mutationFn: ({ id, stage, serviceItems, discount }: { id: string; stage: string; serviceItems?: any[]; discount?: number }) => 
-      api.jobs.updateStage(id, stage, serviceItems, discount),
+    mutationFn: ({ id, stage, serviceItems }: { id: string; stage: string; serviceItems?: any[] }) => 
+      api.jobs.updateStage(id, stage, serviceItems),
     onMutate: async ({ id, stage }) => {
       await queryClient.cancelQueries({ queryKey: ['jobs'] });
       const previousJobs = queryClient.getQueryData(['jobs', search, stageFilter]);
@@ -348,42 +348,37 @@ export default function ServiceFunnel() {
       )}
       {/* Assign Business Dialog */}
       <Dialog open={assignBusinessOpen} onOpenChange={setAssignBusinessOpen}>
-        <DialogContent 
-          className="!max-w-[1400px] !w-[95vw] !min-h-[800px] max-h-[95vh] flex flex-col !bg-white p-0 border-none shadow-[0_0_150px_rgba(0,0,0,0.5)] rounded-[50px] overflow-hidden"
-          style={ { zIndex: 99999, pointerEvents: 'auto' } }
-        >
-          <DialogHeader className="p-16 border-b-8 border-slate-100 bg-slate-50/90">
-            <DialogTitle className="text-6xl font-black text-slate-900 tracking-tighter uppercase">Complete Service - Assign Business</DialogTitle>
+        <DialogContent className="sm:max-w-[700px] w-[95vw] max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="pb-4 border-b">
+            <DialogTitle className="text-2xl font-bold">Complete Service - Assign Business</DialogTitle>
           </DialogHeader>
           
-          <div className="flex-1 overflow-y-auto p-16 space-y-20 custom-scrollbar bg-white">
-            <div className="bg-primary/10 border-4 border-primary/20 p-12 rounded-[40px] flex items-center gap-10 shadow-2xl">
-              <div className="p-8 bg-primary rounded-[32px] shadow-2xl shadow-primary/40">
-                <FileText className="w-16 h-16 text-white" />
+          <div className="space-y-6 py-6">
+            <div className="bg-primary/5 border-2 border-primary/10 p-4 rounded-xl flex items-center gap-4">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <FileText className="w-6 h-6 text-primary" />
               </div>
-              <div className="space-y-3">
-                <h4 className="text-4xl font-black text-slate-900 uppercase tracking-tight">Business Selection Required</h4>
-                <p className="text-2xl text-slate-700 font-bold leading-tight">
-                  Each service item must be assigned to a business entity for professional invoice generation.
+              <div className="space-y-1">
+                <h4 className="text-sm font-bold text-slate-900 uppercase">Business Selection Required</h4>
+                <p className="text-sm text-slate-600">
+                  Select which business each service item belongs to. Separate invoices will be generated for each business.
                 </p>
               </div>
             </div>
             
-            <div className="grid gap-16">
+            <div className="space-y-4">
               {serviceAssignments.map((item, index) => (
-                <div key={index} className="flex flex-col 2xl:flex-row items-start 2xl:items-center justify-between p-20 border-8 border-slate-50 rounded-[80px] bg-white shadow-2xl hover:shadow-[0_40px_100px_rgba(0,0,0,0.15)] hover:border-primary/50 transition-all duration-700 gap-20 group relative">
-                  <div className="absolute top-0 left-0 w-4 h-full bg-primary/20 group-hover:bg-primary transition-colors duration-500 rounded-l-full" />
-                  
-                  <div className="space-y-8 flex-1 min-w-0">
-                    <p className="font-black text-5xl text-slate-900 break-words tracking-tighter leading-[1.1] group-hover:text-primary transition-colors duration-300 uppercase">{item.name}</p>
-                    <div className="flex items-center gap-6 text-primary text-5xl font-black bg-primary/5 w-fit px-10 py-5 rounded-[32px]">
-                      <IndianRupee className="w-14 h-14" strokeWidth={3} />
-                      <span className="tabular-nums tracking-tighter">{item.price.toLocaleString('en-IN')}</span>
+                <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between p-5 border-2 border-slate-100 rounded-2xl bg-white shadow-sm hover:border-primary/20 transition-all gap-4">
+                  <div className="space-y-1.5 flex-1 min-w-0">
+                    <p className="font-bold text-lg text-slate-900 truncate leading-tight uppercase">{item.name}</p>
+                    <div className="flex items-center gap-2 text-primary text-lg font-black">
+                      <IndianRupee className="w-4 h-4" strokeWidth={3} />
+                      <span className="tabular-nums">{(item.price || 0).toLocaleString('en-IN')}</span>
                     </div>
                   </div>
                   
-                  <div className="flex flex-col gap-8 min-w-[600px] w-full 2xl:w-auto bg-slate-50 p-12 rounded-[56px] border-4 border-slate-100 group-hover:bg-white transition-all duration-500 shadow-inner group-hover:shadow-2xl">
-                    <Label className="text-xl font-black uppercase tracking-[0.5em] text-slate-400 pl-4">Invoicing Entity</Label>
+                  <div className="w-full sm:w-[220px] space-y-1.5">
+                    <Label className="text-[10px] font-black uppercase tracking-wider text-slate-400 px-1">Invoicing Entity</Label>
                     <Select 
                       value={item.assignedBusiness} 
                       onValueChange={(value) => {
@@ -392,14 +387,14 @@ export default function ServiceFunnel() {
                         setServiceAssignments(newAssignments);
                       }}
                     >
-                      <SelectTrigger className="w-full h-32 bg-white border-8 border-slate-200 shadow-xl text-4xl font-black rounded-[32px] hover:border-primary focus:ring-[16px] focus:ring-primary/10 transition-all duration-500 px-12">
+                      <SelectTrigger className="w-full h-12 bg-white border-2 border-slate-200 text-sm font-bold rounded-xl hover:border-primary transition-all">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent position="popper" sideOffset={24} className="z-[100000] min-w-[600px] p-6 rounded-[48px] shadow-[0_40px_120px_rgba(0,0,0,0.4)] border-8 border-slate-100 bg-white">
-                        <SelectItem value="Auto Gamma" className="text-4xl py-12 px-12 cursor-pointer rounded-[32px] hover:bg-primary/10 focus:bg-primary/10 focus:text-primary transition-all font-black border-4 border-transparent focus:border-primary/30 mb-5 uppercase tracking-tighter">
+                      <SelectContent>
+                        <SelectItem value="Auto Gamma" className="font-bold uppercase text-xs">
                           Auto Gamma
                         </SelectItem>
-                        <SelectItem value="Business 2" className="text-4xl py-12 px-12 cursor-pointer rounded-[32px] hover:bg-primary/10 focus:bg-primary/10 focus:text-primary transition-all font-black border-4 border-transparent focus:border-primary/30 uppercase tracking-tighter">
+                        <SelectItem value="Business 2" className="font-bold uppercase text-xs">
                           Business 2
                         </SelectItem>
                       </SelectContent>
@@ -410,21 +405,20 @@ export default function ServiceFunnel() {
             </div>
           </div>
           
-          <div className="p-16 border-t-8 border-slate-100 bg-slate-50 flex justify-end items-center gap-12">
+          <div className="p-4 border-t bg-slate-50/50 flex flex-col sm:flex-row justify-end items-center gap-3">
             <Button 
               variant="outline" 
-              size="lg" 
-              className="px-20 h-28 text-3xl font-black border-8 border-slate-300 hover:bg-white hover:text-slate-900 rounded-[40px] transition-all duration-500 shadow-2xl" 
+              className="w-full sm:w-auto px-8 h-12 font-bold text-slate-600" 
               onClick={() => setAssignBusinessOpen(false)}
             >
               Cancel
             </Button>
             <Button 
-              size="lg" 
-              className="px-32 h-28 text-4xl font-black rounded-[40px] shadow-[0_30px_70px_rgba(var(--primary),0.4)] hover:scale-[1.07] active:scale-[0.93] transition-all duration-500 bg-primary hover:bg-primary/90 uppercase" 
+              className="w-full sm:w-auto px-10 h-12 font-bold shadow-lg shadow-primary/20" 
               onClick={confirmCompleteService}
+              disabled={updateStageMutation.isPending}
             >
-              Generate Invoices Now
+              {updateStageMutation.isPending ? "Generating..." : "Generate Invoices Now"}
             </Button>
           </div>
         </DialogContent>

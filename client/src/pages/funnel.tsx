@@ -287,42 +287,51 @@ export default function CustomerFunnel() {
 
       {/* Business Assignment Dialog */}
       <Dialog open={assignmentOpen} onOpenChange={setAssignmentOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Complete Service - Assign Business</DialogTitle>
+        <DialogContent className="sm:max-w-[600px] w-[95vw] max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="pb-4 border-b">
+            <DialogTitle className="text-2xl font-bold">Complete Service - Assign Business</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <p className="text-sm text-slate-500">Select which business each service item belongs to. Separate invoices will be generated for each business.</p>
-            <div className="space-y-3">
+          <div className="space-y-6 py-6">
+            <p className="text-base text-slate-600 font-medium">Select which business each service item belongs to. Separate invoices will be generated for each business.</p>
+            <div className="space-y-4">
               {pendingJob?.serviceItems?.map((item: any, index: number) => (
-                <div key={index} className="flex items-center justify-between p-2 border rounded bg-slate-50">
-                  <div className="flex-1 min-w-0 mr-2">
-                    <p className="text-sm font-medium truncate">{item.name}</p>
-                    <p className="text-xs text-slate-500">₹{item.price?.toLocaleString('en-IN')}</p>
+                <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border-2 rounded-xl bg-slate-50 gap-4 hover:border-primary/20 transition-colors">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-lg font-bold text-slate-900 truncate">{item.name}</p>
+                    <p className="text-base font-semibold text-primary">₹{item.price?.toLocaleString('en-IN')}</p>
                   </div>
-                  <Select 
-                    value={item.assignedBusiness || 'Auto Gamma'} 
-                    onValueChange={(val) => {
-                      const newItems = [...pendingJob.serviceItems];
-                      newItems[index] = { ...newItems[index], assignedBusiness: val };
-                      setPendingJob({ ...pendingJob, serviceItems: newItems });
-                    }}
-                  >
-                    <SelectTrigger className="w-[140px] h-8 text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Auto Gamma">Auto Gamma</SelectItem>
-                      <SelectItem value="Business 2">Business 2</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="w-full sm:w-[200px] space-y-1.5">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-1">Assign To</p>
+                    <Select 
+                      value={item.assignedBusiness || 'Auto Gamma'} 
+                      onValueChange={(val) => {
+                        const newItems = [...pendingJob.serviceItems];
+                        newItems[index] = { ...newItems[index], assignedBusiness: val };
+                        setPendingJob({ ...pendingJob, serviceItems: newItems });
+                      }}
+                    >
+                      <SelectTrigger className="w-full h-11 text-sm font-semibold bg-white border-slate-200">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Auto Gamma" className="font-medium">Auto Gamma</SelectItem>
+                        <SelectItem value="Business 2" className="font-medium">Business 2</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               ))}
             </div>
-            <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" size="sm" onClick={() => setAssignmentOpen(false)}>Cancel</Button>
+            <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t">
               <Button 
-                size="sm" 
+                variant="outline" 
+                className="h-11 px-8 font-bold text-slate-600" 
+                onClick={() => setAssignmentOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button 
+                className="h-11 px-8 font-bold shadow-lg shadow-primary/20" 
                 onClick={() => updateStatusMutation.mutate({ 
                   id: pendingJob._id, 
                   status: 'Completed',
