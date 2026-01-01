@@ -192,7 +192,7 @@ export default function Invoices() {
               </tr>
             </thead>
             <tbody>
-              ${invoice.items?.filter((item: any) => item.type === 'service').map((item: any) => `
+              ${invoice.items?.map((item: any) => `
                 <tr>
                   <td style="padding: 10px; border: 1px solid #e5e7eb;">${item.description}</td>
                   <td style="text-align: right; padding: 10px; border: 1px solid #e5e7eb;">₹${item.unitPrice.toLocaleString("en-IN")}</td>

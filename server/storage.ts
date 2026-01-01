@@ -813,7 +813,10 @@ export class MongoStorage implements IStorage {
 
     const materialsTotal = (!business || business === 'Auto Gamma') ? job.materials.reduce((sum, m) => sum + m.cost, 0) : 0;
     const servicesTotal = filteredServiceItems.reduce((sum, s) => sum + (s.price - (s.discount || 0)), 0);
-    const subtotal = materialsTotal + servicesTotal;
+    
+    // Add labor charges to services total if present
+    const totalLabor = (job.laborCost && job.laborCost > 0) ? job.laborCost : 0;
+    const subtotal = materialsTotal + servicesTotal + totalLabor;
     
     const appliedTaxRate = job.requiresGST ? taxRate : 0;
     const taxAmount = (subtotal * appliedTaxRate) / 100;
@@ -840,6 +843,18 @@ export class MongoStorage implements IStorage {
         discount: s.discount || 0
       }))
     ];
+
+    // Add labor charges as an item
+    if (totalLabor > 0) {
+      invoiceItems.push({
+        description: "Labor Charges",
+        quantity: 1,
+        unitPrice: totalLabor,
+        total: totalLabor,
+        type: 'service' as const,
+        discount: 0
+      });
+    }
 
     if (!business || business === 'Auto Gamma') {
       job.materials.forEach(m => {
