@@ -97,6 +97,7 @@ export default function CustomerFunnel() {
       api.jobs.updateStage(id, status, serviceItems, cancellationReason),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
+      queryClient.invalidateQueries({ queryKey: ["invoices"] });
       if (data.stage === 'Completed') {
         queryClient.invalidateQueries({ queryKey: ["invoices"] });
       }
@@ -146,10 +147,23 @@ export default function CustomerFunnel() {
       const isStage = job.stage === stage;
       if (!isStage) return false;
       
+      const customerForStage = customers.find((c: any) => c._id === job.customerId);
+
       // Filter out paid completed jobs
       if (stage === 'Completed') {
-        const jobInvoices = invoices.filter((inv: any) => inv.jobId === job._id);
-        if (jobInvoices.length > 0 && jobInvoices.every((inv: any) => inv.status === 'Paid')) {
+        const jobInvoices = invoices.filter((inv: any) => {
+          // Normalize IDs to handle potential MongoDB ObjectId vs String issues
+          const invJobId = (inv.jobId?._id || inv.jobId || "").toString();
+          const currentJobId = (job._id?._id || job._id || "").toString();
+          return invJobId === currentJobId;
+        });
+        
+        // Only hide if all related invoices are paid
+        if (jobInvoices.length > 0 && jobInvoices.every((inv: any) => {
+          // Normalize status and check for 'paid'
+          const status = (inv.paymentStatus || inv.status || "").toString().toLowerCase();
+          return status === 'paid';
+        })) {
           return false;
         }
       }
@@ -157,10 +171,9 @@ export default function CustomerFunnel() {
       if (!searchQuery.trim()) return true;
       
       const query = searchQuery.toLowerCase();
-      const customer = customers.find((c: any) => c._id === job.customerId);
       
-      const nameMatch = customer?.name?.toLowerCase().includes(query);
-      const phoneMatch = customer?.phone?.includes(query);
+      const nameMatch = customerForStage?.name?.toLowerCase().includes(query);
+      const phoneMatch = customerForStage?.phone?.includes(query);
       const vehicleMatch = job.vehicleName?.toLowerCase().includes(query) || 
                           job.plateNumber?.toLowerCase().includes(query);
       
