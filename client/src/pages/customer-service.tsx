@@ -64,6 +64,14 @@ export default function CustomerService() {
   const [showOtherServicesSection, setShowOtherServicesSection] = useState(true);
   const [isLoadingLastService, setIsLoadingLastService] = useState(false);
 
+  const { data: customersData = [] } = useQuery<any>({
+    queryKey: ['customers'],
+    queryFn: () => api.customers.list(),
+  });
+
+  const customers = (Array.isArray(customersData) ? customersData : (customersData as any)?.customers || [])
+    .sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const preSelectedCustomerId = urlParams.get('customerId');
@@ -74,14 +82,6 @@ export default function CustomerService() {
       }
     }
   }, [customers]);
-
-  const { data: customersData = [] } = useQuery<any>({
-    queryKey: ['customers'],
-    queryFn: () => api.customers.list(),
-  });
-
-  const customers = (Array.isArray(customersData) ? customersData : (customersData as any)?.customers || [])
-    .sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
 
   const filteredCustomers = customers.filter((customer: any) => 
     customer.name.toLowerCase().includes(customerSearch.toLowerCase()) || 
