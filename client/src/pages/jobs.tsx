@@ -348,37 +348,39 @@ export default function ServiceFunnel() {
       )}
       {/* Assign Business Dialog */}
       <Dialog open={assignBusinessOpen} onOpenChange={setAssignBusinessOpen}>
-        <DialogContent className="max-w-6xl w-[95vw] md:w-[90vw] lg:w-[85vw] xl:w-[80vw] max-h-[95vh] flex flex-col !bg-white p-0 border-none shadow-2xl rounded-3xl overflow-hidden">
-          <DialogHeader className="p-8 border-b bg-slate-50/50">
-            <DialogTitle className="text-3xl font-bold text-slate-900">Complete Service - Assign Business</DialogTitle>
+        <DialogContent className="!max-w-[1200px] !w-[90vw] !min-h-[600px] max-h-[90vh] flex flex-col !bg-white p-0 border-none shadow-2xl rounded-3xl overflow-hidden">
+          <DialogHeader className="p-10 border-b bg-slate-50/50">
+            <DialogTitle className="text-4xl font-black text-slate-900 tracking-tight">Complete Service - Assign Business</DialogTitle>
           </DialogHeader>
           
-          <div className="flex-1 overflow-y-auto p-8 space-y-10 custom-scrollbar">
-            <div className="bg-blue-50/50 border border-blue-100 p-6 rounded-2xl flex items-start gap-4">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <FileText className="w-6 h-6 text-blue-600" />
+          <div className="flex-1 overflow-y-auto p-10 space-y-12 custom-scrollbar">
+            <div className="bg-blue-50/80 border-2 border-blue-100 p-8 rounded-3xl flex items-start gap-6">
+              <div className="p-3 bg-blue-100 rounded-2xl shadow-sm">
+                <FileText className="w-8 h-8 text-blue-600" />
               </div>
-              <p className="text-lg text-slate-600 font-medium leading-relaxed">
-                Assign each service to the correct business for accurate invoicing. Service items assigned to different businesses will result in separate, professional invoices for your customer.
-              </p>
+              <div className="space-y-1">
+                <h4 className="text-xl font-bold text-blue-900">Invoicing Configuration</h4>
+                <p className="text-lg text-slate-600 font-medium leading-relaxed">
+                  Assign each service to the correct business. Items assigned to different businesses will result in separate professional invoices for your customer.
+                </p>
+              </div>
             </div>
             
-            <div className="grid gap-6">
+            <div className="grid gap-8">
               {serviceAssignments.map((item, index) => (
-                <div key={index} className="flex flex-col lg:flex-row items-start lg:items-center justify-between p-10 border border-slate-200 rounded-3xl bg-white shadow-sm hover:shadow-md hover:border-primary/20 transition-all duration-300 gap-8 group">
-                  <div className="space-y-3 flex-1 min-w-0">
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-8 bg-primary/20 rounded-full group-hover:bg-primary transition-colors" />
-                      <p className="font-extrabold text-2xl text-slate-900 break-words tracking-tight">{item.name}</p>
-                    </div>
-                    <div className="flex items-center gap-3 text-primary text-xl font-black pl-5">
-                      <IndianRupee className="w-6 h-6" />
-                      <span className="tabular-nums">{item.price.toLocaleString('en-IN')}</span>
+                <div key={index} className="flex flex-col lg:flex-row items-start lg:items-center justify-between p-12 border-2 border-slate-100 rounded-[40px] bg-white shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-500 gap-10 group relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-2 h-full bg-primary/10 group-hover:bg-primary transition-colors duration-500" />
+                  
+                  <div className="space-y-4 flex-1 min-w-0">
+                    <p className="font-black text-3xl text-slate-900 break-words tracking-tight leading-tight group-hover:text-primary transition-colors duration-300">{item.name}</p>
+                    <div className="flex items-center gap-3 text-primary text-2xl font-black">
+                      <IndianRupee className="w-8 h-8" />
+                      <span className="tabular-nums tracking-wider">{item.price.toLocaleString('en-IN')}</span>
                     </div>
                   </div>
                   
-                  <div className="flex flex-col gap-4 min-w-[350px] w-full lg:w-auto bg-slate-50 p-6 rounded-2xl border border-slate-100">
-                    <Label className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Assignment Target</Label>
+                  <div className="flex flex-col gap-5 min-w-[450px] w-full lg:w-auto bg-slate-50/80 p-8 rounded-[32px] border-2 border-slate-50 group-hover:bg-slate-50 transition-colors duration-300">
+                    <Label className="text-sm font-black uppercase tracking-[0.3em] text-slate-400">Assignment Target</Label>
                     <Select 
                       value={item.assignedBusiness} 
                       onValueChange={(value) => {
@@ -387,14 +389,14 @@ export default function ServiceFunnel() {
                         setServiceAssignments(newAssignments);
                       }}
                     >
-                      <SelectTrigger className="w-full h-16 bg-white border-slate-300 shadow-sm text-xl font-bold rounded-xl hover:border-primary focus:ring-primary/20 transition-all">
+                      <SelectTrigger className="w-full h-20 bg-white border-2 border-slate-200 shadow-sm text-2xl font-black rounded-2xl hover:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-300 px-8">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent position="popper" sideOffset={8} className="z-[9999] min-w-[350px] p-2 rounded-2xl shadow-2xl border-slate-200 bg-white">
-                        <SelectItem value="Auto Gamma" className="text-xl py-4 px-6 cursor-pointer rounded-xl hover:bg-slate-50 focus:bg-primary/5 focus:text-primary transition-colors font-bold">
+                      <SelectContent position="popper" sideOffset={12} className="z-[9999] min-w-[450px] p-3 rounded-3xl shadow-2xl border-2 border-slate-100 bg-white">
+                        <SelectItem value="Auto Gamma" className="text-2xl py-6 px-8 cursor-pointer rounded-2xl hover:bg-slate-50 focus:bg-primary/5 focus:text-primary transition-all font-black border-2 border-transparent focus:border-primary/20 mb-2">
                           Auto Gamma
                         </SelectItem>
-                        <SelectItem value="Business 2" className="text-xl py-4 px-6 cursor-pointer rounded-xl hover:bg-slate-50 focus:bg-primary/5 focus:text-primary transition-colors font-bold">
+                        <SelectItem value="Business 2" className="text-2xl py-6 px-8 cursor-pointer rounded-2xl hover:bg-slate-50 focus:bg-primary/5 focus:text-primary transition-all font-black border-2 border-transparent focus:border-primary/20">
                           Business 2
                         </SelectItem>
                       </SelectContent>
@@ -405,18 +407,18 @@ export default function ServiceFunnel() {
             </div>
           </div>
           
-          <div className="p-8 border-t bg-slate-50 flex justify-end items-center gap-6">
+          <div className="p-10 border-t bg-slate-50/50 flex justify-end items-center gap-8">
             <Button 
               variant="outline" 
               size="lg" 
-              className="px-10 h-16 text-lg font-bold border-slate-300 hover:bg-white hover:text-slate-900 rounded-2xl transition-all" 
+              className="px-12 h-20 text-xl font-bold border-2 border-slate-300 hover:bg-white hover:text-slate-900 rounded-[28px] transition-all duration-300" 
               onClick={() => setAssignBusinessOpen(false)}
             >
               Cancel
             </Button>
             <Button 
               size="lg" 
-              className="px-12 h-16 text-xl font-black rounded-2xl shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all" 
+              className="px-16 h-20 text-2xl font-black rounded-[28px] shadow-2xl shadow-primary/30 hover:scale-[1.03] active:scale-[0.97] transition-all duration-300 bg-primary hover:bg-primary/90" 
               onClick={confirmCompleteService}
             >
               Complete & Generate Invoices
