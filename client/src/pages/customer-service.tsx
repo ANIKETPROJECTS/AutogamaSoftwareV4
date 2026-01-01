@@ -75,16 +75,34 @@ export default function CustomerService() {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const preSelectedCustomerId = urlParams.get('customerId');
+    
+    // Debug logging
+    console.log('[Auto-select Debug] URL Customer ID:', preSelectedCustomerId);
+    console.log('[Auto-select Debug] Customers list length:', customers.length);
+    console.log('[Auto-select Debug] Location:', location);
+
     if (preSelectedCustomerId && customers.length > 0) {
-      const customer = customers.find((c: any) => c._id === preSelectedCustomerId);
+      // Find customer by _id or id (handling both MongoDB and Drizzle formats)
+      const customer = customers.find((c: any) => (c._id === preSelectedCustomerId || c.id === preSelectedCustomerId));
+      console.log('[Auto-select Debug] Found customer object:', customer ? customer.name : 'NOT FOUND');
+
       if (customer) {
-        setSelectedCustomerId(preSelectedCustomerId);
-        if (customer.vehicles && customer.vehicles.length > 0) {
-          setSelectedVehicleIndex('0');
-        }
+        const targetId = customer._id || customer.id;
+        console.log('[Auto-select Debug] Final Target ID to select:', targetId);
+        
+        // Use a slight delay to ensure the Select component is ready and not overridden by other effects
+        const timer = setTimeout(() => {
+          console.log('[Auto-select Debug] Executing selection for:', targetId);
+          setSelectedCustomerId(targetId);
+          if (customer.vehicles && customer.vehicles.length > 0) {
+            console.log('[Auto-select Debug] Auto-selecting vehicle index 0');
+            setSelectedVehicleIndex('0');
+          }
+        }, 150);
+        return () => clearTimeout(timer);
       }
     }
-  }, [customers, location]);
+  }, [customersData, location]);
 
   const filteredCustomers = customers.filter((customer: any) => 
     customer.name.toLowerCase().includes(customerSearch.toLowerCase()) || 
