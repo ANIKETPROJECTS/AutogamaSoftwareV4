@@ -503,11 +503,13 @@ export async function registerRoutes(
           const invoices = [];
 
           for (const business of businesses) {
-            console.log(`[Invoice] Generating for Job: ${req.params.id}, Business: "${business}"`);
+            console.log(`[Invoice] Starting generation for Job: ${req.params.id}, Business: "${business}"`);
             const invoice = await storage.generateInvoiceForJob(req.params.id, taxRate, discount, business);
             if (invoice) {
-              console.log(`[Invoice] Successfully created: ${invoice.invoiceNumber} for ${business}`);
+              console.log(`[Invoice] Successfully created: ${invoice.invoiceNumber} for business: "${invoice.business}"`);
               invoices.push(invoice);
+              // Wait a small amount to ensure distinct timestamps or sequence handling if needed
+              await new Promise(resolve => setTimeout(resolve, 100));
             }
           }
 
