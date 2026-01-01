@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/auth-context';
 import { Lock, Mail } from 'lucide-react';
-import garageBg from '@assets/image_1766507106083.png';
+import garageBg from '@assets/2024-01-28_1767248232529.png';
 import logoImage from '/logo.png';
 
 export default function Login() {
