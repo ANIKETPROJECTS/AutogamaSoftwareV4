@@ -169,6 +169,7 @@ export default function Invoices() {
 
     // Use absolute paths for the images to ensure they load correctly in all contexts
     const logoUrl = `/${currentLogo}`;
+    console.log("Logo selected:", { currentLogo, logoUrl, isBusiness2 });
     const logoHtml = `<div style="text-align: center; width: 100%; min-height: 80px; margin-bottom: 10px;">
       <img src="${logoUrl}" 
            alt="${currentBusinessName} Logo" 
@@ -534,7 +535,7 @@ export default function Invoices() {
                       </p>
                       <div className="flex items-center gap-2 mt-1">
                         <Badge variant="outline" className="text-[10px] uppercase font-bold px-1.5 h-4 border-slate-300 text-slate-500">
-                          {invoice.business || "Auto Gamma"}
+                          {invoice.business || invoice.businessId || "Auto Gamma"}
                         </Badge>
                         <p className="text-xs text-slate-500">
                           {new Date(invoice.createdAt).toLocaleDateString("en-IN")}
