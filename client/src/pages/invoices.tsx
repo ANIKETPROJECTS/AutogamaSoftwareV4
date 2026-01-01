@@ -143,8 +143,15 @@ export default function Invoices() {
     const currentFooterText = isBusiness2 ? "BUSINESS 2" : "AUTOGAMMA - Premium Auto Detailing Studio";
     const currentLogo = isBusiness2 ? "/logo2.png" : "/logo.png";
 
+    console.log("Invoice Debug Client:", {
+      invoiceId: invoice._id,
+      businessField: invoice.business,
+      isBusiness2,
+      currentLogo
+    });
+
     // Adding this directly to the returned HTML to ensure it's evaluated at render time
-    const logoHtml = `<img src="${currentLogo}" alt="${currentBusinessName} Logo" style="height: 60px; object-fit: contain; margin-bottom: 10px;" />`;
+    const logoHtml = `<img src="${currentLogo}" alt="${currentBusinessName} Logo" style="height: 60px; width: auto; object-fit: contain; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto;" />`;
 
     return `
       <div style="font-family: Arial, sans-serif; max-width: 900px; margin: 0 auto; padding: 0;">

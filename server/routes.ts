@@ -503,8 +503,12 @@ export async function registerRoutes(
           const invoices = [];
 
           for (const business of businesses) {
+            console.log(`[Invoice] Generating for Job: ${req.params.id}, Business: "${business}"`);
             const invoice = await storage.generateInvoiceForJob(req.params.id, taxRate, discount, business);
-            if (invoice) invoices.push(invoice);
+            if (invoice) {
+              console.log(`[Invoice] Successfully created: ${invoice.invoiceNumber} for ${business}`);
+              invoices.push(invoice);
+            }
           }
 
           if (invoices.length === 0) {
