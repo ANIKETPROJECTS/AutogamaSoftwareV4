@@ -349,43 +349,49 @@ export default function ServiceFunnel() {
       <Dialog open={assignBusinessOpen} onOpenChange={setAssignBusinessOpen}>
         <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Complete Service - Assign Business</DialogTitle>
+            <DialogTitle className="text-2xl font-bold">Complete Service - Assign Business</DialogTitle>
           </DialogHeader>
-          <div className="space-y-6 py-4">
-            <p className="text-sm text-slate-500">
+          <div className="space-y-8 py-6">
+            <p className="text-lg text-slate-500 font-medium">
               Select which business each service item belongs to. Separate invoices will be generated for each business.
             </p>
             
-            <div className="space-y-4">
+            <div className="grid gap-6">
               {serviceAssignments.map((item, index) => (
-                <div key={index} className="flex items-center justify-between p-4 border border-slate-200 rounded-lg bg-slate-50">
-                  <div>
-                    <p className="font-semibold text-slate-900">{item.name}</p>
-                    <p className="text-sm text-slate-500">₹{item.price.toLocaleString('en-IN')}</p>
+                <div key={index} className="flex items-center justify-between p-8 border border-slate-200 rounded-2xl bg-slate-50/50 shadow-sm hover:bg-slate-50 hover:border-slate-300 transition-all duration-200">
+                  <div className="space-y-2">
+                    <p className="font-bold text-xl text-slate-900">{item.name}</p>
+                    <div className="flex items-center gap-2 text-primary text-lg font-bold">
+                      <IndianRupee className="w-5 h-5" />
+                      <span>{item.price.toLocaleString('en-IN')}</span>
+                    </div>
                   </div>
-                  <Select 
-                    value={item.assignedBusiness} 
-                    onValueChange={(value) => {
-                      const newAssignments = [...serviceAssignments];
-                      newAssignments[index].assignedBusiness = value;
-                      setServiceAssignments(newAssignments);
-                    }}
-                  >
-                    <SelectTrigger className="w-48">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Auto Gamma">Auto Gamma</SelectItem>
-                      <SelectItem value="Business 2">Business 2</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="flex flex-col gap-3 min-w-[280px]">
+                    <Label className="text-xs font-bold uppercase tracking-widest text-slate-400">Assign To Business</Label>
+                    <Select 
+                      value={item.assignedBusiness} 
+                      onValueChange={(value) => {
+                        const newAssignments = [...serviceAssignments];
+                        newAssignments[index].assignedBusiness = value;
+                        setServiceAssignments(newAssignments);
+                      }}
+                    >
+                      <SelectTrigger className="w-full h-14 bg-white border-slate-300 shadow-sm text-lg font-medium">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Auto Gamma" className="text-lg py-3">Auto Gamma</SelectItem>
+                        <SelectItem value="Business 2" className="text-lg py-3">Business 2</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
-          <div className="flex justify-end gap-3 mt-6">
-            <Button variant="outline" onClick={() => setAssignBusinessOpen(false)}>Cancel</Button>
-            <Button onClick={confirmCompleteService}>Complete & Generate Invoice</Button>
+          <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-slate-100">
+            <Button variant="outline" size="lg" className="px-8" onClick={() => setAssignBusinessOpen(false)}>Cancel</Button>
+            <Button size="lg" className="px-8 font-bold" onClick={confirmCompleteService}>Complete & Generate Invoice</Button>
           </div>
         </DialogContent>
       </Dialog>
